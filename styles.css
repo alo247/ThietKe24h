@@ -1,0 +1,1098 @@
+/* styles.css - Thiết kế giao diện Apple Freeform Plus */
+
+/* Biến màu sắc hệ thống và cấu hình toàn cục */
+:root {
+    --bg-color: #f5f5f7;
+    --apple-blue: #007aff;
+    --apple-blue-hover: #0062cc;
+    --glass-bg: rgba(255, 255, 255, 0.72);
+    --glass-border: rgba(255, 255, 255, 0.4);
+    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.08);
+    --text-color: #1d1d1f;
+    --text-muted: #86868b;
+    --danger-color: #ff453a;
+    --danger-hover: #e03b30;
+    --border-radius-lg: 16px;
+    --border-radius-md: 12px;
+    --border-radius-sm: 8px;
+    --font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    user-select: none; /* Ngăn chặn bôi đen giao diện khi kéo thả */
+}
+
+body, html {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: var(--bg-color);
+    font-family: var(--font-family);
+    color: var(--text-color);
+}
+
+/* Ứng dụng chính chứa Canvas và UI */
+#app {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+#infinite-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    cursor: default;
+    background-color: #ffffff; /* Nền vẽ màu trắng */
+}
+
+/* Kiểu dáng Glassmorphism chung của Apple */
+.glass-panel {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--glass-shadow);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* 1. Thanh công cụ phía trên (Toolbar) */
+#toolbar {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    height: 56px;
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 100;
+}
+
+.tool-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--border-radius-md);
+    border: none;
+    background: transparent;
+    color: var(--text-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.tool-btn:hover {
+    background: rgba(0, 0, 0, 0.05);
+    transform: scale(1.05);
+}
+
+.tool-btn:active {
+    transform: scale(0.95);
+}
+
+.tool-btn.active {
+    background: var(--apple-blue);
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+}
+
+.divider {
+    width: 1px;
+    height: 24px;
+    background-color: rgba(0, 0, 0, 0.1);
+    margin: 0 4px;
+}
+
+/* Dropdown Menu cho chọn Hình dạng */
+.dropdown-wrapper {
+    position: relative;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 52px;
+    left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    display: flex;
+    gap: 8px;
+    padding: 8px;
+    z-index: 101;
+    pointer-events: none;
+    opacity: 0;
+    transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.dropdown-wrapper:hover .dropdown-menu,
+.dropdown-menu:hover {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(-50%) translateY(0);
+}
+
+.shape-option {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--border-radius-sm);
+    border: none;
+    background: transparent;
+    color: var(--text-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.shape-option:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--apple-blue);
+}
+
+/* 2. Bảng điều khiển thuộc tính (Inspector Panel) */
+#inspector-panel {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 260px;
+    max-height: 80%;
+    overflow-y: auto;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+    border-radius: var(--border-radius-lg);
+}
+
+#inspector-panel.hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(20px);
+}
+
+.inspector-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    padding-bottom: 8px;
+}
+
+.inspector-title {
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.property-group {
+    margin-bottom: 16px;
+}
+
+.property-group label {
+    display: block;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Picker màu sắc */
+.color-picker-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+}
+
+.color-swatch {
+    height: 32px;
+    border-radius: var(--border-radius-sm);
+    cursor: pointer;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.color-swatch:hover {
+    transform: scale(1.1);
+    border-color: rgba(0, 0, 0, 0.3);
+}
+
+.color-swatch.active {
+    border: 2px solid var(--apple-blue);
+    transform: scale(1.05);
+}
+
+/* Palette màu ghi chú */
+.note-yellow { background-color: #FFF9C4; }
+.note-green  { background-color: #C8E6C9; }
+.note-blue   { background-color: #B3E5FC; }
+.note-pink   { background-color: #F8BBD0; }
+.note-orange { background-color: #FFE0B2; }
+.note-purple { background-color: #E1BEE7; }
+.note-grey   { background-color: #ECEFF1; }
+.note-dark   { background-color: #37474F; }
+
+/* Trình điều khiển Stroke (Viền) */
+.stroke-controls, .text-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+input[type="color"] {
+    -webkit-appearance: none;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--border-radius-sm);
+    cursor: pointer;
+    background: none;
+}
+
+input[type="color"]::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
+
+input[type="color"]::-webkit-color-swatch {
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: var(--border-radius-sm);
+}
+
+select {
+    flex-grow: 1;
+    height: 32px;
+    padding: 0 8px;
+    border-radius: var(--border-radius-sm);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    background: #ffffff;
+    font-family: var(--font-family);
+    font-size: 13px;
+    cursor: pointer;
+    outline: none;
+}
+
+select:focus {
+    border-color: var(--apple-blue);
+}
+
+/* Nút xóa & các lớp hiển thị */
+.danger-btn {
+    background: transparent;
+    border: none;
+    color: var(--danger-color);
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.danger-btn:hover {
+    background: rgba(255, 69, 58, 0.1);
+}
+
+.layer-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.layer-btn {
+    flex: 1;
+    height: 32px;
+    border-radius: var(--border-radius-sm);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    background: #ffffff;
+    font-family: var(--font-family);
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.layer-btn:hover {
+    background: rgba(0, 0, 0, 0.03);
+}
+
+/* 3. Bảng hiển thị thông tin phím tắt */
+#info-overlay {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    width: 280px;
+    padding: 14px;
+    font-size: 12px;
+    line-height: 1.6;
+    pointer-events: none; /* Cho phép click xuyên qua để vẽ */
+    z-index: 50;
+}
+
+#info-overlay h3 {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--text-color);
+}
+
+#info-overlay ul {
+    list-style-type: none;
+}
+
+#info-overlay li {
+    margin-bottom: 4px;
+    color: var(--text-muted);
+}
+
+#info-overlay li strong {
+    color: var(--text-color);
+}
+
+#info-overlay .highlight {
+    color: var(--apple-blue);
+}
+
+/* 4. Bộ điều khiển Zoom ở góc dưới bên phải */
+#zoom-control {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    height: 36px;
+    display: flex;
+    align-items: center;
+    padding: 0 4px;
+    z-index: 100;
+    border-radius: 20px;
+}
+
+.zoom-btn {
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: transparent;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    color: var(--text-color);
+    transition: background 0.2s;
+}
+
+.zoom-btn:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+#zoom-value {
+    font-size: 13px;
+    font-weight: 500;
+    padding: 0 12px;
+    min-width: 60px;
+    text-align: center;
+}
+
+/* 5. Bảng quản lý dự án (Góc dưới bên trái) */
+#project-panel {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    display: flex;
+    gap: 8px;
+    padding: 8px;
+    z-index: 100;
+}
+
+.project-btn {
+    height: 32px;
+    padding: 0 12px;
+    border-radius: var(--border-radius-sm);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    background: #ffffff;
+    font-family: var(--font-family);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.project-btn:hover {
+    background: rgba(0, 0, 0, 0.03);
+    transform: translateY(-1px);
+}
+
+.project-btn.primary {
+    background: var(--apple-blue);
+    color: #ffffff;
+    border-color: var(--apple-blue);
+}
+
+.project-btn.primary:hover {
+    background: var(--apple-blue-hover);
+}
+
+.danger-btn-outline {
+    border-color: rgba(255, 69, 58, 0.3);
+    color: var(--danger-color);
+}
+
+.danger-btn-outline:hover {
+    background: rgba(255, 69, 58, 0.05);
+    border-color: var(--danger-color);
+}
+
+/* Trường nhập văn bản ẩn để gõ trực tiếp lên Canvas */
+.canvas-inline-editor {
+    position: absolute;
+    border: 1px solid var(--apple-blue);
+    background: #ffffff;
+    font-family: var(--font-family);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    outline: none;
+    z-index: 1000;
+    box-sizing: border-box;
+    padding: 8px;
+    border-radius: 4px;
+    resize: none;
+    overflow: hidden;
+}
+
+/* Trình soạn thảo văn bản cho ghi chú dán (Sticky Note) */
+.note-inline-editor {
+    position: absolute;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-family: var(--font-family);
+    text-align: center;
+    z-index: 1000;
+    box-sizing: border-box;
+    resize: none;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* --- THIẾT KẾ MỚI CHO THƯ VIỆN NHÀ CỬA & KÍCH THƯỚC (HUD) --- */
+
+/* Lưới hiển thị các hình trong menu dropdown */
+.shapes-menu {
+    flex-direction: column;
+    padding: 12px;
+    width: 250px;
+    gap: 0;
+}
+
+.dropdown-section {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.section-title {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+    padding-left: 2px;
+}
+
+.options-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    width: 100%;
+}
+
+.dropdown-section-divider {
+    height: 1px;
+    background-color: rgba(0, 0, 0, 0.06);
+    margin: 10px 0;
+    width: 100%;
+}
+
+/* Các trường nhập kích thước trong Inspector Panel */
+.dimension-inputs {
+    display: flex;
+    flex-direction: column;
+}
+
+.input-with-unit {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.input-with-unit span {
+    font-size: 13px;
+    min-width: 75px;
+}
+
+.input-with-unit input[type="number"] {
+    flex-grow: 1;
+    height: 28px;
+    padding: 0 8px;
+    border-radius: var(--border-radius-sm);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    outline: none;
+    font-family: var(--font-family);
+    font-size: 13px;
+    text-align: right;
+}
+
+.input-with-unit input[type="number"]:focus {
+    border-color: var(--apple-blue);
+}
+
+.input-with-unit .unit {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 500;
+    min-width: 15px;
+}
+
+/* Tải hiệu ứng active cho nút Snap */
+#btn-snap-toggle.active {
+    color: var(--apple-blue);
+    background: rgba(0, 122, 255, 0.08);
+}
+
+/* --- THANH BÚT VẼ NỔI PHÍA DƯỚI (APPLE BRUSH PALETTE) --- */
+
+#bottom-brush-palette {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(0);
+    height: 72px;
+    padding: 0 24px;
+    display: flex;
+    align-items: flex-end; /* Căn bút sát đáy để nhô lên */
+    z-index: 99;
+    border-radius: 36px; /* Bo viền tròn trịa đặc trưng */
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+#bottom-brush-palette.hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(-50%) translateY(100px); /* Trượt xuống dưới mất hút */
+}
+
+.brush-wrapper {
+    display: flex;
+    align-items: flex-end;
+    gap: 16px;
+    height: 100%;
+    padding-bottom: 4px;
+}
+
+/* Định dạng từng cây bút */
+.brush-item {
+    width: 32px;
+    height: 80px; /* Thân bút dài */
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    outline: none;
+    transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transform: translateY(12px); /* Mặc định chìm xuống dưới thanh gỗ */
+}
+
+/* Hiệu ứng nhô lên khi trỏ chuột qua */
+.brush-item:hover {
+    transform: translateY(0px);
+}
+
+/* Hiệu ứng NHÔ LÊN CAO đặc trưng của Apple khi được chọn active */
+.brush-item.active {
+    transform: translateY(-16px); /* Nhô vút lên trên */
+}
+
+.brush-body {
+    width: 100%;
+    height: 100%;
+    border-radius: 4px 4px 0 0;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+    position: relative;
+}
+
+/* 1. Bút kim (Pen) */
+.pen-body {
+    background: linear-gradient(to right, #cfd8dc, #eceff1, #cfd8dc);
+    border: 1px solid rgba(0,0,0,0.1);
+}
+.pen-body::before {
+    content: '';
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-bottom: 12px solid #1d1d1f; /* Đầu ngòi bút nhọn màu mực */
+}
+
+/* 2. Bút chì (Pencil) */
+.pencil-body {
+    background: linear-gradient(to right, #ffb300, #ffe082, #ffb300); /* Thân gỗ màu cam vàng */
+    border: 1px solid rgba(0,0,0,0.1);
+}
+.pencil-body::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-bottom: 10px solid #ffe0b2; /* Phần gỗ mài nhọn */
+}
+.pencil-body::after {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 2px solid transparent;
+    border-right: 2px solid transparent;
+    border-bottom: 4.5px solid #546e7a; /* Ngòi chì nhỏ ở đỉnh */
+}
+
+/* 3. Bút dạ quang (Highlighter) */
+.highlighter-body {
+    background: linear-gradient(to right, #43a047, #a5d6a7, #43a047); /* Thân bút dạ màu xanh */
+    border: 1px solid rgba(0,0,0,0.15);
+    border-radius: 8px 8px 0 0;
+}
+.highlighter-body::before {
+    content: '80';
+    position: absolute;
+    bottom: 8px;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    font-size: 8px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.8);
+}
+.highlighter-body::after {
+    content: '';
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 18px;
+    height: 12px;
+    background-color: #ffeb3b; /* Ngòi vát dạ quang màu vàng chói */
+    border-radius: 2px 2px 0 0;
+    border: 1px solid rgba(0,0,0,0.1);
+}
+
+/* 4. Cục tẩy (Eraser) */
+.eraser-body {
+    background: #ffffff; /* Thân màu trắng */
+    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 6px 6px 0 0;
+}
+.eraser-body::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 24px;
+    background-color: #ff8a80; /* Đầu tẩy màu hồng phấn */
+    border-radius: 5px 5px 0 0;
+}
+
+/* Vòng chọn màu tròn */
+.brush-color-wrapper {
+    position: relative;
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+    margin-bottom: 12px;
+    align-self: flex-end;
+}
+
+#brush-color-input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.color-circle {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 2px solid #ffffff;
+    box-shadow: 0 0 0 2px rgba(0,0,0,0.15), inset 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+}
+
+.brush-color-wrapper:hover .color-circle {
+    transform: scale(1.1);
+}
+
+/* --- POPOVER TÙY CHỈNH NÉT BÚT VẼ (BRUSH OPTIONS POPOVER) --- */
+
+#brush-options-popover {
+    position: absolute;
+    bottom: 104px; /* Nằm ngay trên Brush Palette */
+    left: 50%;
+    transform: translateX(-50%) translateY(0);
+    width: 240px;
+    padding: 16px;
+    z-index: 100;
+    border-radius: var(--border-radius-lg);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+#brush-options-popover.hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(-50%) translateY(10px);
+}
+
+.popover-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.popover-title {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.popover-section-divider {
+    height: 1px;
+    background-color: rgba(0, 0, 0, 0.06);
+}
+
+/* Lựa chọn độ dày nét bút */
+.brush-size-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.size-opt-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1px solid rgba(0,0,0,0.08);
+    background: #ffffff;
+    font-family: var(--font-family);
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.size-opt-btn:hover {
+    background: rgba(0, 0, 0, 0.04);
+}
+
+.size-opt-btn.active {
+    background: var(--apple-blue);
+    color: #ffffff;
+    border-color: var(--apple-blue);
+    box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
+}
+
+/* Thanh trượt độ mờ Opacity */
+.opacity-slider-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#brush-opacity-input {
+    flex-grow: 1;
+    cursor: pointer;
+    accent-color: var(--apple-blue);
+}
+
+#brush-opacity-value {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-color);
+    min-width: 32px;
+    text-align: right;
+}
+
+/* --- MENU NGỮ CẢNH NỔI (SMART CONTEXT MENU) --- */
+
+#context-menu {
+    position: absolute;
+    width: 200px;
+    z-index: 150;
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    border-radius: var(--border-radius-md);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.12);
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    transform-origin: top center;
+}
+
+#context-menu.hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0.95) translateY(-5px);
+}
+
+/* Hàng Layering (Phía sau / Phía trước) */
+.ctx-layer-row {
+    display: flex;
+    width: 100%;
+}
+
+.ctx-layer-btn {
+    flex: 1;
+    height: 48px;
+    border: none;
+    background: transparent;
+    color: var(--text-color);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    border-radius: var(--border-radius-sm);
+    font-family: var(--font-family);
+    font-size: 11px;
+    font-weight: 500;
+    transition: background 0.15s;
+}
+
+.ctx-layer-btn:hover {
+    background: rgba(0, 0, 0, 0.04);
+    color: var(--apple-blue);
+}
+
+.ctx-layer-divider {
+    width: 1px;
+    height: 32px;
+    background-color: rgba(0, 0, 0, 0.06);
+    align-self: center;
+}
+
+.ctx-divider {
+    height: 1px;
+    background-color: rgba(0, 0, 0, 0.06);
+    margin: 4px 2px;
+}
+
+/* Từng dòng menu thông thường */
+.ctx-item {
+    height: 32px;
+    padding: 0 12px;
+    border: none;
+    background: transparent;
+    color: var(--text-color);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    border-radius: var(--border-radius-sm);
+    font-family: var(--font-family);
+    font-size: 13px;
+    font-weight: 500;
+    text-align: left;
+    transition: background 0.15s;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.ctx-item:hover {
+    background: rgba(0, 0, 0, 0.04);
+}
+
+.ctx-item.active {
+    color: var(--apple-blue);
+}
+
+/* Submenu đổi hình dạng (Trượt ngang) */
+.ctx-submenu-trigger {
+    position: relative;
+    width: 100%;
+}
+
+.ctx-submenu {
+    position: absolute;
+    left: 100%;
+    top: -6px;
+    width: 160px;
+    padding: 6px;
+    z-index: 151;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    border-radius: var(--border-radius-md);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(10px);
+    transition: all 0.2s ease;
+}
+
+.ctx-submenu-trigger:hover .ctx-submenu {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(2px);
+}
+
+.ctx-submenu-item {
+    height: 28px;
+    padding: 0 10px;
+    border: none;
+    background: transparent;
+    color: var(--text-color);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    border-radius: var(--border-radius-sm);
+    font-family: var(--font-family);
+    font-size: 12px;
+    font-weight: 500;
+    text-align: left;
+    transition: background 0.15s;
+    width: 100%;
+}
+
+.ctx-submenu-item:hover {
+    background: rgba(0, 0, 0, 0.04);
+    color: var(--apple-blue);
+}
+
+.ctx-submenu-divider {
+    height: 1px;
+    background-color: rgba(0, 0, 0, 0.05);
+    margin: 3px 2px;
+}
+
+/* --- RESPONSIVE GIAO DIỆN DI ĐỘNG & MÁY TÍNH BẢNG --- */
+@media (max-width: 768px) {
+    /* Đưa thanh công cụ chính xuống đáy màn hình để tiện tay nhấn chạm */
+    #toolbar {
+        top: auto;
+        bottom: 16px;
+        left: 50%;
+        transform: translateX(-50%);
+        box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        padding: 6px 12px;
+        gap: 6px;
+        border-radius: 20px;
+        max-width: 90vw;
+        overflow-x: auto;
+    }
+
+    .tool-btn {
+        width: 38px;
+        height: 38px;
+    }
+
+    .tool-btn svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    /* Đẩy thanh bút vẽ của Apple lên phía trên toolbar đáy để tránh đè lớp */
+    #bottom-brush-palette {
+        bottom: 72px;
+        max-width: 90vw;
+        height: 60px;
+        padding: 0 10px;
+        border-radius: 18px;
+    }
+
+    .brush-btn {
+        width: 24px;
+        height: 65px;
+    }
+
+    .brush-btn.active {
+        transform: translateY(-12px); /* Giảm nhô lên chút trên mobile */
+    }
+
+    /* Đẩy Popover thuộc tính bút lên theo */
+    #brush-options-popover {
+        bottom: 140px;
+    }
+
+    /* Thu nhỏ bảng Inspector thuộc tính vật thể */
+    #inspector-panel {
+        top: 16px;
+        right: 16px;
+        width: 200px;
+        padding: 10px;
+        font-size: 12px;
+    }
+
+    .inspector-group input[type="number"] {
+        padding: 4px;
+        font-size: 11px;
+    }
+
+    /* Thu nhỏ bảng điều khiển dự án góc trái */
+    #project-panel {
+        bottom: auto;
+        top: 16px;
+        left: 16px;
+        max-width: 110px;
+        padding: 6px;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .project-btn {
+        padding: 5px 8px;
+        font-size: 10px;
+        height: auto;
+    }
+
+    /* Thu nhỏ bộ điều khiển zoom */
+    #zoom-controls {
+        display: none; /* Ẩn bớt bộ zoom bằng nút trên di động vì đã có cử chỉ pinch zoom đa điểm */
+    }
+}
+
+
+
