@@ -894,13 +894,18 @@ document.addEventListener('DOMContentLoaded', () => {
             const yOffset = 30;
             
             if (selected instanceof StickyNote) {
-                cloned = new StickyNote(selected.x + xOffset, selected.y + yOffset, selected.width, selected.height);
+                // StickyNote(x, y, text) — kích thước phải gán riêng, KHÔNG truyền qua constructor
+                cloned = new StickyNote(selected.x + xOffset, selected.y + yOffset, selected.text);
+                cloned.width = selected.width;
+                cloned.height = selected.height;
                 cloned.color = selected.color;
-                cloned.text = selected.text;
                 cloned.fontSize = selected.fontSize;
                 cloned.textColor = selected.textColor;
             } else if (selected instanceof ShapeElement) {
-                cloned = new ShapeElement(selected.shapeType, selected.x + xOffset, selected.y + yOffset, selected.width, selected.height);
+                // ShapeElement(shapeType, x, y) — gán width/height sau khi khởi tạo
+                cloned = new ShapeElement(selected.shapeType, selected.x + xOffset, selected.y + yOffset);
+                cloned.width = selected.width;
+                cloned.height = selected.height;
                 cloned.color = selected.color;
                 cloned.strokeColor = selected.strokeColor;
                 cloned.strokeWidth = selected.strokeWidth;
@@ -908,13 +913,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 cloned.fontSize = selected.fontSize;
                 cloned.textColor = selected.textColor;
             } else if (selected instanceof TextElement) {
-                cloned = new TextElement(selected.text, selected.x + xOffset, selected.y + yOffset);
+                // TextElement(x, y, text) — đúng thứ tự tham số
+                cloned = new TextElement(selected.x + xOffset, selected.y + yOffset, selected.text);
+                cloned.width = selected.width;
+                cloned.height = selected.height;
                 cloned.fontSize = selected.fontSize;
                 cloned.textColor = selected.textColor;
             } else if (selected instanceof ImageElement) {
-                cloned = new ImageElement(selected.image, selected.x + xOffset, selected.y + yOffset, selected.width);
+                // ImageElement(img, x, y, width, height) — dùng đúng thuộc tính .img và giữ nguyên kích thước
+                cloned = new ImageElement(selected.img, selected.x + xOffset, selected.y + yOffset, selected.width, selected.height);
+                cloned.width = selected.width;
                 cloned.height = selected.height;
                 cloned.aspectRatio = selected.aspectRatio;
+            } else if (selected instanceof DrawingPath) {
+                // Nét vẽ tự do: dịch chuyển toàn bộ các điểm theo offset
+                const clonedPoints = selected.points.map(p => ({ x: p.x + xOffset, y: p.y + yOffset }));
+                cloned = new DrawingPath(clonedPoints, selected.strokeColor, selected.strokeWidth);
+                cloned.opacity = selected.opacity;
+                cloned.brushType = selected.brushType;
             }
             
             if (cloned) {
@@ -1434,7 +1450,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const img = new Image();
             img.src = data.imgSrc;
             newElem = new ImageElement(img, canvasPos.x, canvasPos.y, data.width, data.height);
-            img.onload = () => infiniteCanvas.render();
+            // Giữ nguyên đúng kích thước đã sao chép (ảnh chưa tải xong nên phải gán tường minh)
+            newElem.width = data.width;
+            newElem.height = data.height;
+            img.onload = () => {
+                // Cập nhật lại tỉ lệ khung hình khi ảnh đã tải, nhưng vẫn giữ kích thước gốc
+                newElem.aspectRatio = img.width / img.height;
+                infiniteCanvas.render();
+            };
         }
 
         if (newElem) {

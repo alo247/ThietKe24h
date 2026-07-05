@@ -81,16 +81,39 @@ body, html {
     background: var(--glass-bg-hover);
 }
 
+/* THANH TRÊN CÙNG: Lưới 3 vùng (trái | giữa | phải) — chống đè lên nhau tuyệt đối */
+#top-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    grid-template-areas: "left tool right";
+    align-items: start;
+    column-gap: 16px;
+    padding: 20px;
+    z-index: 100;
+    /* Cho phép nhấp chuột xuyên qua khoảng trống xuống canvas */
+    pointer-events: none;
+}
+
+/* Các panel bên trong vẫn nhận sự kiện bình thường */
+#top-bar > * {
+    pointer-events: auto;
+}
+
 /* 1. Góc trên bên trái: Tên dự án & Menu */
 #left-header {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    height: 40px;
+    position: relative;
+    grid-area: left;
+    justify-self: start;
+    height: 44px;
     padding: 0 16px;
     display: flex;
     align-items: center;
     border-radius: var(--border-radius-md);
+    max-width: 100%;
     z-index: 100;
 }
 
@@ -191,10 +214,10 @@ body, html {
 
 /* 2. Góc trên bên phải: Các nút Undo/Redo & Tài khoản */
 #right-header {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    height: 40px;
+    position: relative;
+    grid-area: right;
+    justify-self: end;
+    height: 44px;
     padding: 0 8px;
     display: flex;
     align-items: center;
@@ -238,19 +261,19 @@ body, html {
     margin: 0 4px;
 }
 
-/* 3. Thanh công cụ phía trên (Pill Toolbar) */
+/* 3. Thanh công cụ phía trên (Pill Toolbar) — luôn căn giữa tuyệt đối trong lưới */
 #toolbar {
-    position: absolute;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
+    position: relative;
+    grid-area: tool;
+    justify-self: center;
     height: 48px;
+    max-width: 100%;
     padding: 0 8px;
     display: flex;
     align-items: center;
     gap: 4px;
     border-radius: var(--border-radius-pill);
-    z-index: 100;
+    z-index: 101;
 }
 
 .tool-btn {
@@ -1234,4 +1257,106 @@ body, html {
 .stat-box span {
     font-weight: 600;
     color: var(--apple-blue);
+}
+
+/* =========================================================================
+   THIẾT KẾ ĐÁP ỨNG (RESPONSIVE) — chống đè lên nhau trên mọi kích thước màn hình
+   ========================================================================= */
+
+/* Máy tính bảng & màn hình vừa: khi không đủ chỗ cho 3 vùng trên một hàng,
+   dùng flexbox có xuống dòng — header trái/phải ở hàng trên, thanh công cụ tự
+   rớt xuống hàng riêng bên dưới và căn giữa. Tránh lỗi tràn của grid 1fr. */
+@media (max-width: 1024px) {
+    #top-bar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-start;
+        justify-content: space-between;
+        column-gap: 12px;
+        row-gap: 12px;
+    }
+
+    #left-header  { order: 1; }
+    #right-header { order: 2; }
+
+    /* Ngắt dòng cưỡng bức: phần tử giả chiếm trọn bề ngang, đẩy toolbar xuống hàng riêng */
+    #top-bar::after {
+        content: "";
+        order: 3;
+        width: 100%;
+        height: 0;
+    }
+
+    /* Thanh công cụ giữ dạng viên nổi gọn gàng, tự căn giữa trên hàng riêng */
+    #toolbar {
+        order: 4;
+        margin: 0 auto;
+        justify-content: center;
+        max-width: calc(100% - 4px);
+    }
+
+    /* Giới hạn tên dự án để không đẩy layout */
+    #project-title {
+        max-width: 120px;
+    }
+}
+
+/* Điện thoại & màn hình nhỏ: thu gọn khoảng cách để thanh công cụ luôn vừa khít,
+   KHÔNG dùng overflow (tránh cắt mất menu Hình dạng đổ xuống từ thanh công cụ). */
+@media (max-width: 640px) {
+    #top-bar {
+        padding: 12px;
+        column-gap: 8px;
+    }
+
+    #left-header,
+    #right-header {
+        height: 40px;
+    }
+
+    #toolbar {
+        height: 44px;
+        gap: 2px;
+    }
+
+    .tool-btn {
+        width: 34px;
+        height: 34px;
+        flex: 0 0 auto;
+    }
+
+    .divider {
+        margin: 0 2px;
+    }
+
+    #project-title {
+        max-width: 90px;
+    }
+
+    /* Tránh khay bút đáy & thanh zoom chồng nhau trên màn hình rất hẹp */
+    #zoom-control {
+        bottom: 14px;
+        left: 14px;
+    }
+
+    #bottom-brush-palette {
+        bottom: 14px;
+    }
+}
+
+/* Màn hình siêu nhỏ (điện thoại nhỏ): tiếp tục thu gọn nút để vừa khít bề ngang */
+@media (max-width: 380px) {
+    #toolbar {
+        padding: 0 4px;
+    }
+
+    .tool-btn {
+        width: 32px;
+        height: 32px;
+    }
+
+    #right-header .header-btn {
+        width: 30px;
+        height: 30px;
+    }
 }
