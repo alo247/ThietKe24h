@@ -25,10 +25,9 @@ function initBackend() {
         document.getElementById('user-name-display').innerText = currentUser.email.split('@')[0];
         document.getElementById('user-avatar-char').innerText = currentUser.email.charAt(0).toUpperCase();
         document.getElementById('user-info-panel').classList.remove('hidden');
-        document.getElementById('tab-login').parentElement.style.display = 'none';
-        document.getElementById('auth-email').style.display = 'none';
-        document.getElementById('auth-password').style.display = 'none';
-        document.getElementById('btn-auth-submit').style.display = 'none';
+        
+        const authFormArea = document.getElementById('auth-form-area');
+        if (authFormArea) authFormArea.style.display = 'none';
         
         if (currentUser.isAdmin) {
             // Mở trực tiếp admin panel nếu là admin
@@ -44,7 +43,20 @@ function initBackend() {
     if (btnSave) btnSave.addEventListener('click', () => saveProjectToCloud(false));
     if (btnOpen) btnOpen.addEventListener('click', openProjectList);
     
-    document.getElementById('btn-auth-close').addEventListener('click', () => authModal.classList.add('hidden'));
+    // Đóng authModal khi click ra ngoài overlay
+    if (authModal) {
+        authModal.addEventListener('click', (e) => {
+            if (e.target === authModal) {
+                authModal.classList.add('hidden');
+            }
+        });
+    }
+    
+    const btnAuthClose = document.getElementById('btn-auth-close');
+    if (btnAuthClose) {
+        btnAuthClose.addEventListener('click', () => authModal.classList.add('hidden'));
+    }
+    
     document.getElementById('btn-projects-close').addEventListener('click', () => projectsModal.classList.add('hidden'));
     document.getElementById('btn-admin-close').addEventListener('click', () => adminModal.classList.add('hidden'));
     

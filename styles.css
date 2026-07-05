@@ -1633,3 +1633,162 @@ input[type="color"] {
         overflow-x: auto !important;
     }
 }
+
+/* --- SỬA LỖI ĐÈ DIỆN TÍCH TRÊN DI ĐỘNG & BỐ CỤC FREEFORM CHUẨN --- */
+.hidden {
+    display: none !important;
+}
+
+#right-header {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    z-index: 100;
+    height: 36px;
+    box-sizing: border-box;
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(0,0,0,0.05);
+}
+
+#right-header .header-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: transparent;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #1c1c1e;
+    cursor: pointer;
+    transition: background 0.2s;
+    padding: 0;
+}
+
+#right-header .header-btn:hover {
+    background: rgba(0,0,0,0.05);
+}
+
+/* Sửa các icon của Toolbar thành nét mỏng tối giản */
+.tool-btn svg {
+    stroke: currentColor;
+    stroke-width: 1.5px;
+    fill: none;
+}
+#btn-select svg path {
+    fill: currentColor;
+    stroke: none;
+}
+#btn-hand svg path {
+    fill: currentColor;
+    stroke: none;
+}
+#btn-erase svg path {
+    fill: currentColor;
+    stroke: none;
+}
+#btn-color-picker svg path {
+    fill: currentColor;
+    stroke: none;
+}
+
+/* CSS Auth Modal Tối Giản Như Ảnh Mới */
+.auth-box {
+    background: #151521 !important;
+    padding: 30px 35px !important;
+    border-radius: 24px !important;
+    border: 1px solid rgba(255,255,255,0.05);
+}
+.auth-subtitle {
+    color: #9CA3AF !important;
+    font-size: 15px !important;
+    margin-bottom: 24px !important;
+    text-align: center;
+}
+.auth-tabs {
+    border-bottom: 1.5px solid rgba(255,255,255,0.1) !important;
+    margin-bottom: 24px !important;
+}
+.auth-tabs button {
+    font-size: 15px !important;
+    font-weight: 500 !important;
+    color: #6B7280 !important;
+    border-bottom: 2px solid transparent !important;
+}
+.auth-tabs button.active {
+    color: #fff !important;
+    border-bottom: 2px solid #8B5CF6 !important;
+}
+.input-group label {
+    font-size: 13px !important;
+    color: #9CA3AF !important;
+    margin-bottom: 6px !important;
+}
+.auth-box input {
+    background: #EAEBF2 !important;
+    color: #1c1c1e !important;
+    border-radius: 12px !important;
+    font-size: 14px !important;
+    padding: 12px 14px !important;
+}
+.purple-btn {
+    border-radius: 12px !important;
+    background: #8B5CF6 !important;
+    padding: 12px !important;
+    font-size: 15px !important;
+    box-shadow: 0 4px 12px rgba(139,92,246,0.3) !important;
+}
+.google-btn {
+    border-radius: 12px !important;
+    padding: 12px !important;
+    font-size: 14px !important;
+    border: 1px solid rgba(0,0,0,0.05) !important;
+}
+
+/* Sửa các icon, công cụ hiển thị thông tin y hệt Freeform */
+#toolbar {
+    height: 52px !important;
+    box-sizing: border-box;
+}
+.tool-btn {
+    width: 36px !important;
+    height: 36px !important;
+}
+
+/* Tối ưu Header trên Mobile để không đè nhau */
+@media (max-width: 768px) {
+    #left-header {
+        top: 10px !important;
+        left: 10px !important;
+        padding: 4px 10px !important;
+        height: 32px !important;
+    }
+    #app-title {
+        font-size: 13px !important;
+    }
+    #left-header .header-btn {
+        padding: 2px 8px !important;
+        font-size: 11px !important;
+    }
+    #right-header {
+        top: 10px !important;
+        right: 10px !important;
+        padding: 4px 8px !important;
+        height: 32px !important;
+        gap: 4px !important;
+    }
+    #right-header .header-btn {
+        width: 24px !important;
+        height: 24px !important;
+    }
+    #right-header .header-btn svg {
+        width: 14px !important;
+        height: 14px !important;
+    }
+}

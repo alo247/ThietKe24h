@@ -49,6 +49,46 @@
             </div>
         </div>
 
+        <!-- Góc trên bên phải: Các nút điều khiển hệ thống (Undo, Redo, Save, Open, Account, Fullscreen) -->
+        <div id="right-header" class="glass-panel">
+            <button id="btn-undo" class="header-btn" title="Hoàn tác (Ctrl+Z)">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <path d="M9 14L4 9l5-5"/>
+                    <path d="M4 9h10a5 5 0 0 1 5 5v1"/>
+                </svg>
+            </button>
+            <button id="btn-redo" class="header-btn" title="Làm lại (Ctrl+Y)">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <path d="M15 14l5-5-5-5"/>
+                    <path d="M20 9H10a5 5 0 0 0-5 5v1"/>
+                </svg>
+            </button>
+            <div class="divider" style="height: 16px; margin: 0 4px; border-left: 1px solid rgba(0,0,0,0.1);"></div>
+            <button id="btn-save" class="header-btn" title="Lưu thiết kế (Ctrl+S)">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                    <polyline points="17 21 17 13 7 13 7 21"/>
+                    <polyline points="7 3 7 8 15 8"/>
+                </svg>
+            </button>
+            <button id="btn-open" class="header-btn" title="Mở thiết kế">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                </svg>
+            </button>
+            <button id="btn-account" class="header-btn" title="Tài khoản & Quản lý">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                </svg>
+            </button>
+            <button id="btn-fullscreen" class="header-btn" title="Toàn màn hình (F11)">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+                </svg>
+            </button>
+        </div>
+
         <!-- Thanh công cụ phía trên (Toolbar) - Phong cách Glassmorphism của Apple -->
         <div id="toolbar" class="glass-panel">
             <!-- Nút chọn / Select (Con trỏ) -->
@@ -210,68 +250,6 @@
                     <path fill="none" stroke="currentColor" stroke-width="2" d="M21 15l-5-5L5 21"/>
                 </svg>
                 <input type="file" id="image-loader" accept="image/*" style="display: none;">
-            </button>
-
-            <div class="divider"></div>
-            
-            <!-- Phần Colors giống MS Paint -->
-            <div class="toolbar-colors-panel">
-                <div class="primary-colors">
-                    <div class="color-picker-wrapper">
-                        <div class="color-label">Color 1 (Stroke)</div>
-                        <input type="color" id="toolbar-color-1" value="#000000" title="Màu đường viền / Nét vẽ">
-                    </div>
-                    <div class="color-picker-wrapper">
-                        <div class="color-label">Color 2 (Fill)</div>
-                        <input type="color" id="toolbar-color-2" value="#ffffff" title="Màu nền / Đổ màu">
-                    </div>
-                </div>
-            </div>
-            
-            <div class="divider"></div>
-
-            <!-- Nút Undo -->
-            <button id="btn-undo" class="tool-btn" title="Hoàn tác (Ctrl+Z)">
-                <svg viewBox="0 0 24 24" width="20" height="20">
-                    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M9 14L4 9l5-5"/>
-                    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 9h10a5 5 0 0 1 5 5v1"/>
-                </svg>
-            </button>
-
-            <!-- Nút Redo -->
-            <button id="btn-redo" class="tool-btn" title="Làm lại (Ctrl+Y)">
-                <svg viewBox="0 0 24 24" width="20" height="20">
-                    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M15 14l5-5-5-5"/>
-                    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M20 9H10a5 5 0 0 0-5 5v1"/>
-                </svg>
-            </button>
-
-            <div class="divider"></div>
-
-            <!-- Nút Toàn màn hình -->
-            <button id="btn-fullscreen" class="tool-btn" title="Toàn màn hình (F11)">
-                <svg viewBox="0 0 24 24" width="24" height="24">
-                    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
-                </svg>
-            </button>
-
-            <div class="divider"></div>
-
-            <!-- Hệ thống tài khoản & Lưu trữ -->
-            <button id="btn-save" class="tool-btn" title="Lưu thiết kế lên Đám mây (Ctrl+S)">
-                <svg viewBox="0 0 24 24" width="24" height="24">
-                    <path fill="#4CAF50" d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/>
-                </svg>
-            </button>
-            <button id="btn-open" class="tool-btn" title="Mở thiết kế đã lưu">
-                <svg viewBox="0 0 24 24" width="24" height="24">
-                    <path fill="#FFC107" d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/>
-                </svg>
-            </button>
-            <button id="btn-account" class="tool-btn" title="Tài khoản & Quản lý">
-                <svg viewBox="0 0 24 24" width="24" height="24">
-                    <path fill="#2196F3" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
-                </svg>
             </button>
         </div>
 
@@ -505,12 +483,12 @@
         <div class="auth-box">
             <p class="auth-subtitle">Đăng nhập để tiếp tục</p>
 
-            <div class="auth-tabs">
-                <button id="tab-login" class="active">Đăng nhập</button>
-                <button id="tab-register">Đăng ký</button>
-            </div>
-            
             <div id="auth-form-area">
+                <div class="auth-tabs">
+                    <button id="tab-login" class="active">Đăng nhập</button>
+                    <button id="tab-register">Đăng ký</button>
+                </div>
+                
                 <div class="input-group">
                     <label>
                         <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
@@ -545,8 +523,6 @@
                     Đăng nhập bằng Google
                 </button>
             </div>
-
-            <button id="btn-auth-close" class="close-text-btn">Đóng</button>
             
             <!-- User Info Panel (Đã đăng nhập) -->
             <div id="user-info-panel" class="hidden user-logged-in">
