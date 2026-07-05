@@ -3,6 +3,22 @@
 document.addEventListener('DOMContentLoaded', () => {
     // 1. Khởi tạo canvas vô cực
     const infiniteCanvas = new InfiniteCanvas('infinite-canvas');
+
+    // [TÍNH NĂNG MỚI]: Bật/Tắt Dropdown Actions Menu của dự án ở góc trái trên
+    const btnActionsMenu = document.getElementById('btn-actions-menu');
+    const actionsMenuDropdown = document.querySelector('.actions-menu');
+    
+    if (btnActionsMenu && actionsMenuDropdown) {
+        btnActionsMenu.addEventListener('click', (e) => {
+            e.stopPropagation();
+            actionsMenuDropdown.classList.toggle('show');
+        });
+        
+        // Nhấp chuột ra ngoài khoảng trống để đóng Actions Menu
+        window.addEventListener('click', () => {
+            actionsMenuDropdown.classList.remove('show');
+        });
+    }
     
     // Hệ thống quản lý Undo/Redo
     const undoStack = [];

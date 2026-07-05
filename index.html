@@ -16,6 +16,39 @@
         <!-- Canvas vẽ chính -->
         <canvas id="infinite-canvas"></canvas>
 
+        <!-- Góc trên bên trái: Tiêu đề và Menu tác vụ dự án -->
+        <div id="left-header" class="glass-panel">
+            <span id="app-title">Freeform Plus</span>
+            <div class="dropdown-wrapper">
+                <button id="btn-actions-menu" class="header-btn" title="Tác vụ & Dự án">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                        <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+                    </svg>
+                    <span>Dự án</span>
+                </button>
+                <div class="dropdown-menu actions-menu glass-panel">
+                    <button id="btn-clear-canvas" class="dropdown-item danger">
+                        <span>🧹 Xóa toàn bộ</span>
+                    </button>
+                    <div class="dropdown-divider"></div>
+                    <button id="btn-export-json" class="dropdown-item">
+                        <span>💾 Lưu dự án (.json)</span>
+                    </button>
+                    <button id="btn-import-json-trigger" class="dropdown-item">
+                        <span>📂 Mở dự án (.json)</span>
+                    </button>
+                    <input type="file" id="json-loader" accept=".json" style="display: none;">
+                    <div class="dropdown-divider"></div>
+                    <button id="btn-export-dxf" class="dropdown-item">
+                        <span>📐 Xuất AutoCAD (.dxf)</span>
+                    </button>
+                    <button id="btn-export-png" class="dropdown-item">
+                        <span>🖼️ Xuất hình ảnh (.png)</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- Thanh công cụ phía trên (Toolbar) - Phong cách Glassmorphism của Apple -->
         <div id="toolbar" class="glass-panel">
             <!-- Nút chọn / Select (Con trỏ) -->
@@ -258,30 +291,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-
-        <!-- Hướng dẫn và phím tắt nổi ở góc -->
-        <div id="info-overlay" class="glass-panel text-sm">
-            <h3>Phím tắt & Hướng dẫn:</h3>
-            <ul>
-                <li><strong>Chọn/Di chuyển (V)</strong>: Nhấp vào vật thể để chọn, kéo để di chuyển.</li>
-                <li><strong>Vẽ tự do (P)</strong>: Vẽ nét trên màn hình.</li>
-                <li><strong class="highlight">Nhấn đúp (Double click)</strong> vào nét vẽ tự do (ở chế độ Chọn V) để tự động sửa thành <strong>ĐƯỜNG THẲNG</strong>.</li>
-                <li><strong>Cuộn chuột</strong>: Phóng to / Thu nhỏ màn hình.</li>
-                <li><strong>Kéo chuột phải</strong> hoặc <strong>Giữ Space + chuột trái</strong>: Di chuyển màn hình.</li>
-                <li><strong>Đường nối (C)</strong>: Click từ vật thể này kéo sang vật thể kia để tạo liên kết.</li>
-                <li><strong>Delete</strong>: Xóa vật thể đang chọn.</li>
-            </ul>
-        </div>
-
-        <!-- Bảng điều khiển góc dưới bên trái (Dự án & Xuất file) -->
-        <div id="project-panel" class="glass-panel">
-            <button id="btn-clear-canvas" class="project-btn danger-btn-outline" title="Xóa toàn bộ canvas">Xóa hết</button>
-            <button id="btn-export-json" class="project-btn" title="Lưu dự án dưới dạng file JSON">Lưu file</button>
-            <button id="btn-import-json-trigger" class="project-btn" title="Mở dự án từ file JSON">Mở file</button>
-            <input type="file" id="json-loader" accept=".json" style="display: none;">
-            <button id="btn-export-dxf" class="project-btn" title="Xuất bản vẽ kỹ thuật AutoCAD DXF (1:1 mét)">Xuất CAD (DXF)</button>
-            <button id="btn-export-png" class="project-btn primary" title="Xuất canvas thành ảnh PNG">Xuất ảnh</button>
         </div>
 
         <!-- Bộ thu phóng ở góc dưới bên phải (Zoom Control) -->

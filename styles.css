@@ -164,20 +164,25 @@ body, html {
     position: absolute;
     top: 20px;
     right: 20px;
-    width: 260px;
-    max-height: 80%;
+    width: 280px;
+    max-height: calc(100vh - 40px);
     overflow-y: auto;
     z-index: 100;
     display: flex;
     flex-direction: column;
     padding: 16px;
     border-radius: var(--border-radius-lg);
+    
+    /* Hiệu ứng trượt slide-in mượt mà của Apple */
+    transform: translateX(0);
+    opacity: 1;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
 }
 
 #inspector-panel.hidden {
+    transform: translateX(320px);
     opacity: 0;
     pointer-events: none;
-    transform: translateX(20px);
 }
 
 .inspector-header {
@@ -325,49 +330,115 @@ select:focus {
     background: rgba(0, 0, 0, 0.03);
 }
 
-/* 3. Bảng hiển thị thông tin phím tắt */
-#info-overlay {
+/* --- GÓC TRÊN BÊN TRÁI: TIÊU ĐỀ & MENU DỰ ÁN --- */
+#left-header {
     position: absolute;
-    bottom: 20px;
-    right: 20px;
-    width: 280px;
-    padding: 14px;
-    font-size: 12px;
-    line-height: 1.6;
-    pointer-events: none; /* Cho phép click xuyên qua để vẽ */
-    z-index: 50;
+    top: 20px;
+    left: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    z-index: 100;
+    height: 36px;
+    box-sizing: border-box;
 }
 
-#info-overlay h3 {
-    font-size: 13px;
+#app-title {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    color: var(--text-color);
+    background: linear-gradient(135deg, var(--text-color), #5c5c5e);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.header-btn {
+    border: none;
+    background: rgba(0, 0, 0, 0.04);
+    color: var(--text-color);
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-family: var(--font-family);
+    font-size: 11px;
     font-weight: 600;
-    margin-bottom: 6px;
-    color: var(--text-color);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s ease;
 }
 
-#info-overlay ul {
-    list-style-type: none;
-}
-
-#info-overlay li {
-    margin-bottom: 4px;
-    color: var(--text-muted);
-}
-
-#info-overlay li strong {
-    color: var(--text-color);
-}
-
-#info-overlay .highlight {
+.header-btn:hover {
+    background: rgba(0, 0, 0, 0.08);
     color: var(--apple-blue);
 }
 
-/* 4. Bộ điều khiển Zoom ở góc dưới bên phải */
+/* Actions Menu Dropdown thả xuống */
+.actions-menu {
+    top: 36px;
+    left: 0;
+    transform: translateY(10px);
+    width: 200px;
+    display: flex;
+    flex-direction: column;
+    padding: 6px;
+    gap: 2px;
+    border-radius: var(--border-radius-md);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+}
+
+.dropdown-wrapper:hover .actions-menu {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(2px);
+}
+
+.dropdown-item {
+    height: 32px;
+    padding: 0 10px;
+    border: none;
+    background: transparent;
+    color: var(--text-color);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    border-radius: var(--border-radius-sm);
+    font-family: var(--font-family);
+    font-size: 12.5px;
+    font-weight: 500;
+    transition: background 0.15s;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.dropdown-item:hover {
+    background: rgba(0, 0, 0, 0.04);
+}
+
+.dropdown-item.danger {
+    color: var(--danger-color);
+}
+
+.dropdown-item.danger:hover {
+    background: rgba(255, 69, 58, 0.08);
+}
+
+.dropdown-divider {
+    height: 1px;
+    background-color: rgba(0, 0, 0, 0.06);
+    margin: 4px 2px;
+}
+
+/* 4. Bộ điều khiển Zoom ở góc dưới bên phải (Tối ưu góc vẽ) */
 #zoom-control {
     position: absolute;
     bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
+    right: 20px;
+    left: auto;
+    transform: none;
     height: 36px;
     display: flex;
     align-items: center;
@@ -396,10 +467,10 @@ select:focus {
 }
 
 #zoom-value {
-    font-size: 13px;
-    font-weight: 500;
-    padding: 0 12px;
-    min-width: 60px;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 0 8px;
+    min-width: 48px;
     text-align: center;
 }
 
@@ -1020,24 +1091,24 @@ select:focus {
         padding: 6px 12px;
         gap: 6px;
         border-radius: 20px;
-        max-width: 90vw;
+        max-width: 95vw;
         overflow-x: auto;
     }
 
     .tool-btn {
-        width: 38px;
-        height: 38px;
+        width: 36px;
+        height: 36px;
     }
 
     .tool-btn svg {
-        width: 18px;
-        height: 18px;
+        width: 16px;
+        height: 16px;
     }
 
     /* Đẩy thanh bút vẽ của Apple lên phía trên toolbar đáy để tránh đè lớp */
     #bottom-brush-palette {
         bottom: 72px;
-        max-width: 90vw;
+        max-width: 95vw;
         height: 60px;
         padding: 0 10px;
         border-radius: 18px;
@@ -1057,40 +1128,48 @@ select:focus {
         bottom: 140px;
     }
 
-    /* Thu nhỏ bảng Inspector thuộc tính vật thể */
+    /* Bảng Inspector thuộc tính vật thể chuyển thành dạng trượt lên từ đáy (bottom drawer) */
     #inspector-panel {
-        top: 16px;
+        top: auto;
+        bottom: 72px;
         right: 16px;
-        width: 200px;
-        padding: 10px;
+        width: calc(100vw - 32px);
+        max-height: 45vh;
+        border-radius: var(--border-radius-lg);
+        box-shadow: 0 -10px 40px rgba(0,0,0,0.15);
+    }
+    
+    #inspector-panel.hidden {
+        transform: translateY(55vh) !important;
+        opacity: 0;
+    }
+
+    /* Tối ưu header góc trái trên di động */
+    #left-header {
+        top: 12px;
+        left: 12px;
+        padding: 4px 10px;
+        gap: 6px;
+        height: 32px;
+    }
+    
+    #app-title {
         font-size: 12px;
     }
-
-    .inspector-group input[type="number"] {
-        padding: 4px;
-        font-size: 11px;
+    
+    .header-btn {
+        padding: 2px 6px;
+        font-size: 9.5px;
     }
 
-    /* Thu nhỏ bảng điều khiển dự án góc trái */
-    #project-panel {
+    /* Góc zoom-control chuyển lên phía trên bên phải để tránh vướng toolbar đáy */
+    #zoom-control {
         bottom: auto;
-        top: 16px;
-        left: 16px;
-        max-width: 110px;
-        padding: 6px;
-        flex-direction: column;
-        gap: 4px;
-    }
-
-    .project-btn {
-        padding: 5px 8px;
-        font-size: 10px;
-        height: auto;
-    }
-
-    /* Thu nhỏ bộ điều khiển zoom */
-    #zoom-controls {
-        display: none; /* Ẩn bớt bộ zoom bằng nút trên di động vì đã có cử chỉ pinch zoom đa điểm */
+        top: 12px;
+        right: 12px;
+        left: auto;
+        transform: none;
+        height: 32px;
     }
 }
 
