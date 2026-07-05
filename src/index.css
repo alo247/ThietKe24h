@@ -1,0 +1,85 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk", sans-serif;
+  --font-serif: "Playfair Display", serif;
+  --font-mono: "JetBrains Mono", monospace;
+
+  --color-freeform-accent: #007aff;
+  --color-freeform-bg: #f4f4f7;
+  --color-freeform-border: #e5e5ea;
+}
+
+/* Base resets & styles */
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background-color: var(--color-freeform-bg);
+  color: #1c1c1e;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Infinite canvas custom dotted background pattern */
+.dots-grid {
+  background-image: radial-gradient(circle, #c4c4c6 1.2px, transparent 1.2px);
+}
+
+/* Webkit scrollbar customization for clean aesthetics */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.25);
+}
+
+/* Responsive custom utilities */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Drop shadow for Apple-style floating elements */
+.apple-shadow {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.apple-shadow-heavy {
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+/* Selection outline animation */
+@keyframes dash {
+  to {
+    stroke-dashoffset: -20;
+  }
+}
+.selected-outline {
+  stroke-dasharray: 5;
+  animation: dash 1s linear infinite;
+}
+
+/* Geometric clip paths for drawing tools */
+.clip-triangle {
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+}
+
+.clip-wedge {
+  clip-path: polygon(15% 0%, 85% 0%, 100% 100%, 0% 100%);
+}
+
+

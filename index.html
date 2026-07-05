@@ -1,126 +1,13 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta name="theme-color" content="#fbfbfd">
-  <title>Freeform Web — Bảng vẽ vô cực</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css">
-</head>
-<body>
-  <div id="app">
-    <canvas id="canvas"></canvas>
-
-    <!-- Thanh trên cùng: lưới 3 vùng chống đè -->
-    <header id="top-bar">
-      <!-- Trái: Dự án -->
-      <div id="left-zone" class="glass pill-row">
-        <div class="menu-wrap">
-          <button id="btn-project" class="ghost-btn menu-trigger" title="Menu dự án">
-            <span id="doc-title">Bảng vẽ mới</span>
-            <svg class="chev" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
-          </button>
-          <div id="project-menu" class="dropdown glass">
-            <button class="menu-item" data-act="new">🆕 Bảng vẽ mới</button>
-            <button class="menu-item" data-act="open">📂 Mở tệp (.json)</button>
-            <button class="menu-item" data-act="save">💾 Lưu tệp (.json)</button>
-            <div class="menu-sep"></div>
-            <button class="menu-item" data-act="png">🖼️ Xuất ảnh (.png)</button>
-            <div class="menu-sep"></div>
-            <button class="menu-item danger" data-act="clear">🧹 Xóa toàn bộ</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Giữa: Công cụ -->
-      <div id="toolbar" class="glass pill-row">
-        <button class="tool" data-tool="select" title="Chọn (V)">
-          <svg viewBox="0 0 24 24"><polygon points="4 2 20 12 13 13 9 20 4 2"/></svg>
-        </button>
-        <button class="tool" data-tool="hand" title="Kéo màn hình (H / Space)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M18 11V6a2 2 0 0 0-4 0M14 10V4a2 2 0 0 0-4 0v2M10 10.5V6a2 2 0 0 0-4 0v8"/>
-            <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2a8 8 0 0 1-6.5-3.3L2.5 16"/>
-          </svg>
-        </button>
-        <span class="tool-sep"></span>
-        <button class="tool" data-tool="draw" title="Bút vẽ (P)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/>
-          </svg>
-        </button>
-        <button class="tool" data-tool="note" title="Ghi chú (N)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round">
-            <path d="M4 4h16v11l-5 5H4z"/><path d="M20 15h-5v5"/>
-          </svg>
-        </button>
-        <div class="menu-wrap">
-          <button class="tool" data-tool="shape" id="btn-shape" title="Hình khối (S)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="8" height="8" rx="1"/><circle cx="17" cy="7" r="4"/><path d="M7 14l4 7H3z"/></svg>
-          </button>
-          <div id="shape-menu" class="dropdown glass shape-grid"></div>
-        </div>
-        <button class="tool" data-tool="text" title="Văn bản (T)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 5h14M12 5v14M9 19h6"/></svg>
-        </button>
-        <button class="tool" data-tool="connector" title="Đường nối (C)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="19" r="2.5"/><path d="M7 17L17 7"/><path d="M14 5h5v5"/></svg>
-        </button>
-        <button class="tool" data-tool="image" title="Ảnh (I)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="M21 16l-5-5L5 20"/></svg>
-        </button>
-        <span class="tool-sep"></span>
-        <button class="tool" data-tool="erase" title="Tẩy (E)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16l6 6h9M8.5 12.5l8-8 4 4-9 9"/></svg>
-        </button>
-      </div>
-
-      <!-- Phải: Tác vụ -->
-      <div id="right-zone" class="glass pill-row">
-        <button id="btn-undo" class="ghost-btn" title="Hoàn tác (Ctrl+Z)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-4"/></svg>
-        </button>
-        <button id="btn-redo" class="ghost-btn" title="Làm lại (Ctrl+Shift+Z)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14l5-5-5-5"/><path d="M20 9H9a5 5 0 0 0 0 10h4"/></svg>
-        </button>
-        <span class="tool-sep"></span>
-        <button id="btn-fit" class="ghost-btn" title="Vừa khung hình">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
-        </button>
-        <button id="btn-fullscreen" class="ghost-btn" title="Toàn màn hình">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3m10 0h3a2 2 0 0 0 2-2v-3"/></svg>
-        </button>
-      </div>
-    </header>
-
-    <!-- Thanh thuộc tính ngữ cảnh (hiện khi có lựa chọn) -->
-    <div id="context-bar" class="glass pill-row hidden"></div>
-
-    <!-- Khay bút (hiện khi đang dùng công cụ Bút) -->
-    <div id="brush-bar" class="glass pill-row hidden"></div>
-
-    <!-- Điều khiển thu phóng -->
-    <div id="zoom-bar" class="glass pill-row">
-      <button id="zoom-out" class="ghost-btn" title="Thu nhỏ">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14"/></svg>
-      </button>
-      <button id="zoom-level" class="ghost-btn zoom-num" title="Về 100%">100%</button>
-      <button id="zoom-in" class="ghost-btn" title="Phóng to">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
-      </button>
-    </div>
-
-    <!-- Ô chỉnh sửa chữ (overlay) -->
-    <textarea id="text-editor" class="hidden" spellcheck="false"></textarea>
-
-    <!-- Đầu vào tệp ẩn -->
-    <input type="file" id="file-image" accept="image/*" hidden>
-    <input type="file" id="file-open" accept=".json,application/json" hidden>
-  </div>
-
-  <script type="module" src="js/main.js"></script>
-</body>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Google AI Studio App</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
 </html>
+

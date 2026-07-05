@@ -1,0 +1,8 @@
+{
+  "name": "Remix: Drawing24h",
+  "description": "An infinite-canvas collaborative whiteboard web app that mirrors the original Freeform app design and experience with support for vector drawing, shapes, sticky notes, tables, and files.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
