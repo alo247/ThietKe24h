@@ -4,19 +4,22 @@ document.addEventListener('DOMContentLoaded', () => {
     // 1. Khởi tạo canvas vô cực
     const infiniteCanvas = new InfiniteCanvas('infinite-canvas');
 
-    // [TÍNH NĂNG MỚI]: Bật/Tắt Dropdown Actions Menu của dự án ở góc trái trên
+    // [TÍNH NĂNG MỚI]: Bật/Tắt Dropdown Actions Menu của dự án ở góc trái trên (Dùng pointerdown cho nhạy bén)
     const btnActionsMenu = document.getElementById('btn-actions-menu');
     const actionsMenuDropdown = document.querySelector('.actions-menu');
     
     if (btnActionsMenu && actionsMenuDropdown) {
-        btnActionsMenu.addEventListener('click', (e) => {
+        btnActionsMenu.addEventListener('pointerdown', (e) => {
             e.stopPropagation();
+            e.preventDefault();
             actionsMenuDropdown.classList.toggle('show');
         });
         
         // Nhấp chuột ra ngoài khoảng trống để đóng Actions Menu
-        window.addEventListener('click', () => {
-            actionsMenuDropdown.classList.remove('show');
+        window.addEventListener('pointerdown', (e) => {
+            if (actionsMenuDropdown.classList.contains('show') && !btnActionsMenu.contains(e.target) && !actionsMenuDropdown.contains(e.target)) {
+                actionsMenuDropdown.classList.remove('show');
+            }
         });
     }
     
@@ -144,11 +147,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Đăng ký sự kiện click cho các nút công cụ vẽ
+    // Đăng ký sự kiện pointerdown cho các nút công cụ vẽ (bấm nhạy bén trên cả PC/Mobile)
     Object.keys(toolButtons).forEach(toolName => {
         const btn = toolButtons[toolName];
         if (btn) {
-            btn.addEventListener('click', (e) => {
+            btn.addEventListener('pointerdown', (e) => {
+                e.preventDefault(); // Ngăn trễ phản hồi chạm cảm ứng
+                
                 // Nếu là nút dropdown shape hoặc chèn ảnh, xử lý riêng một chút
                 if (toolName === 'image') {
                     document.getElementById('image-loader').click();
@@ -1080,12 +1085,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Gắn sự kiện cho các cây bút
+    // Gắn sự kiện pointerdown cho các cây bút vẽ đáy (chạm nhạy bén tức thì)
     Object.keys(brushItems).forEach(brushType => {
         const btn = brushItems[brushType];
         if (btn) {
-            btn.addEventListener('click', (e) => {
+            btn.addEventListener('pointerdown', (e) => {
                 e.stopPropagation();
+                e.preventDefault(); // Ngăn hành vi chạm trễ mặc định
                 
                 // Nếu bấm vào cây bút ĐÃ ĐANG CHỌN -> Hiển thị popover chỉnh thuộc tính ngay trên đầu nó!
                 if (infiniteCanvas.brushType === brushType && brushType !== 'eraser') {
@@ -1093,7 +1099,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (isHidden) {
                         // Tính toán tọa độ popover để căn giữa ngay trên đầu cây bút được click
                         const btnRect = btn.getBoundingClientRect();
-                        const popoverW = 240; // Chiều rộng cố định của popover
                         const leftPos = btnRect.left + btnRect.width / 2;
                         
                         brushPopover.style.left = `${leftPos}px`;

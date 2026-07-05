@@ -32,6 +32,9 @@ body, html {
     background-color: var(--bg-color);
     font-family: var(--font-family);
     color: var(--text-color);
+    touch-action: none; /* Khóa zoom/cuộn trang web mặc định của thiết bị di động */
+    -webkit-user-select: none;
+    user-select: none;
 }
 
 /* Ứng dụng chính chứa Canvas và UI */
@@ -40,6 +43,7 @@ body, html {
     width: 100%;
     height: 100%;
     overflow: hidden;
+    touch-action: none;
 }
 
 #infinite-canvas {
@@ -48,6 +52,8 @@ body, html {
     left: 0;
     width: 100%;
     height: 100%;
+    display: block;
+    touch-action: none;
     display: block;
     cursor: default;
     background-color: #ffffff; /* Nền vẽ màu trắng */

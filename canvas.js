@@ -747,8 +747,11 @@ class InfiniteCanvas {
                 }
             }
         } else {
-            // Thả ngón tay -> Giả lập Nhấc chuột mouseup
+            // Thả ngón tay -> Giả lập Nhấc chuột mouseup có tọa độ chạm cuối cùng (changedTouches)
+            const touch = e.changedTouches ? e.changedTouches[0] : null;
             const mouseEvent = {
+                clientX: touch ? touch.clientX : (this.lastCanvasMousePos.x * this.zoom + this.panX),
+                clientY: touch ? touch.clientY : (this.lastCanvasMousePos.y * this.zoom + this.panY),
                 preventDefault: () => {}
             };
             this.handleMouseUp(mouseEvent);
