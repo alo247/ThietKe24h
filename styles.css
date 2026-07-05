@@ -1447,3 +1447,189 @@ body.pseudo-fullscreen {
     }
     .shape-option { margin-bottom: 0; margin-right: 5px; }
 }
+
+/* ====================================================
+   APPLE FREEFORM UI - MINIMALIST OVERHAUL
+   ==================================================== */
+
+/* 1. XÓA BỎ HEADER CỒNG KỀNH */
+#left-header {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+}
+#app-title { font-weight: 600; font-size: 18px; color: #1c1c1e; }
+.header-btn {
+    background: rgba(255,255,255,0.8) !important;
+    border-radius: 50px !important;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05) !important;
+}
+
+/* 2. THANH CÔNG CỤ (BOTTOM TOOLBAR PILL-SHAPE) */
+#toolbar {
+    position: fixed !important;
+    top: auto !important;
+    bottom: 30px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    border-radius: 100px !important;
+    background: rgba(255, 255, 255, 0.85) !important;
+    backdrop-filter: blur(20px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.12), 0 1px 3px rgba(0,0,0,0.05) !important;
+    border: 1px solid rgba(0,0,0,0.05) !important;
+    padding: 8px 12px !important;
+    display: flex !important;
+    gap: 6px !important;
+    flex-wrap: nowrap !important;
+    width: max-content !important;
+    z-index: 1000 !important;
+}
+
+/* Các nút trong Toolbar */
+.tool-btn {
+    width: 42px !important;
+    height: 42px !important;
+    border-radius: 50% !important;
+    background: transparent !important;
+    border: none !important;
+    color: #1c1c1e !important; /* Xám đen cực đậm chuẩn Apple */
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s cubic-bezier(0.25, 0.1, 0.25, 1) !important;
+    margin: 0 !important;
+}
+.tool-btn svg {
+    width: 24px !important;
+    height: 24px !important;
+    opacity: 0.85;
+}
+.tool-btn:hover {
+    background: rgba(0,0,0,0.05) !important;
+}
+.tool-btn.active {
+    background: #007aff !important; /* Xanh Apple */
+    color: #fff !important;
+}
+.tool-btn.active svg { opacity: 1; }
+
+/* Các icon màu sắc cũ bị đè lại (Nếu còn sót) */
+.tool-btn svg path, .tool-btn svg circle, .tool-btn svg rect {
+    fill: currentColor !important;
+    stroke: none !important; /* Giữ icon fill tĩnh mượt */
+}
+
+/* 3. BẢNG THUỘC TÍNH (INSPECTOR PANEL -> MINI FLOATING POPOVER) */
+#inspector-panel {
+    position: fixed !important;
+    top: auto !important;
+    bottom: 90px !important; /* Nằm ngay trên Toolbar */
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    right: auto !important;
+    width: auto !important;
+    max-width: 90vw !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(20px) !important;
+    border-radius: 20px !important;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.05) !important;
+    padding: 10px 16px !important;
+    display: flex !important;
+    flex-direction: row !important; /* Dàn ngang */
+    gap: 16px !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+    z-index: 999 !important;
+}
+#inspector-panel.hidden {
+    display: none !important;
+}
+/* Thu nhỏ các section bên trong Properties */
+.inspector-section { padding: 0 !important; margin: 0 !important; border: none !important; }
+.inspector-section h3 { display: none !important; } /* Ẩn các tiêu đề Màu sắc, Kích thước thừa thãi */
+.inspector-row { margin: 0 !important; flex-direction: row !important; gap: 8px !important; align-items: center !important; }
+.inspector-row label { display: none !important; } /* Ẩn nhãn */
+/* Input màu bo tròn như viên kẹo */
+input[type="color"] {
+    width: 32px !important; height: 32px !important;
+    border-radius: 50% !important;
+    padding: 0 !important; border: 2px solid rgba(0,0,0,0.1) !important;
+}
+
+/* 4. CONTEXT MENU (POPOVER) */
+.context-menu {
+    position: fixed !important; /* JS sẽ ghi đè top/left nhưng mặc định phải gọn */
+    background: rgba(255, 255, 255, 0.9) !important;
+    backdrop-filter: blur(20px) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15) !important;
+    border: 1px solid rgba(0,0,0,0.05) !important;
+    display: flex !important;
+    flex-direction: row !important; /* Menu ngang giống iOS */
+    padding: 4px !important;
+    width: auto !important; height: auto !important;
+    gap: 4px !important;
+}
+.ctx-menu-item {
+    padding: 8px 12px !important;
+    border-radius: 8px !important;
+    display: flex !important; justify-content: center !important;
+}
+.ctx-menu-item span { display: none !important; } /* Ẩn chữ đi cho giống Apple Popover */
+.ctx-submenu-divider { height: 24px !important; width: 1px !important; margin: auto 4px !important; background: rgba(0,0,0,0.1) !important; }
+
+/* 5. CẬP NHẬT FORM LOGIN THEO HÌNH CỦA BẠN (QUẢN LÝ THU CHI) */
+.auth-subtitle {
+    font-size: 16px;
+    color: #9CA3AF;
+    font-weight: 500;
+    margin-bottom: 24px;
+}
+.auth-tabs {
+    display: flex; gap: 20px; border-bottom: 1px solid #374151; margin-bottom: 30px;
+}
+.auth-tabs button {
+    background: none; border: none; padding: 12px 20px;
+    font-size: 16px; font-weight: 600; color: #6B7280;
+    cursor: pointer;
+}
+.auth-tabs button.active {
+    color: #fff; border-bottom: 2px solid #8B5CF6;
+}
+.auth-box {
+    background-color: #1a1a24 !important; /* Đen nhám như hình */
+    border-radius: 20px !important;
+}
+.input-group input {
+    background: #E2E8F0 !important; /* Màu xám nhạt */
+    color: #1e293b !important;
+    border-radius: 10px !important;
+}
+.purple-btn {
+    background: #8B5CF6 !important;
+    border-radius: 10px !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+}
+.google-btn {
+    background: #fff !important;
+    color: #1e293b !important;
+    border-radius: 10px !important;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05) !important;
+}
+
+/* 6. RESPONSIVE MOBILE ĐỈNH CAO NHƯ IPAD/IPHONE */
+@media (max-width: 768px) {
+    #toolbar {
+        bottom: calc(20px + env(safe-area-inset-bottom)) !important;
+        max-width: 90vw !important;
+        overflow-x: auto !important;
+    }
+    #inspector-panel {
+        bottom: calc(85px + env(safe-area-inset-bottom)) !important;
+        width: 90vw !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+    }
+}
