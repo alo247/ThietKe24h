@@ -173,7 +173,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            btn.addEventListener('pointerdown', (e) => {
+            // Dùng 'click' thay vì 'pointerdown' để nút bấm ổn định hơn trên di động,
+            // ngăn hiện tượng dropdown tự bật tự tắt vì double fire event.
+            btn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 
                 // Đóng các dropdown menu khác nếu đang mở
@@ -186,7 +188,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 if (toolName === 'shape') {
-                    e.preventDefault();
                     if (shapesMenu) {
                         shapesMenu.classList.toggle('show');
                     }

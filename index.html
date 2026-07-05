@@ -250,8 +250,27 @@
 
             <!-- Nút Toàn màn hình -->
             <button id="btn-fullscreen" class="tool-btn" title="Toàn màn hình (F11)">
-                <svg viewBox="0 0 24 24" width="20" height="20">
+                <svg viewBox="0 0 24 24" width="24" height="24">
                     <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+                </svg>
+            </button>
+
+            <div class="divider"></div>
+
+            <!-- Hệ thống tài khoản & Lưu trữ -->
+            <button id="btn-save" class="tool-btn" title="Lưu thiết kế lên Đám mây (Ctrl+S)">
+                <svg viewBox="0 0 24 24" width="24" height="24">
+                    <path fill="#4CAF50" d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/>
+                </svg>
+            </button>
+            <button id="btn-open" class="tool-btn" title="Mở thiết kế đã lưu">
+                <svg viewBox="0 0 24 24" width="24" height="24">
+                    <path fill="#FFC107" d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/>
+                </svg>
+            </button>
+            <button id="btn-account" class="tool-btn" title="Tài khoản & Quản lý">
+                <svg viewBox="0 0 24 24" width="24" height="24">
+                    <path fill="#2196F3" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
                 </svg>
             </button>
         </div>
@@ -480,10 +499,70 @@
         </div>
     </div>
 
+    <!-- Modals cho Backend (Auth, Projects, Admin) -->
+    <!-- Auth Modal (Tài khoản) -->
+    <div id="auth-modal" class="modal-overlay hidden">
+        <div class="glass-panel modal-content">
+            <h2 id="auth-title">Đăng nhập Firebase</h2>
+            <div class="auth-tabs">
+                <button id="tab-login" class="active">Đăng nhập</button>
+                <button id="tab-register">Đăng ký</button>
+            </div>
+            <input type="email" id="auth-email" placeholder="Email của bạn">
+            <input type="password" id="auth-password" placeholder="Mật khẩu">
+            <div id="auth-error" class="error-msg" style="color: #ff3b30; font-size: 14px; margin-top: 8px;"></div>
+            
+            <div class="modal-actions" style="margin-top: 16px;">
+                <button id="btn-auth-submit" class="primary-btn">Xác nhận</button>
+                <button id="btn-auth-close" class="secondary-btn">Đóng</button>
+            </div>
+            
+            <div id="user-info-panel" class="hidden" style="margin-top: 16px; border-top: 1px solid #ccc; padding-top: 16px;">
+                <p>Xin chào, <b id="user-email-display"></b></p>
+                <div class="modal-actions">
+                    <button id="btn-logout" class="danger-btn">Đăng xuất</button>
+                    <button id="btn-open-admin" class="primary-btn hidden">Quản trị Admin</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Admin Modal -->
+    <div id="admin-modal" class="modal-overlay hidden">
+        <div class="glass-panel modal-content admin-content" style="width: 600px; max-width: 90vw;">
+            <h2>Quản lý Hệ thống (Admin)</h2>
+            <div class="admin-stats" style="display: flex; gap: 20px; margin-bottom: 20px;">
+                <div class="stat-box">Thành viên: <span id="admin-users-count" style="font-weight:bold;">0</span></div>
+                <div class="stat-box">Dự án: <span id="admin-projects-count" style="font-weight:bold;">0</span></div>
+            </div>
+            <h3>Danh sách dự án của tất cả thành viên</h3>
+            <ul id="admin-project-list" class="project-list" style="max-height: 300px; overflow-y: auto;"></ul>
+            <div class="modal-actions" style="margin-top: 20px;">
+                <button id="btn-admin-close" class="secondary-btn">Đóng</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Projects Modal -->
+    <div id="projects-modal" class="modal-overlay hidden">
+        <div class="glass-panel modal-content" style="width: 500px; max-width: 90vw;">
+            <h2>Thiết kế của tôi</h2>
+            <p style="font-size: 13px; color: #666;">Các dự án được lưu trữ an toàn trên máy chủ của bạn.</p>
+            <ul id="user-project-list" class="project-list" style="max-height: 300px; overflow-y: auto; margin: 15px 0;"></ul>
+            <div class="modal-actions">
+                <button id="btn-projects-close" class="secondary-btn">Đóng</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Nạp các file script -->
     <script src="utils.js"></script>
     <script src="elements.js"></script>
     <script src="canvas.js"></script>
     <script src="app.js"></script>
+    <script src="colored-icons.js"></script>
+    
+    <!-- Firebase SDK (Sử dụng module Javascript) -->
+    <script type="module" src="firebase-app.js"></script>
 </body>
 </html>
