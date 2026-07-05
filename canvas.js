@@ -430,14 +430,17 @@ class InfiniteCanvas {
             this.setTool('select');
         }
 
-        // F. THÊM SHAPE
+        // F. THÊM SHAPE BẰNG KÉO THẢ (DRAG-TO-DRAW)
         else if (this.currentTool === 'shape') {
-            const newShape = new ShapeElement(this.currentShapeType, canvasMouse.x - 60, canvasMouse.y - 60);
-            newShape.color = this.fillColor;
-            newShape.strokeColor = this.strokeColor;
-            this.addElement(newShape);
-            
-            this.setTool('select');
+            this.isDrawingShape = true;
+            // Lưu lại vị trí chạm ban đầu trên tọa độ canvas
+            this.startCanvasPos = { ...canvasMouse };
+            this.currentShape = new ShapeElement(this.currentShapeType, canvasMouse.x, canvasMouse.y);
+            this.currentShape.width = 0;
+            this.currentShape.height = 0;
+            this.currentShape.color = this.fillColor;
+            this.currentShape.strokeColor = this.strokeColor;
+            this.addElement(this.currentShape);
         }
 
         // G. THÊM TEXT
@@ -446,6 +449,44 @@ class InfiniteCanvas {
             this.addElement(newText);
             
             setTimeout(() => this.triggerInlineEdit(newText), 50);
+            this.setTool('select');
+        }
+
+        // H. ĐỔ MÀU (PAINT BUCKET)
+        else if (this.currentTool === 'bucket') {
+            const targetElem = this.getElementAt(canvasMouse);
+            if (targetElem) {
+                if (targetElem instanceof DrawingPath || targetElem instanceof ConnectorLine) {
+                    targetElem.color = this.strokeColor;
+                    targetElem.strokeColor = this.strokeColor;
+                } else {
+                    targetElem.color = this.fillColor; 
+                }
+            } else {
+                // Đổ màu nền trang
+                this.canvas.style.backgroundColor = this.fillColor;
+                this.backgroundColor = this.fillColor; 
+            }
+            this.onStateChange();
+            this.render();
+        }
+
+        // I. ỐNG HÚT MÀU (COLOR PICKER)
+        else if (this.currentTool === 'color-picker') {
+            const targetElem = this.getElementAt(canvasMouse);
+            let pickedColor = '#ffffff';
+            if (targetElem) {
+                pickedColor = targetElem.color || targetElem.strokeColor || '#000000';
+            } else {
+                pickedColor = this.backgroundColor || '#f0f0f0';
+            }
+            this.fillColor = pickedColor;
+            const c2 = document.getElementById('toolbar-color-2');
+            if (c2) c2.value = pickedColor;
+            const bc = document.getElementById('brush-color-input');
+            if (bc) bc.value = pickedColor;
+            const sw = document.getElementById('brush-color-swatch-circle');
+            if (sw) sw.style.backgroundColor = pickedColor;
             this.setTool('select');
         }
     }
@@ -538,6 +579,14 @@ class InfiniteCanvas {
             this.render();
             return;
         }
+
+        // G. ĐANG KÉO VẼ SHAPE (MS Paint style)
+        if (this.isDrawingShape && this.currentShape) {
+            this.currentShape.width = canvasMouse.x - this.startCanvasPos.x;
+            this.currentShape.height = canvasMouse.y - this.startCanvasPos.y;
+            this.render();
+            return;
+        }
     }
 
     handleMouseUp(e) {
@@ -601,6 +650,33 @@ class InfiniteCanvas {
             }
             
             this.currentConnector = null;
+            this.onStateChange();
+            this.render();
+            return;
+        }
+
+        // KẾT THÚC KÉO VẼ SHAPE
+        if (this.isDrawingShape && this.currentShape) {
+            this.isDrawingShape = false;
+            // Chuẩn hóa kích thước âm (nếu kéo ngược lên trên/sang trái)
+            if (this.currentShape.width < 0) {
+                this.currentShape.x += this.currentShape.width;
+                this.currentShape.width = Math.abs(this.currentShape.width);
+            }
+            if (this.currentShape.height < 0) {
+                this.currentShape.y += this.currentShape.height;
+                this.currentShape.height = Math.abs(this.currentShape.height);
+            }
+            // Kích thước mặc định nếu người dùng chỉ click 1 phát
+            if (this.currentShape.width < 10 && this.currentShape.height < 10) {
+                this.currentShape.width = 120;
+                this.currentShape.height = 120;
+                // Đẩy vào giữa điểm click
+                this.currentShape.x = this.startCanvasPos.x - 60;
+                this.currentShape.y = this.startCanvasPos.y - 60;
+            }
+            this.currentShape = null;
+            this.setTool('select');
             this.onStateChange();
             this.render();
             return;

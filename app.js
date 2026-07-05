@@ -129,7 +129,9 @@ document.addEventListener('DOMContentLoaded', () => {
         'shape': document.getElementById('btn-shape'),
         'text': document.getElementById('btn-text'),
         'connector': document.getElementById('btn-connector'),
-        'image': document.getElementById('btn-image')
+        'image': document.getElementById('btn-image'),
+        'bucket': document.getElementById('btn-bucket'),
+        'color-picker': document.getElementById('btn-color-picker')
     };
 
     // Chuyển đổi nút active trực quan trên giao diện
@@ -198,22 +200,69 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Lập trình chọn hình dạng trong dropdown menu Shapes (được coi là các công cụ chờ chọn dùng)
     const shapesMenu = document.querySelector('.shapes-menu');
-    document.querySelectorAll('.shape-option').forEach(opt => {
-        opt.addEventListener('pointerdown', (e) => {
-            e.stopPropagation();
-            e.preventDefault(); // Ngăn focus trễ
-            
-            const shapeType = opt.getAttribute('data-shape');
-            infiniteCanvas.currentShapeType = shapeType;
-            infiniteCanvas.setTool('shape');
-            setActiveToolButton('shape');
-            
-            // Tự động đóng menu sau khi người dùng đã chọn xong hình dạng
-            if (shapesMenu) {
+    if (shapesMenu) {
+        const shapeOptions = shapesMenu.querySelectorAll('.shape-option');
+        shapeOptions.forEach(opt => {
+            opt.addEventListener('pointerdown', (e) => {
+                e.stopPropagation();
+                // [FIX MOBILE]: Không dùng preventDefault ở đây để tránh dội ngược event, 
+                // chỉ lấy thông tin công cụ rồi đóng menu
+                const selectedShape = opt.getAttribute('data-shape');
+                infiniteCanvas.currentShapeType = selectedShape;
+                infiniteCanvas.setTool('shape');
+                setActiveToolButton('shape');
                 shapesMenu.classList.remove('show');
+            });
+        });
+    }
+
+    // Đăng ký sự kiện Fullscreen
+    const btnFullscreen = document.getElementById('btn-fullscreen');
+    if (btnFullscreen) {
+        btnFullscreen.addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.error(`Lỗi toàn màn hình: ${err.message}`);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
             }
         });
-    });
+    }
+
+    // Đăng ký sự kiện đổi màu từ Toolbar (Paint Colors)
+    const color1 = document.getElementById('toolbar-color-1');
+    const color2 = document.getElementById('toolbar-color-2');
+    if (color1) {
+        color1.addEventListener('input', (e) => {
+            const newColor = e.target.value;
+            infiniteCanvas.strokeColor = newColor;
+            // Đồng bộ màu cho brush (Color 1)
+            const brushInput = document.getElementById('brush-color-input');
+            const brushSwatch = document.getElementById('brush-color-swatch-circle');
+            if (brushInput) brushInput.value = newColor;
+            if (brushSwatch) brushSwatch.style.backgroundColor = newColor;
+            // Nếu có vật thể đang chọn, đổi viền nó luôn
+            if (infiniteCanvas.selectedElement) {
+                infiniteCanvas.selectedElement.strokeColor = newColor;
+            }
+            infiniteCanvas.render();
+        });
+    }
+    if (color2) {
+        color2.addEventListener('input', (e) => {
+            const newColor = e.target.value;
+            infiniteCanvas.fillColor = newColor;
+            // Nếu có vật thể đang chọn, đổi nền nó luôn
+            if (infiniteCanvas.selectedElement && !(infiniteCanvas.selectedElement instanceof ConnectorLine)) {
+                infiniteCanvas.selectedElement.color = newColor;
+            }
+            infiniteCanvas.render();
+        });
+    }
+
 
     // Nhấp chuột ra ngoài khoảng trống canvas để đóng menu Shapes
     window.addEventListener('pointerdown', (e) => {

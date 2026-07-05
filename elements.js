@@ -383,7 +383,48 @@ class ShapeElement extends CanvasElement {
             ctx.lineTo(x + w * 0.6, y + h * 0.65);
             ctx.lineTo(x, y + h * 0.65);
             ctx.closePath();
+        } else if (this.shapeType === 'line') {
+            ctx.moveTo(x, y);
+            ctx.lineTo(x + w, y + h);
+            // Đối với Line, ta chỉ viền, không đổ màu
+        } else if (this.shapeType === 'rounded-rect') {
+            const r = Math.min(w, h) * 0.2;
+            ctx.roundRect(x, y, w, h, r);
+        } else if (this.shapeType === 'diamond') {
+            ctx.moveTo(x + w / 2, y);
+            ctx.lineTo(x + w, y + h / 2);
+            ctx.lineTo(x + w / 2, y + h);
+            ctx.lineTo(x, y + h / 2);
+            ctx.closePath();
+        } else if (this.shapeType === 'hexagon') {
+            const side = w * 0.25;
+            ctx.moveTo(x + w / 2, y);
+            ctx.lineTo(x + w, y + h * 0.25);
+            ctx.lineTo(x + w, y + h * 0.75);
+            ctx.lineTo(x + w / 2, y + h);
+            ctx.lineTo(x, y + h * 0.75);
+            ctx.lineTo(x, y + h * 0.25);
+            ctx.closePath();
+        } else if (this.shapeType === 'callout') {
+            const r = 12;
+            // Vẽ hộp chữ nhật bo tròn có mũi tên chỉ xuống
+            ctx.moveTo(x + r, y);
+            ctx.lineTo(x + w - r, y);
+            ctx.arcTo(x + w, y, x + w, y + r, r);
+            ctx.lineTo(x + w, y + h * 0.7 - r);
+            ctx.arcTo(x + w, y + h * 0.7, x + w - r, y + h * 0.7, r);
+            // Mũi tên gọi thoại (đuôi bong bóng)
+            ctx.lineTo(x + w * 0.6, y + h * 0.7);
+            ctx.lineTo(x + w * 0.5, y + h);
+            ctx.lineTo(x + w * 0.4, y + h * 0.7);
+            
+            ctx.lineTo(x + r, y + h * 0.7);
+            ctx.arcTo(x, y + h * 0.7, x, y + h * 0.7 - r, r);
+            ctx.lineTo(x, y + r);
+            ctx.arcTo(x, y, x + r, y, r);
+            ctx.closePath();
         } 
+
         
         // --- THƯ VIỆN KÝ HIỆU THIẾT KẾ NHÀ & NỘI THẤT NÂNG CẤP ---
         else if (this.shapeType === 'wall') {
