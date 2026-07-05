@@ -4,6 +4,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // 1. Khởi tạo canvas vô cực
     const infiniteCanvas = new InfiniteCanvas('infinite-canvas');
 
+    // Hàm đăng ký sự kiện an toàn chống lỗi null element
+    function safeAddListener(id, event, callback) {
+        const elem = document.getElementById(id);
+        if (elem) {
+            elem.addEventListener(event, callback);
+            return elem;
+        }
+        return null;
+    }
+
     // [TÍNH NĂNG MỚI]: Bật/Tắt Dropdown Actions Menu của dự án ở góc trái trên (Dùng pointerdown cho nhạy bén)
     const btnActionsMenu = document.getElementById('btn-actions-menu');
     const actionsMenuDropdown = document.querySelector('.actions-menu');
@@ -155,7 +165,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (toolName === 'image') {
                 btn.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    document.getElementById('image-loader').click();
+                    const loader = document.getElementById('image-loader');
+                    if (loader) loader.click();
                 });
                 return;
             }
@@ -876,20 +887,24 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Quản lý nút Bật/Tắt Hít lưới Nam châm (Grid Snapping)
-    const btnSnapToggle = document.getElementById('btn-snap-toggle');
-    if (btnSnapToggle) {
-        btnSnapToggle.addEventListener('click', () => {
-            infiniteCanvas.gridSnapEnabled = !infiniteCanvas.gridSnapEnabled;
+    const btnSnapToggle = safeAddListener('btn-snap-toggle', 'pointerdown', (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        infiniteCanvas.gridSnapEnabled = !infiniteCanvas.gridSnapEnabled;
+        const btn = document.getElementById('btn-snap-toggle');
+        if (btn) {
             if (infiniteCanvas.gridSnapEnabled) {
-                btnSnapToggle.classList.add('active');
+                btn.classList.add('active');
             } else {
-                btnSnapToggle.classList.remove('active');
+                btn.classList.remove('active');
             }
-        });
-    }
+        }
+    });
 
     // Đưa vật thể lên trên cùng hoặc ra sau cùng
-    document.getElementById('btn-bring-front').addEventListener('click', () => {
+    safeAddListener('btn-bring-front', 'pointerdown', (e) => {
+        e.stopPropagation();
+        e.preventDefault();
         const selected = infiniteCanvas.selectedElement;
         if (selected) {
             infiniteCanvas.elements = infiniteCanvas.elements.filter(el => el.id !== selected.id);
@@ -899,7 +914,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    document.getElementById('btn-send-back').addEventListener('click', () => {
+    safeAddListener('btn-send-back', 'pointerdown', (e) => {
+        e.stopPropagation();
+        e.preventDefault();
         const selected = infiniteCanvas.selectedElement;
         if (selected) {
             infiniteCanvas.elements = infiniteCanvas.elements.filter(el => el.id !== selected.id);
@@ -910,7 +927,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Xóa vật thể qua nút thùng rác
-    document.getElementById('btn-delete-element').addEventListener('click', () => {
+    safeAddListener('btn-delete-element', 'pointerdown', (e) => {
+        e.stopPropagation();
+        e.preventDefault();
         if (infiniteCanvas.selectedElement) {
             infiniteCanvas.deleteElement(infiniteCanvas.selectedElement);
         }
@@ -918,41 +937,46 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 6. Xử lý tải ảnh lên (Image Loader)
     const imageLoader = document.getElementById('image-loader');
-    imageLoader.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
+    if (imageLoader) {
+        imageLoader.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
 
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            const img = new Image();
-            img.onload = () => {
-                // Tính tọa độ chèn ảnh ở tâm màn hình hiện tại
-                const centerCanvas = infiniteCanvas.screenToCanvas(window.innerWidth / 2, window.innerHeight / 2);
-                
-                const newImgElem = new ImageElement(img, centerCanvas.x - 100, centerCanvas.y - 100, 200);
-                infiniteCanvas.addElement(newImgElem);
-                infiniteCanvas.setTool('select');
-                setActiveToolButton('select');
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const img = new Image();
+                img.onload = () => {
+                    const centerCanvas = infiniteCanvas.screenToCanvas(window.innerWidth / 2, window.innerHeight / 2);
+                    const newImgElem = new ImageElement(img, centerCanvas.x - 100, centerCanvas.y - 100, 200);
+                    infiniteCanvas.addElement(newImgElem);
+                    infiniteCanvas.setTool('select');
+                    setActiveToolButton('select');
+                };
+                img.src = event.target.result;
             };
-            img.src = event.target.result;
-        };
-        reader.readAsDataURL(file);
-        
-        // Reset giá trị để có thể tải lên lại cùng một ảnh
-        imageLoader.value = '';
-    });
+            reader.readAsDataURL(file);
+            imageLoader.value = '';
+        });
+    }
 
     // 7. Quản lý Dự án & Bộ nút góc trái (JSON/PNG Export & Import)
     
-    // Nút Xóa hết canvas
-    document.getElementById('btn-clear-canvas').addEventListener('click', () => {
+    // Nút Xóa hết canvas (Tạo dự án mới)
+    safeAddListener('btn-clear-canvas', 'pointerdown', (e) => {
+        e.stopPropagation();
+        e.preventDefault();
         if (confirm('Bạn có chắc chắn muốn xóa toàn bộ bản vẽ trên canvas không? Thao tác này có thể hoàn tác.')) {
             infiniteCanvas.clearAll();
+            if (actionsMenuDropdown) {
+                actionsMenuDropdown.classList.remove('show');
+            }
         }
     });
 
     // Nút Lưu dự án (Export JSON)
-    document.getElementById('btn-export-json').addEventListener('click', () => {
+    safeAddListener('btn-export-json', 'pointerdown', (e) => {
+        e.stopPropagation();
+        e.preventDefault();
         const serialized = serializeElements(infiniteCanvas.elements);
         const blob = new Blob([serialized], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
@@ -964,43 +988,61 @@ document.addEventListener('DOMContentLoaded', () => {
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
+
+        if (actionsMenuDropdown) {
+            actionsMenuDropdown.classList.remove('show');
+        }
     });
 
     // Nút Mở dự án (Import JSON)
     const jsonLoader = document.getElementById('json-loader');
-    document.getElementById('btn-import-json-trigger').addEventListener('click', () => {
-        jsonLoader.click();
+    safeAddListener('btn-import-json-trigger', 'click', (e) => {
+        e.stopPropagation();
+        if (jsonLoader) {
+            jsonLoader.click();
+        }
     });
 
-    jsonLoader.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
+    if (jsonLoader) {
+        jsonLoader.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
 
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            const content = event.target.result;
-            loadState(content);
-            saveState(); // Lưu trạng thái mới vào stack lịch sử
-        };
-        reader.readAsText(file);
-        jsonLoader.value = '';
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const content = event.target.result;
+                loadState(content);
+                saveState();
+                if (actionsMenuDropdown) {
+                    actionsMenuDropdown.classList.remove('show');
+                }
+            };
+            reader.readAsText(file);
+            jsonLoader.value = '';
+        });
+    }
+
+    // Nút Xuất hình ảnh PNG (Smart Crop PNG Export)
+    safeAddListener('btn-export-png', 'pointerdown', (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        triggerPNGExport();
+        if (actionsMenuDropdown) {
+            actionsMenuDropdown.classList.remove('show');
+        }
     });
 
-    // Nút Xuất hình ảnh PNG (Vừa khít vật thể - Smart Crop PNG Export)
-    document.getElementById('btn-export-png').addEventListener('click', () => {
+    function triggerPNGExport() {
         if (infiniteCanvas.elements.length === 0) {
             alert('Canvas đang trống, không có gì để xuất ảnh!');
             return;
         }
 
-        // 1. Tính toán bounding box chung bao quanh tất cả các vật thể
         let minX = Infinity, minY = Infinity;
         let maxX = -Infinity, maxY = -Infinity;
 
         infiniteCanvas.elements.forEach(elem => {
-            // Connector có thể bỏ qua hoặc tính sau, tạm thời tính các vật thể chính
             if (elem instanceof ConnectorLine) return;
-            
             const bounds = elem.getBounds();
             if (bounds.x < minX) minX = bounds.x;
             if (bounds.y < minY) minY = bounds.y;
@@ -1008,12 +1050,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (bounds.y + bounds.height > maxY) maxY = bounds.y + bounds.height;
         });
 
-        // Nếu chỉ có connector
         if (minX === Infinity) {
             minX = -100; minY = -100; maxX = 100; maxY = 100;
         }
 
-        // Thêm lề đệm 40px xung quanh ảnh
         const padding = 40;
         minX -= padding;
         minY -= padding;
@@ -1023,21 +1063,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const exportW = maxX - minX;
         const exportH = maxY - minY;
 
-        // 2. Tạo một Canvas ảo để vẽ offline phục vụ xuất ảnh
         const offCanvas = document.createElement('canvas');
         offCanvas.width = exportW;
         offCanvas.height = exportH;
         const offCtx = offCanvas.getContext('2d');
 
-        // Nền ảnh xuất ra màu trắng
         offCtx.fillStyle = '#ffffff';
         offCtx.fillRect(0, 0, exportW, exportH);
 
-        // Dịch chuyển trục vẽ của offCtx về gốc tọa độ của Bounding Box
         offCtx.save();
         offCtx.translate(-minX, -minY);
 
-        // Vẽ các Connector trước
         infiniteCanvas.elements.forEach(elem => {
             if (elem instanceof ConnectorLine) {
                 elem.draw(offCtx, 1.0, infiniteCanvas.elements);
@@ -1065,18 +1101,24 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
-    });
+    }
 
     // 8. Quản lý Bộ thu phóng (Zoom Control)
-    document.getElementById('btn-zoom-in').addEventListener('click', () => {
+    safeAddListener('btn-zoom-in', 'pointerdown', (e) => {
+        e.stopPropagation();
+        e.preventDefault();
         infiniteCanvas.zoomStep('in');
     });
     
-    document.getElementById('btn-zoom-out').addEventListener('click', () => {
+    safeAddListener('btn-zoom-out', 'pointerdown', (e) => {
+        e.stopPropagation();
+        e.preventDefault();
         infiniteCanvas.zoomStep('out');
     });
     
-    document.getElementById('btn-zoom-reset').addEventListener('click', () => {
+    safeAddListener('btn-zoom-reset', 'pointerdown', (e) => {
+        e.stopPropagation();
+        e.preventDefault();
         infiniteCanvas.zoomReset();
     });
 
@@ -1560,81 +1602,105 @@ document.addEventListener('DOMContentLoaded', () => {
         return JSON.stringify(rawData);
     }
 
-    // Khôi phục mảng các đối tượng từ chuỗi JSON
+    // Khôi phục mảng các đối tượng từ chuỗi JSON (Có kiểm tra bảo vệ try-catch chống hỏng LocalStorage)
     function deserializeElements(jsonString) {
         if (!jsonString) return [];
         
-        const rawData = JSON.parse(jsonString);
+        let rawData;
+        try {
+            rawData = JSON.parse(jsonString);
+            if (!Array.isArray(rawData)) return [];
+        } catch (e) {
+            console.error('Lỗi phân tích cú pháp chuỗi JSON dự án:', e);
+            return [];
+        }
+
         const loadedElements = [];
-        
-        // Để tránh lỗi Connector tham chiếu tới vật thể chưa được tạo, 
-        // chúng ta tạo các vật thể thông thường trước, sau đó tạo các Connector.
         const pendingConnectors = [];
 
         rawData.forEach(data => {
-            if (data.type === 'note') {
-                const note = new StickyNote(data.x, data.y, data.text);
-                note.id = data.id;
-                note.width = data.width;
-                note.height = data.height;
-                note.color = data.color;
-                note.textColor = data.textColor;
-                note.fontSize = data.fontSize;
-                loadedElements.push(note);
-            } else if (data.type === 'shape') {
-                const shape = new ShapeElement(data.shapeType, data.x, data.y);
-                shape.id = data.id;
-                shape.width = data.width;
-                shape.height = data.height;
-                shape.color = data.color;
-                shape.strokeColor = data.strokeColor;
-                shape.strokeWidth = data.strokeWidth;
-                shape.textColor = data.textColor;
-                shape.fontSize = data.fontSize;
-                shape.text = data.text;
-                loadedElements.push(shape);
-            } else if (data.type === 'text') {
-                const text = new TextElement(data.x, data.y, data.text);
-                text.id = data.id;
-                text.textColor = data.textColor;
-                text.fontSize = data.fontSize;
-                loadedElements.push(text);
-            } else if (data.type === 'drawing') {
-                const draw = new DrawingPath(data.points, data.strokeColor, data.strokeWidth);
-                draw.id = data.id;
-                draw.x = data.x;
-                draw.y = data.y;
-                draw.width = data.width;
-                draw.height = data.height;
-                draw.opacity = data.opacity !== undefined ? data.opacity : 1.0;
-                draw.brushType = data.brushType || 'pen';
-                loadedElements.push(draw);
-            } else if (data.type === 'image') {
-                const img = new Image();
-                img.src = data.imgSrc;
-                // Tạo ảnh placeholder tạm thời
-                const imgElem = new ImageElement(img, data.x, data.y, data.width, data.height);
-                imgElem.id = data.id;
-                
-                // Khi ảnh tải xong, cập nhật lại khung để render mượt mà
-                img.onload = () => {
-                    infiniteCanvas.render();
-                };
-                
-                loadedElements.push(imgElem);
-            } else if (data.type === 'connector') {
-                pendingConnectors.push(data);
+            try {
+                if (!data || !data.type) return;
+
+                if (data.type === 'note') {
+                    const note = new StickyNote(data.x || 0, data.y || 0, data.text || '');
+                    note.id = data.id || note.id;
+                    note.width = data.width !== undefined ? data.width : note.width;
+                    note.height = data.height !== undefined ? data.height : note.height;
+                    note.color = data.color || note.color;
+                    note.textColor = data.textColor || note.textColor;
+                    note.fontSize = data.fontSize !== undefined ? data.fontSize : note.fontSize;
+                    note.locked = data.locked || false;
+                    note.aspectLocked = data.aspectLocked || false;
+                    loadedElements.push(note);
+                } else if (data.type === 'shape') {
+                    const shape = new ShapeElement(data.shapeType || 'rectangle', data.x || 0, data.y || 0);
+                    shape.id = data.id || shape.id;
+                    shape.width = data.width !== undefined ? data.width : shape.width;
+                    shape.height = data.height !== undefined ? data.height : shape.height;
+                    shape.color = data.color || shape.color;
+                    shape.strokeColor = data.strokeColor || shape.strokeColor;
+                    shape.strokeWidth = data.strokeWidth !== undefined ? data.strokeWidth : shape.strokeWidth;
+                    shape.textColor = data.textColor || shape.textColor;
+                    shape.fontSize = data.fontSize !== undefined ? data.fontSize : shape.fontSize;
+                    shape.text = data.text || '';
+                    shape.locked = data.locked || false;
+                    shape.aspectLocked = data.aspectLocked || false;
+                    loadedElements.push(shape);
+                } else if (data.type === 'text') {
+                    const text = new TextElement(data.x || 0, data.y || 0, data.text || '');
+                    text.id = data.id || text.id;
+                    text.textColor = data.textColor || text.textColor;
+                    text.fontSize = data.fontSize !== undefined ? data.fontSize : text.fontSize;
+                    text.locked = data.locked || false;
+                    text.aspectLocked = data.aspectLocked || false;
+                    loadedElements.push(text);
+                } else if (data.type === 'drawing') {
+                    const pts = Array.isArray(data.points) ? data.points : [];
+                    const draw = new DrawingPath(pts, data.strokeColor || '#1d1d1f', data.strokeWidth || 4);
+                    draw.id = data.id || draw.id;
+                    draw.x = data.x !== undefined ? data.x : draw.x;
+                    draw.y = data.y !== undefined ? data.y : draw.y;
+                    draw.width = data.width !== undefined ? data.width : draw.width;
+                    draw.height = data.height !== undefined ? data.height : draw.height;
+                    draw.opacity = data.opacity !== undefined ? data.opacity : 1.0;
+                    draw.brushType = data.brushType || 'pen';
+                    draw.locked = data.locked || false;
+                    draw.aspectLocked = data.aspectLocked || false;
+                    loadedElements.push(draw);
+                } else if (data.type === 'image') {
+                    const img = new Image();
+                    img.src = data.imgSrc || '';
+                    const imgElem = new ImageElement(img, data.x || 0, data.y || 0, data.width || 200, data.height || 200);
+                    imgElem.id = data.id || imgElem.id;
+                    imgElem.locked = data.locked || false;
+                    imgElem.aspectLocked = data.aspectLocked || false;
+                    
+                    img.onload = () => {
+                        infiniteCanvas.render();
+                    };
+                    loadedElements.push(imgElem);
+                } else if (data.type === 'connector') {
+                    pendingConnectors.push(data);
+                }
+            } catch (elemErr) {
+                console.error("Lỗi khi phục hồi một đối tượng đồ họa hỏng:", elemErr, data);
             }
         });
 
         // Tạo các ConnectorLine và nạp vào danh sách
         pendingConnectors.forEach(data => {
-            const conn = new ConnectorLine(data.fromId, data.toId);
-            conn.id = data.id;
-            conn.strokeColor = data.strokeColor;
-            conn.strokeWidth = data.strokeWidth;
-            conn.lineStyle = data.lineStyle;
-            loadedElements.push(conn);
+            try {
+                if (!data.fromId || !data.toId) return;
+                const conn = new ConnectorLine(data.fromId, data.toId);
+                conn.id = data.id || conn.id;
+                conn.strokeColor = data.strokeColor || conn.strokeColor;
+                conn.strokeWidth = data.strokeWidth !== undefined ? data.strokeWidth : conn.strokeWidth;
+                conn.lineStyle = data.lineStyle || conn.lineStyle;
+                loadedElements.push(conn);
+            } catch (connErr) {
+                console.error("Lỗi khi phục hồi connector hỏng:", connErr, data);
+            }
         });
 
         return loadedElements;
