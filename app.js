@@ -222,32 +222,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-
-
-    // 4. [TÍNH NĂNG ĐẶC BIỆT]: Xử lý sự kiện nhấn đúp (Double-click) trên Canvas
-    infiniteCanvas.canvas.addEventListener('dblclick', (e) => {
-        const mouseX = e.clientX;
-        const mouseY = e.clientY;
-        const canvasMouse = infiniteCanvas.screenToCanvas(mouseX, mouseY);
-
-        // A. Kiểm tra xem có click đúp trúng vật thể nào không
-        const clickedElem = infiniteCanvas.getElementAt(canvasMouse);
-        
-        if (clickedElem) {
-            // Trường hợp 1: Nhấn đúp trúng Nét vẽ tự do (DrawingPath) -> Tự động sửa làm thẳng nét vẽ
-            if (clickedElem instanceof DrawingPath) {
-                const wasStraightened = clickedElem.straighten();
-                if (wasStraightened) {
-                    // Tạo hiệu ứng flash viền xanh nhẹ để thông báo đã làm thẳng thành công
-                    clickedElem.selected = true;
-                    infiniteCanvas.selectedElement = clickedElem;
-                    
-                    saveState();
-                    infiniteCanvas.render();
-                }
-            } 
-            // Trường hợp 2: Nhấn đúp trúng Ghi chú (StickyNote), Hình dạng (Shape) hoặc Văn bản (Text) 
-            // Xuất dự án ra file JSON để người dùng lưu trữ cục bộ
+    // Xuất dự án ra file JSON để người dùng lưu trữ cục bộ
     document.getElementById('btn-export-json').addEventListener('click', () => {
         const rawJson = serializeElements(infiniteCanvas.elements);
         const blob = new Blob([rawJson], { type: 'application/json' });
@@ -671,20 +646,47 @@ document.addEventListener('DOMContentLoaded', () => {
         return dxf.join("\n");
     }
 
-    // Nhấp nút Import JSON để kích hoạt ô chọn file JSONchỉnh sửa chữ bên trong trực tiếp
-            else if (clickedElem instanceof StickyNote || clickedElem instanceof ShapeElement || clickedElem instanceof TextElement) {
-                infiniteCanvas.triggerInlineEdit(clickedElem);
-            }
-        } 
-        // B. Nhấn đúp ra ngoài khoảng trống canvas: Tự động tạo Sticky Note nhanh tại vị trí đó
-        else if (infiniteCanvas.currentTool === 'select') {
-            const newNote = new StickyNote(canvasMouse.x - 80, canvasMouse.y - 80);
-            newNote.color = infiniteCanvas.noteColor;
-            infiniteCanvas.addElement(newNote);
+    // 3. Xử lý các tương tác trên Canvas: Nhấp đúp để thêm chữ
+    const canvasEl = document.getElementById('infinite-canvas');
+    if (canvasEl) {
+        canvasEl.addEventListener('dblclick', (e) => {
+            const rect = canvasEl.getBoundingClientRect();
+            const screenX = e.clientX - rect.left;
+            const screenY = e.clientY - rect.top;
+            const canvasMouse = infiniteCanvas.screenToCanvas(screenX, screenY);
             
-            setTimeout(() => infiniteCanvas.triggerInlineEdit(newNote), 50);
-        }
-    });
+            // A. Nhấp đúp vào vật thể có sẵn: Chỉnh sửa chữ bên trong trực tiếp
+            let clickedElem = null;
+            for (let i = infiniteCanvas.elements.length - 1; i >= 0; i--) {
+                const el = infiniteCanvas.elements[i];
+                if (el.contains(canvasMouse.x, canvasMouse.y)) {
+                    clickedElem = el;
+                    break;
+                }
+            }
+
+            if (clickedElem) {
+                // Nhấp đúp vào bản vẽ tay (DrawingPath) -> nắn thẳng nét
+                if (clickedElem instanceof DrawingPath && !clickedElem.locked) {
+                    clickedElem.straighten();
+                    saveState();
+                    infiniteCanvas.render();
+                }
+                // Nhấp đúp vào Note, Shape, Text -> Chỉnh sửa văn bản
+                else if (clickedElem instanceof StickyNote || clickedElem instanceof ShapeElement || clickedElem instanceof TextElement) {
+                    infiniteCanvas.triggerInlineEdit(clickedElem);
+                }
+            } 
+            // B. Nhấn đúp ra ngoài khoảng trống canvas: Tự động tạo Sticky Note nhanh tại vị trí đó
+            else if (infiniteCanvas.currentTool === 'select') {
+                const newNote = new StickyNote(canvasMouse.x - 80, canvasMouse.y - 80);
+                newNote.color = infiniteCanvas.noteColor || '#FFF9C4';
+                infiniteCanvas.addElement(newNote);
+                
+                setTimeout(() => infiniteCanvas.triggerInlineEdit(newNote), 50);
+            }
+        });
+    }
 
     // 5. Quản lý Bảng thuộc tính (Property Inspector Panel)
     const inspectorPanel = document.getElementById('inspector-panel');
