@@ -1792,3 +1792,365 @@ input[type="color"] {
         height: 14px !important;
     }
 }
+
+/* ====================================================
+   APPLE FREEFORM ULTIMATE MINIMALIST EXPERIENCE
+   ==================================================== */
+
+/* Reset & Nền app sạch sẽ */
+body {
+    background-color: #f5f5f7 !important;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+}
+
+/* Lưới nền chấm tròn cực mảnh giống Freeform */
+#infinite-canvas {
+    background-color: #ffffff !important;
+}
+
+/* 1. THANH CÔNG CỤ CHÍNH (FLOATING PILL TOOLBAR) CHUẨN MAC/IPAD */
+#toolbar {
+    position: fixed !important;
+    bottom: 24px !important;
+    top: auto !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    height: 52px !important;
+    border-radius: 9999px !important;
+    background: rgba(255, 255, 255, 0.8) !important;
+    backdrop-filter: blur(20px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.03) !important;
+    padding: 0 14px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    z-index: 1000 !important;
+    width: max-content !important;
+    max-width: 95vw !important;
+    box-sizing: border-box !important;
+}
+
+/* Các công cụ trong Toolbar */
+.tool-btn {
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: 50% !important;
+    background: transparent !important;
+    border: none !important;
+    color: #1c1c1e !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    cursor: pointer !important;
+    position: relative !important;
+    transition: background-color 0.15s ease, color 0.15s ease !important;
+}
+
+.tool-btn:hover {
+    background-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Trạng thái chọn Active - Vòng tròn xám nhạt nhẹ nhàng như Apple */
+.tool-btn.active {
+    background-color: #e5e5ea !important;
+    color: #007aff !important;
+}
+
+/* Đường gạch phân chia giữa các nhóm icon */
+.divider {
+    width: 1px !important;
+    height: 24px !important;
+    background-color: rgba(0, 0, 0, 0.1) !important;
+    margin: 0 4px !important;
+}
+
+/* Icon nét mỏng, tinh tế của Freeform */
+.tool-btn svg {
+    width: 22px !important;
+    height: 22px !important;
+    stroke: currentColor !important;
+    stroke-width: 1.5px !important;
+    fill: none !important;
+}
+
+/* Các icon có path dạng fill đặc biệt cần giữ fill thay vì stroke */
+#btn-select svg path,
+#btn-hand svg path,
+#btn-erase svg path,
+#btn-color-picker svg path {
+    fill: currentColor !important;
+    stroke: none !important;
+}
+
+/* 2. MENU DỰ ÁN TRÊN GÓC TRÁI (LEFT HEADER) */
+#left-header {
+    position: fixed !important;
+    top: 20px !important;
+    left: 20px !important;
+    height: 38px !important;
+    border-radius: 9999px !important;
+    background: rgba(255, 255, 255, 0.8) !important;
+    backdrop-filter: blur(15px) !important;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+    padding: 0 16px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    z-index: 999 !important;
+}
+#app-title {
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    color: #1c1c1e !important;
+}
+#left-header .header-btn {
+    background: transparent !important;
+    border: none !important;
+    font-size: 14px !important;
+    color: #007aff !important;
+    font-weight: 500 !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    padding: 4px 8px !important;
+    border-radius: 8px !important;
+}
+#left-header .header-btn:hover {
+    background: rgba(0, 0, 0, 0.05) !important;
+}
+
+/* 3. MENU HỆ THỐNG GÓC PHẢI (RIGHT HEADER) */
+#right-header {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    height: 38px !important;
+    border-radius: 9999px !important;
+    background: rgba(255, 255, 255, 0.8) !important;
+    backdrop-filter: blur(15px) !important;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+    padding: 0 10px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    z-index: 999 !important;
+}
+#right-header .header-btn {
+    width: 30px !important;
+    height: 30px !important;
+    border-radius: 50% !important;
+    background: transparent !important;
+    border: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: #1c1c1e !important;
+    cursor: pointer !important;
+}
+#right-header .header-btn:hover {
+    background-color: rgba(0, 0, 0, 0.05) !important;
+}
+#right-header .header-btn svg {
+    width: 18px !important;
+    height: 18px !important;
+    stroke: currentColor !important;
+    stroke-width: 1.5px !important;
+}
+
+/* 4. THANH THUỘC TÍNH NỔI (FLOATING PROPERTIES BAR) */
+#inspector-panel {
+    position: fixed !important;
+    bottom: 88px !important; /* Lơ lửng phía trên toolbar */
+    top: auto !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    right: auto !important;
+    width: auto !important;
+    max-width: 95vw !important;
+    height: 48px !important;
+    border-radius: 9999px !important;
+    background: rgba(255, 255, 255, 0.85) !important;
+    backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08) !important;
+    padding: 0 16px !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 16px !important;
+    z-index: 998 !important;
+}
+#inspector-panel .inspector-header {
+    display: none !important; /* Ẩn chữ "Thuộc tính" thừa thãi */
+}
+#inspector-panel .inspector-content {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 14px !important;
+}
+.property-group {
+    margin: 0 !important;
+    border: none !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+}
+.property-group label {
+    font-size: 12px !important;
+    font-weight: 500 !important;
+    color: #8e8e93 !important;
+}
+.property-group select {
+    background: rgba(0,0,0,0.05) !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 4px 8px !important;
+    font-size: 13px !important;
+    color: #1c1c1e !important;
+    outline: none !important;
+}
+/* Input Color tròn xoe giống Freeform */
+input[type="color"] {
+    -webkit-appearance: none !important;
+    border: none !important;
+    width: 26px !important;
+    height: 26px !important;
+    border-radius: 50% !important;
+    cursor: pointer !important;
+    background: none !important;
+    padding: 0 !important;
+}
+input[type="color"]::-webkit-color-swatch-wrapper {
+    padding: 0 !important;
+}
+input[type="color"]::-webkit-color-swatch {
+    border: 1px solid rgba(0,0,0,0.15) !important;
+    border-radius: 50% !important;
+}
+
+/* 5. MENU CONTEXT CẮT DÁN DẠNG VIÊN THUỐC (FLOATING CONTEXT MENU) */
+.context-menu {
+    border-radius: 9999px !important;
+    background: rgba(255, 255, 255, 0.85) !important;
+    backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08) !important;
+    padding: 4px 10px !important;
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 4px !important;
+    z-index: 1001 !important;
+}
+.ctx-menu-item {
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: #1c1c1e !important;
+    padding: 0 !important;
+    cursor: pointer !important;
+}
+.ctx-menu-item:hover {
+    background-color: rgba(0, 0, 0, 0.05) !important;
+}
+.ctx-menu-item svg {
+    width: 16px !important;
+    height: 16px !important;
+}
+
+/* 6. BỘ ĐIỀU KHIỂN ZOOM (BOTTOM RIGHT ZOOM CONTROL) */
+#zoom-control {
+    position: fixed !important;
+    bottom: 24px !important;
+    right: 24px !important;
+    height: 36px !important;
+    border-radius: 9999px !important;
+    background: rgba(255, 255, 255, 0.8) !important;
+    backdrop-filter: blur(15px) !important;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+    padding: 0 10px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    z-index: 999 !important;
+}
+.zoom-btn {
+    width: 24px !important;
+    height: 24px !important;
+    border-radius: 50% !important;
+    background: transparent !important;
+    border: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 14px !important;
+    color: #1c1c1e !important;
+    cursor: pointer !important;
+}
+.zoom-btn:hover {
+    background-color: rgba(0, 0, 0, 0.05) !important;
+}
+#zoom-value {
+    font-size: 12px !important;
+    font-weight: 500 !important;
+    color: #1c1c1e !important;
+    min-width: 36px !important;
+    text-align: center !important;
+}
+
+/* 7. DỌN SẠCH CÁC THÀNH PHẦN THỪA CHO ĐÚNG BẢN CHẤT TỐI GIẢN */
+#bottom-brush-palette,
+#brush-options-popover {
+    background: rgba(255, 255, 255, 0.85) !important;
+    backdrop-filter: blur(20px) !important;
+    border-radius: 16px !important;
+    border: 1px solid rgba(0,0,0,0.08) !important;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08) !important;
+}
+.shapes-menu {
+    border-radius: 18px !important;
+    border: 1px solid rgba(0,0,0,0.08) !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important;
+}
+
+/* Sửa triệt để CSS Auth Modal cho chuẩn 100% mẫu ảnh */
+.modal-overlay {
+    background: rgba(10, 10, 15, 0.6) !important;
+}
+.auth-box {
+    background: #14141d !important; /* Đen huyền bí */
+    border: none !important;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4) !important;
+}
+.auth-subtitle {
+    color: #94a3b8 !important;
+}
+.auth-tabs button {
+    border-bottom: 2px solid transparent !important;
+}
+.auth-tabs button.active {
+    color: #ffffff !important;
+    border-bottom: 2px solid #8B5CF6 !important;
+}
+.auth-box input {
+    background: #e2e8f0 !important;
+    color: #0f172a !important;
+}
+.purple-btn {
+    background: #8B5CF6 !important;
+}
+.google-btn {
+    background: #ffffff !important;
+    color: #0f172a !important;
+}
