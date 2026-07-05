@@ -59,8 +59,7 @@ class InfiniteCanvas {
 
     init() {
         this.resizeCanvas();
-        window.addEventListener('resize', () => this.resizeCanvas());
-        this.bindEvents();
+        this.registerEvents();
     }
 
     // Điều chỉnh kích thước canvas toàn màn hình
