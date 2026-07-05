@@ -1362,3 +1362,88 @@ body.pseudo-fullscreen {
 .outline-purple-btn { background: transparent; border: 1px solid #8B5CF6; color: #8B5CF6; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: 600; }
 .outline-danger-btn { background: transparent; border: 1px solid #EF4444; color: #EF4444; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: 600; }
 
+
+/* --- CẬP NHẬT FORM LOGIN THEO MẪU MỚI --- */
+.auth-box {
+    background: #14141d;
+}
+.auth-title { margin-top: 10px; }
+.auth-tabs { border-bottom: 1px solid #2d2d3a; margin-bottom: 30px; }
+.auth-tabs button { color: #6b7280; font-size: 15px; padding: 12px 10px; }
+.auth-tabs button:hover { color: #fff; }
+.auth-tabs button.active { color: #fff; border-bottom: 2px solid #8B5CF6; }
+
+/* USER INFO PANEL */
+.user-avatar { 
+    width: 60px; height: 60px; border-radius: 50%; background: #8B5CF6; 
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto;
+}
+#user-avatar-char { font-size: 28px; font-weight: bold; color: #fff; }
+
+/* --- FIX MOBILE UI (CHỐNG TRÀN VÀ ĐÈ GIAO DIỆN) --- */
+@media (max-width: 768px) {
+    /* 1. Thanh Toolbar - Ép sát đáy màn hình, dải cuộn ngang mỏng gọn */
+    #toolbar {
+        bottom: 20px;
+        bottom: calc(20px + env(safe-area-inset-bottom));
+        padding: 5px 10px;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 30px;
+        width: max-content;
+        max-width: 95vw;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        z-index: 999;
+    }
+    
+    /* 2. Menu Chuột phải (Context Menu) - Thành thanh ngang trượt */
+    .context-menu {
+        flex-direction: row;
+        width: auto;
+        max-width: 95vw;
+        top: 80px !important; /* Cố định trên đỉnh, ko trôi nổi bừa bãi */
+        left: 50% !important;
+        transform: translateX(-50%);
+        overflow-x: auto;
+        padding: 5px;
+        border-radius: 20px;
+    }
+    .ctx-menu-item { flex-direction: row; padding: 6px 12px; }
+    .ctx-menu-item span { display: none; } /* Chỉ hiện Icon để tiết kiệm chỗ */
+    .ctx-menu-item svg { margin-right: 0; width: 22px; height: 22px; }
+    .ctx-submenu-divider { width: 1px; height: 20px; margin: 0 5px; }
+    .ctx-submenu-item { display: none; } /* Tạm ẩn submenu thay đổi hình trên mobile cho đỡ rối */
+    
+    /* 3. Bảng thuộc tính (Properties) - Thành thanh ngang dưới cùng, trên toolbar */
+    #inspector-panel {
+        bottom: 85px; 
+        bottom: calc(85px + env(safe-area-inset-bottom));
+        top: auto !important;
+        right: 50% !important;
+        transform: translateX(50%);
+        width: 95vw;
+        max-height: 25vh;
+        overflow-y: auto;
+        border-radius: 16px;
+        padding: 12px;
+        box-shadow: 0 -5px 20px rgba(0,0,0,0.15);
+    }
+    /* Thu gọn Layout thuộc tính */
+    .inspector-section { padding: 4px 0; margin-bottom: 5px; }
+    .inspector-row { margin-bottom: 5px; flex-direction: row; gap: 5px; }
+    
+    /* 4. Shape Dropdown Menu (Khi bấm nút hình vẽ) */
+    .dropdown-menu.shape-menu {
+        flex-direction: row;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        width: max-content;
+        max-width: 80vw;
+        bottom: 70px; /* Nhảy lên trên toolbar thay vì xuống dưới */
+        top: auto;
+    }
+    .shape-option { margin-bottom: 0; margin-right: 5px; }
+}

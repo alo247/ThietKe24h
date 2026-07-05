@@ -22,6 +22,8 @@ function initBackend() {
     if (savedUser) {
         currentUser = JSON.parse(savedUser);
         document.getElementById('user-email-display').innerText = currentUser.email;
+        document.getElementById('user-name-display').innerText = currentUser.email.split('@')[0];
+        document.getElementById('user-avatar-char').innerText = currentUser.email.charAt(0).toUpperCase();
         document.getElementById('user-info-panel').classList.remove('hidden');
         document.getElementById('tab-login').parentElement.style.display = 'none';
         document.getElementById('auth-email').style.display = 'none';
