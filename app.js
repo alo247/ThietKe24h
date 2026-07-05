@@ -147,20 +147,36 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Đăng ký sự kiện pointerdown cho các nút công cụ vẽ (bấm nhạy bén trên cả PC/Mobile)
+    // Đăng ký sự kiện pointerdown/click cho các nút công cụ vẽ (bấm nhạy bén trên cả PC/Mobile)
     Object.keys(toolButtons).forEach(toolName => {
         const btn = toolButtons[toolName];
         if (btn) {
-            btn.addEventListener('pointerdown', (e) => {
-                e.preventDefault(); // Ngăn trễ phản hồi chạm cảm ứng
-                
-                // Nếu là nút dropdown shape hoặc chèn ảnh, xử lý riêng một chút
-                if (toolName === 'image') {
+            // Đối với nút tải ảnh, sử dụng sự kiện click thông thường để không bị Chrome chặn hộp thoại chọn file
+            if (toolName === 'image') {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
                     document.getElementById('image-loader').click();
-                } else if (toolName === 'shape') {
-                    // Mặc định chọn rectangle nếu chưa chọn hình gì
-                    infiniteCanvas.setTool('shape');
-                    setActiveToolButton('shape');
+                });
+                return;
+            }
+
+            btn.addEventListener('pointerdown', (e) => {
+                e.stopPropagation();
+                
+                // Đóng các dropdown menu khác nếu đang mở
+                const shapesMenu = document.querySelector('.shapes-menu');
+                if (toolName !== 'shape' && shapesMenu) {
+                    shapesMenu.classList.remove('show');
+                }
+                if (actionsMenuDropdown) {
+                    actionsMenuDropdown.classList.remove('show');
+                }
+
+                if (toolName === 'shape') {
+                    e.preventDefault();
+                    if (shapesMenu) {
+                        shapesMenu.classList.toggle('show');
+                    }
                 } else {
                     infiniteCanvas.setTool(toolName);
                     setActiveToolButton(toolName);
@@ -169,16 +185,33 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Chọn cụ thể hình dạng từ dropdown menu
+    // Lập trình chọn hình dạng trong dropdown menu Shapes (được coi là các công cụ chờ chọn dùng)
+    const shapesMenu = document.querySelector('.shapes-menu');
     document.querySelectorAll('.shape-option').forEach(opt => {
-        opt.addEventListener('click', (e) => {
-            e.stopPropagation(); // Tránh kích hoạt click của dropdown cha
-            const shape = opt.getAttribute('data-shape');
-            infiniteCanvas.currentShapeType = shape;
+        opt.addEventListener('pointerdown', (e) => {
+            e.stopPropagation();
+            e.preventDefault(); // Ngăn focus trễ
+            
+            const shapeType = opt.getAttribute('data-shape');
+            infiniteCanvas.currentShapeType = shapeType;
             infiniteCanvas.setTool('shape');
             setActiveToolButton('shape');
+            
+            // Tự động đóng menu sau khi người dùng đã chọn xong hình dạng
+            if (shapesMenu) {
+                shapesMenu.classList.remove('show');
+            }
         });
     });
+
+    // Nhấp chuột ra ngoài khoảng trống canvas để đóng menu Shapes
+    window.addEventListener('pointerdown', (e) => {
+        if (shapesMenu && shapesMenu.classList.contains('show') && !toolButtons['shape'].contains(e.target) && !shapesMenu.contains(e.target)) {
+            shapesMenu.classList.remove('show');
+        }
+    });
+
+
 
     // 4. [TÍNH NĂNG ĐẶC BIỆT]: Xử lý sự kiện nhấn đúp (Double-click) trên Canvas
     infiniteCanvas.canvas.addEventListener('dblclick', (e) => {

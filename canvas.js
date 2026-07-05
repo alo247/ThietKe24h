@@ -662,6 +662,8 @@ class InfiniteCanvas {
 
     // [TÍNH NĂNG MỚI]: Xử lý chạm cảm ứng đầu tiên (Touchstart) cho điện thoại, tablet
     handleTouchStart(e) {
+        e.preventDefault(); // [QUAN TRỌNG]: Ngăn Chrome di động giả lập mousedown gây lỗi double firing
+        
         if (e.touches.length === 1) {
             // Chạm 1 ngón tay -> Giả lập Click chuột trái mousedown
             const touch = e.touches[0];
@@ -669,12 +671,11 @@ class InfiniteCanvas {
                 clientX: touch.clientX,
                 clientY: touch.clientY,
                 button: 0,
-                preventDefault: () => e.preventDefault()
+                preventDefault: () => {}
             };
             this.handleMouseDown(mouseEvent);
         } else if (e.touches.length === 2) {
             // Chụm 2 ngón tay -> Bắt đầu zoom pinch & pan di động
-            e.preventDefault();
             this.isPinching = true;
             this.touchStartDist = this.getTouchDistance(e);
             this.touchStartMid = this.getTouchMidpoint(e);
@@ -688,18 +689,18 @@ class InfiniteCanvas {
 
     // [TÍNH NĂNG MỚI]: Xử lý kéo chạm cảm ứng (Touchmove)
     handleTouchMove(e) {
+        e.preventDefault(); // [QUAN TRỌNG]: Ngăn Chrome cuộn màn hình và giả lập mousemove
+        
         if (e.touches.length === 1 && !this.isPinching) {
             // Vuốt 1 ngón tay -> Giả lập Di chuột mousemove
             const touch = e.touches[0];
             const mouseEvent = {
                 clientX: touch.clientX,
                 clientY: touch.clientY,
-                preventDefault: () => e.preventDefault()
+                preventDefault: () => {}
             };
             this.handleMouseMove(mouseEvent);
         } else if (e.touches.length === 2 && this.isPinching) {
-            e.preventDefault();
-            
             // 1. Tính toán Zoom (Pinch)
             const currentDist = this.getTouchDistance(e);
             if (this.touchStartDist > 0) {

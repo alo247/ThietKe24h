@@ -146,6 +146,12 @@ body, html {
     transform: translateX(-50%) translateY(0);
 }
 
+.dropdown-menu.show {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    transform: translateX(-50%) translateY(0) !important;
+}
+
 .shape-option {
     width: 36px;
     height: 36px;
