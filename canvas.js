@@ -16,6 +16,7 @@ class InfiniteCanvas {
         this.elements = [];
         
         // Hệ thống hít lưới (Grid Snapping) chuyên dụng thiết kế nhà cửa
+        this.gridEnabled = true;     // Vẽ lưới chấm tròn hay không
         this.gridSnapEnabled = true; // Mặc định bật để người dùng dễ xếp thẳng hàng
         this.snapSize = 10;          // Cỡ hít lưới: 10px tương đương 0.25m thực tế
         
@@ -87,6 +88,7 @@ class InfiniteCanvas {
 
     // [TÍNH NĂNG ĐỒ HỌA MỚI]: Vẽ lưới nền chấm tròn (Dot Grid) giống hệt Apple Freeform
     drawGrid() {
+        if (!this.gridEnabled) return;
         const width = this.canvas.width;
         const height = this.canvas.height;
         
@@ -155,56 +157,115 @@ class InfiniteCanvas {
         // Khôi phục lại trạng thái context gốc để vẽ các phần tử UI cố định trên màn hình (nếu có)
         this.ctx.restore();
 
-        // [TÍNH NĂNG MỚI]: Tự động định vị và hiển thị Menu ngữ cảnh nổi (Context Menu) bám theo vật thể được chọn
+        // [TÍNH NĂNG MỚI]: Tự động định vị và hiển thị Bảng thuộc tính ngữ cảnh nổi (Contextual Floating Toolbar) bám theo vật thể được chọn
         const selected = this.selectedElement;
-        const menu = document.getElementById('context-menu');
-        if (menu) {
+        const ctxBar = document.getElementById('floating-context-bar');
+        if (ctxBar) {
             if (selected) {
                 // Lấy tọa độ hiển thị của vật thể trên màn hình
                 const screenPos = this.canvasToScreen(selected.x, selected.y);
                 const screenW = selected.width * this.zoom;
                 const screenH = selected.height * this.zoom;
                 
-                menu.classList.remove('hidden');
+                ctxBar.classList.remove('hidden');
                 
-                // Đặt menu ở chính giữa cạnh dưới của vật thể, cách ra 12px
-                const leftPos = screenPos.x + screenW / 2;
-                const topPos = screenPos.y + screenH + 12;
+                // Đặt thanh công cụ ở chính giữa cạnh trên của vật thể, cách ra 16px
+                const leftPos = Math.max(160, Math.min(window.innerWidth - 160, screenPos.x + screenW / 2));
+                let topPos = screenPos.y - 60; // Cách cạnh trên khoảng 60px (chiều cao thanh nổi tầm 44px + 16px gap)
                 
-                menu.style.left = `${leftPos}px`;
-                menu.style.top = `${topPos}px`;
-                menu.style.transform = `translateX(-50%)`;
-                
-                // Đồng bộ nhãn nút khóa
-                const lockText = document.getElementById('ctx-lock-text');
-                if (lockText) {
-                    lockText.innerText = selected.locked ? 'Mở khóa' : 'Khóa';
+                // Nếu chạm mép trên màn hình, hiển thị phía dưới vật thể
+                if (topPos < 70) {
+                    topPos = screenPos.y + screenH + 16;
                 }
                 
-                // Ẩn/Hiện tùy chọn Đổi hình dạng (chỉ áp dụng cho ShapeElement)
-                const changeShapeMenu = document.getElementById('ctx-change-shape-menu');
-                const shapeDivider = document.getElementById('ctx-shape-divider');
-                if (changeShapeMenu && shapeDivider) {
-                    if (selected instanceof ShapeElement) {
-                        changeShapeMenu.style.display = 'block';
-                        shapeDivider.style.display = 'block';
-                    } else {
-                        changeShapeMenu.style.display = 'none';
-                        shapeDivider.style.display = 'none';
+                ctxBar.style.left = `${leftPos}px`;
+                ctxBar.style.top = `${topPos}px`;
+                ctxBar.style.transform = `translateX(-50%)`;
+                
+                // --- ĐỒNG BỘ HÓA GIAO DIỆN PHÙ HỢP VỚI TỪNG VẬT THỂ ---
+                const fillGroup = document.getElementById('ctx-fill-group');
+                const strokeGroup = document.getElementById('ctx-stroke-group');
+                const textGroup = document.getElementById('ctx-text-group');
+                const dimGroup = document.getElementById('ctx-dim-group');
+                const shapeChangeSection = document.getElementById('ctx-shape-change-section');
+                const shapeChangeDivider = document.getElementById('ctx-shape-change-divider');
+                
+                // Ẩn tất cả trước
+                fillGroup.style.display = 'none';
+                strokeGroup.style.display = 'none';
+                textGroup.style.display = 'none';
+                dimGroup.style.display = 'none';
+                if (shapeChangeSection) shapeChangeSection.style.display = 'none';
+                if (shapeChangeDivider) shapeChangeDivider.style.display = 'none';
+                
+                // Hiện tùy chọn theo loại vật thể
+                const isNote = selected.constructor.name === 'StickyNote';
+                const isShape = selected.constructor.name === 'ShapeElement';
+                const isText = selected.constructor.name === 'TextElement';
+                const isImage = selected.constructor.name === 'ImageElement';
+                
+                if (isNote || isShape) {
+                    fillGroup.style.display = 'flex';
+                    const fillPreview = document.getElementById('ctx-fill-preview');
+                    if (fillPreview) {
+                        fillPreview.style.backgroundColor = selected.color || 'transparent';
                     }
                 }
                 
-                // Cập nhật trạng thái nút Aspect Lock
-                const aspectBtn = document.getElementById('ctx-aspect');
+                if (isShape) {
+                    strokeGroup.style.display = 'flex';
+                    const strokeColorInput = document.getElementById('ctx-stroke-color');
+                    const strokeWidthSelect = document.getElementById('ctx-stroke-width');
+                    if (strokeColorInput) strokeColorInput.value = selected.strokeColor || '#007aff';
+                    if (strokeWidthSelect) strokeWidthSelect.value = selected.strokeWidth !== undefined ? selected.strokeWidth : 2;
+                    
+                    if (shapeChangeSection) shapeChangeSection.style.display = 'block';
+                    if (shapeChangeDivider) shapeChangeDivider.style.display = 'block';
+                }
+                
+                if (isNote || isShape || isText) {
+                    textGroup.style.display = 'flex';
+                    const fontSizeSelect = document.getElementById('ctx-font-size');
+                    const textColorInput = document.getElementById('ctx-text-color');
+                    if (fontSizeSelect) fontSizeSelect.value = selected.fontSize || 18;
+                    if (textColorInput) textColorInput.value = selected.textColor || '#1d1d1f';
+                }
+                
+                if (isNote || isShape || isImage) {
+                    dimGroup.style.display = 'flex';
+                    const dimWidth = document.getElementById('ctx-dim-width');
+                    const dimHeight = document.getElementById('ctx-dim-height');
+                    if (dimWidth && dimHeight) {
+                        dimWidth.value = Utils.pxToMeter(selected.width);
+                        dimHeight.value = Utils.pxToMeter(selected.height);
+                    }
+                }
+                
+                // Đồng bộ icon khóa
+                const lockIcon = document.getElementById('ctx-lock-icon');
+                if (lockIcon) {
+                    if (selected.locked) {
+                        lockIcon.innerHTML = `<rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>`; // Biểu tượng khóa kín
+                    } else {
+                        lockIcon.innerHTML = `<rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4" stroke-dasharray="2,2"/>`; // Biểu tượng mở khóa
+                    }
+                }
+                
+                // Đồng bộ Aspect Ratio Lock button
+                const aspectBtn = document.getElementById('ctx-more-aspect');
                 if (aspectBtn) {
                     if (selected.aspectLocked) {
                         aspectBtn.classList.add('active');
+                        aspectBtn.innerText = '✓ Khóa tỉ lệ kích thước';
                     } else {
                         aspectBtn.classList.remove('active');
+                        aspectBtn.innerText = 'Khóa tỉ lệ kích thước';
                     }
                 }
             } else {
-                menu.classList.add('hidden');
+                ctxBar.classList.add('hidden');
+                // Ẩn tất cả các popovers nổi khi không chọn vật thể nào
+                document.querySelectorAll('.ctx-popover').forEach(p => p.classList.add('hidden'));
             }
         }
     }

@@ -3,195 +3,161 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Thiết Kế 24h - Canvas Vô Cực Nâng Cấp</title>
-    <!-- Nhúng font chữ từ Google Fonts để có giao diện Apple hiện đại -->
+    <title>Freeform Plus - Bảng vẽ vô cực tối giản</title>
+    <!-- Nhúng font chữ Outfit và Inter từ Google Fonts để có giao diện Apple sang trọng -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <!-- Ứng dụng chính -->
     <div id="app">
-        <!-- Canvas vẽ chính -->
+        <!-- Canvas vẽ chính vô cực -->
         <canvas id="infinite-canvas"></canvas>
 
-        <!-- Góc trên bên trái: Tiêu đề và Menu tác vụ dự án -->
+        <!-- Góc trên bên trái: Tên dự án (có thể sửa) & Menu tác vụ -->
         <div id="left-header" class="glass-panel">
-            <span id="app-title">Thiết Kế 24h</span>
-            <div class="dropdown-wrapper">
-                <button id="btn-actions-menu" class="header-btn" title="Tác vụ & Dự án">
-                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-                        <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+            <div class="project-name-container" id="project-menu-trigger">
+                <span id="project-title" contenteditable="true" title="Nhấp đúp hoặc nhấp chuột để đổi tên dự án">Dự án mới</span>
+                <span class="project-arrow">
+                    <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor">
+                        <path d="M7 10l5 5 5-5z"/>
                     </svg>
-                    <span>Dự án</span>
+                </span>
+            </div>
+            <!-- Menu thả xuống của Dự án -->
+            <div class="dropdown-menu project-menu glass-panel" id="project-dropdown">
+                <button id="btn-clear-canvas" class="dropdown-item danger">
+                    <span>🧹 Xóa toàn bộ</span>
                 </button>
-                <div class="dropdown-menu actions-menu glass-panel">
-                    <button id="btn-clear-canvas" class="dropdown-item danger">
-                        <span>🧹 Xóa toàn bộ</span>
-                    </button>
-                    <div class="dropdown-divider"></div>
-                    <button id="btn-export-json" class="dropdown-item">
-                        <span>💾 Lưu dự án (.json)</span>
-                    </button>
-                    <button id="btn-import-json-trigger" class="dropdown-item">
-                        <span>📂 Mở dự án (.json)</span>
-                    </button>
-                    <input type="file" id="json-loader" accept=".json" style="display: none;">
-                    <div class="dropdown-divider"></div>
-                    <button id="btn-export-dxf" class="dropdown-item">
-                        <span>📐 Xuất AutoCAD (.dxf)</span>
-                    </button>
-                    <button id="btn-export-png" class="dropdown-item">
-                        <span>🖼️ Xuất hình ảnh (.png)</span>
-                    </button>
-                </div>
+                <div class="dropdown-divider"></div>
+                <button id="btn-export-json" class="dropdown-item">
+                    <span>💾 Lưu dự án (.json)</span>
+                </button>
+                <button id="btn-import-json-trigger" class="dropdown-item">
+                    <span>📂 Mở dự án (.json)</span>
+                </button>
+                <input type="file" id="json-loader" accept=".json" style="display: none;">
+                <div class="dropdown-divider"></div>
+                <button id="btn-export-dxf" class="dropdown-item">
+                    <span>📐 Xuất AutoCAD (.dxf)</span>
+                </button>
+                <button id="btn-export-png" class="dropdown-item">
+                    <span>🖼️ Xuất hình ảnh (.png)</span>
+                </button>
             </div>
         </div>
 
-        <!-- Góc trên bên phải: Các nút điều khiển hệ thống (Undo, Redo, Save, Open, Account, Fullscreen) -->
+        <!-- Góc trên bên phải: Các nút Undo/Redo & Tác vụ bổ sung -->
         <div id="right-header" class="glass-panel">
             <button id="btn-undo" class="header-btn" title="Hoàn tác (Ctrl+Z)">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M9 14L4 9l5-5"/>
                     <path d="M4 9h10a5 5 0 0 1 5 5v1"/>
                 </svg>
             </button>
             <button id="btn-redo" class="header-btn" title="Làm lại (Ctrl+Y)">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M15 14l5-5-5-5"/>
                     <path d="M20 9H10a5 5 0 0 0-5 5v1"/>
                 </svg>
             </button>
-            <div class="divider" style="height: 16px; margin: 0 4px; border-left: 1px solid rgba(0,0,0,0.1);"></div>
-            <button id="btn-save" class="header-btn" title="Lưu thiết kế (Ctrl+S)">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
-                    <polyline points="17 21 17 13 7 13 7 21"/>
-                    <polyline points="7 3 7 8 15 8"/>
-                </svg>
-            </button>
-            <button id="btn-open" class="header-btn" title="Mở thiết kế">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
-                </svg>
-            </button>
+            <div class="header-divider"></div>
             <button id="btn-account" class="header-btn" title="Tài khoản & Quản lý">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
                     <circle cx="12" cy="7" r="4"/>
                 </svg>
             </button>
             <button id="btn-fullscreen" class="header-btn" title="Toàn màn hình (F11)">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
                 </svg>
             </button>
         </div>
 
-        <!-- Thanh công cụ phía trên (Toolbar) - Phong cách Glassmorphism của Apple -->
+        <!-- Thanh công cụ phía trên (Top Pill Toolbar) - Nổi và bo tròn phong cách Apple Freeform -->
         <div id="toolbar" class="glass-panel">
             <!-- Nút chọn / Select (Con trỏ) -->
             <button id="btn-select" class="tool-btn active" title="Chọn & Di chuyển (V)">
-                <svg viewBox="0 0 24 24" width="20" height="20">
-                    <path fill="currentColor" d="M7 2l12 11.2-5.8.8 3.5 6-2.5 1.5-3.5-6-3.7 3.5z"/>
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="3 11 22 2 13 21 11 13 3 11"/>
                 </svg>
             </button>
 
             <!-- Nút Bàn tay / Hand (Pan canvas) -->
             <button id="btn-hand" class="tool-btn" title="Kéo màn hình (H / Space)">
-                <svg viewBox="0 0 24 24" width="20" height="20">
-                    <path fill="currentColor" d="M12 2a3 3 0 0 0-3 3v6.75l-1.5-.9a2 2 0 0 0-2.73.73l-.62 1.07a2 2 0 0 0 .73 2.73l4.7 2.71c.54.31 1 .73 1.34 1.25l.8 1.2a4 4 0 0 0 3.33 1.79H18a4 4 0 0 0 4-4v-7.25a3 3 0 0 0-6 0V11a3 3 0 0 0-4-3v.75a3 3 0 0 0-3-3v2H9V5a3 3 0 0 0-3-3H12zm2 9V8.5a1.5 1.5 0 0 1 3 0V11a.5.5 0 0 0 1 0v-2.5a1.5 1.5 0 0 1 3 0V16a3 3 0 0 1-3 3h-2.82a3 3 0 0 1-2.5-1.34l-.8-1.2a3 3 0 0 0-1-.94l-4.7-2.71a1 1 0 0 1-.36-1.37l.62-1.07a1 1 0 0 1 1.37-.36l2.7 1.56V5a1.5 1.5 0 0 1 3 0v6.75a.5.5 0 0 0 1 0z"/>
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v5"/>
+                    <path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"/>
+                    <path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"/>
+                    <path d="M6 13V9a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v10a7 7 0 0 0 7 7h3a6 6 0 0 0 6-6v-3"/>
                 </svg>
             </button>
 
             <div class="divider"></div>
 
             <!-- Nút Vẽ tự do / Draw -->
-            <button id="btn-draw" class="tool-btn" title="Vẽ tự do (P) - Nhấn đúp nét vẽ để làm thẳng">
-                <svg viewBox="0 0 24 24" width="20" height="20">
-                    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+            <button id="btn-draw" class="tool-btn" title="Vẽ tự do (P)">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 20h9"/>
+                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
                 </svg>
             </button>
-
-            <!-- Nút Tẩy / Eraser -->
-            <button id="btn-erase" class="tool-btn" title="Tẩy nét vẽ (E)">
-                <svg viewBox="0 0 24 24" width="20" height="20">
-                    <path fill="currentColor" d="M16.24 3.56a2 2 0 0 1 2.83 0L20.4 4.9a2 2 0 0 1 0 2.83L14 14.14l-5.66-5.66L16.24 3.56M7.24 9.9L12.9 15.56l-6.36 6.36H2.96v-3.58L7.24 9.9z"/>
-                </svg>
-            </button>
-            
-            <!-- Nút Đổ màu / Paint Bucket -->
-            <button id="btn-bucket" class="tool-btn" title="Thùng sơn / Đổ màu (F)">
-                <svg viewBox="0 0 24 24" width="20" height="20">
-                    <path fill="currentColor" d="M19 4h-3V2h-2v2h-4V2H8v2H5c-1.1 0-2 .9-2 2v4h18V6c0-1.1-.9-2-2-2zm-9 6H2v10c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V10h-2v-4h-8v4z" />
-                </svg>
-            </button>
-            
-            <!-- Nút Chọn màu / Color Picker -->
-            <button id="btn-color-picker" class="tool-btn" title="Ống hút màu (I)">
-                <svg viewBox="0 0 24 24" width="20" height="20">
-                    <path fill="currentColor" d="M20.71 5.63l-2.34-2.34a.996.996 0 0 0-1.41 0l-3.12 3.12-1.93-1.91-1.41 1.41 1.42 1.42L3 16.25V21h4.75l8.92-8.92 1.42 1.42 1.41-1.41-1.92-1.92 3.12-3.12c.4-.4.4-1.03.01-1.42zM6.92 19L5 17.08l8.06-8.06 1.92 1.92L6.92 19z"/>
-                </svg>
-            </button>
-
-            <div class="divider"></div>
 
             <!-- Nút Sticky Note -->
             <button id="btn-note" class="tool-btn" title="Thêm Ghi chú dán (N)">
-                <svg viewBox="0 0 24 24" width="20" height="20">
-                    <rect x="3" y="3" width="18" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="2"/>
-                    <path fill="currentColor" d="M13 3v6h8z" opacity="0.3"/>
-                    <line x1="8" y1="9" x2="12" y2="9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                    <line x1="8" y1="13" x2="16" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                    <line x1="8" y1="17" x2="14" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2"/>
+                    <path d="M9 17h6M9 12h6M9 7h4"/>
                 </svg>
             </button>
 
             <!-- Nút Chèn hình dạng / Shapes -->
             <div class="dropdown-wrapper">
-                <button id="btn-shape" class="tool-btn dropdown-trigger" title="Hình dạng & Nội thất (S)">
-                    <svg viewBox="0 0 24 24" width="20" height="20">
-                        <rect x="3" y="3" width="7" height="7" rx="1" fill="none" stroke="currentColor" stroke-width="2"/>
-                        <circle cx="17" cy="6.5" r="3.5" fill="none" stroke="currentColor" stroke-width="2"/>
-                        <polygon points="6.5,13.5 10,20.5 3,20.5" fill="none" stroke="currentColor" stroke-width="2"/>
-                        <polygon points="17,14 20.5,17.5 17,21 13.5,17.5" fill="none" stroke="currentColor" stroke-width="2"/>
+                <button id="btn-shape" class="tool-btn dropdown-trigger" title="Hình dạng hình học (S)">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="8" height="8" rx="1"/>
+                        <circle cx="18" cy="7" r="4"/>
+                        <polygon points="7,14 11,21 3,21"/>
+                        <polygon points="18,14 21,17 18,20 15,17"/>
                     </svg>
                 </button>
-                <!-- Menu chọn shape nâng cấp chia mục thiết kế nhà cửa -->
+                <!-- Menu chọn shape nổi -->
                 <div class="dropdown-menu shapes-menu glass-panel">
                     <div class="dropdown-section">
                         <div class="section-title">Hình học Cơ bản</div>
                         <div class="options-grid">
                             <button class="shape-option" data-shape="rectangle" title="Hình chữ nhật">
-                                <svg viewBox="0 0 24 24" width="18" height="18"><rect x="3" y="5" width="18" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/></svg>
                             </button>
                             <button class="shape-option" data-shape="circle" title="Hình tròn">
-                                <svg viewBox="0 0 24 24" width="18" height="18"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/></svg>
                             </button>
                             <button class="shape-option" data-shape="triangle" title="Hình tam giác">
-                                <svg viewBox="0 0 24 24" width="18" height="18"><polygon points="12,3 21,20 3,20" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12,3 21,20 3,20"/></svg>
                             </button>
                             <button class="shape-option" data-shape="star" title="Ngôi sao">
-                                <svg viewBox="0 0 24 24" width="18" height="18"><polygon points="12,2 15,9 22,9 17,14 19,21 12,17 5,21 7,14 2,9 9,9" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12,2 15,9 22,9 17,14 19,21 12,17 5,21 7,14 2,9 9,9"/></svg>
                             </button>
                             <button class="shape-option" data-shape="arrow" title="Mũi tên">
-                                <svg viewBox="0 0 24 24" width="18" height="18"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
                             </button>
                             <button class="shape-option" data-shape="line" title="Đường thẳng">
-                                <svg viewBox="0 0 24 24" width="18" height="18"><line x1="3" y1="21" x2="21" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="21" x2="21" y2="3"/></svg>
                             </button>
                             <button class="shape-option" data-shape="rounded-rect" title="Chữ nhật bo góc">
-                                <svg viewBox="0 0 24 24" width="18" height="18"><rect x="3" y="5" width="18" height="14" rx="4" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="4"/></svg>
                             </button>
                             <button class="shape-option" data-shape="diamond" title="Hình thoi">
-                                <svg viewBox="0 0 24 24" width="18" height="18"><polygon points="12,2 22,12 12,22 2,12" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12,2 22,12 12,22 2,12"/></svg>
                             </button>
                             <button class="shape-option" data-shape="hexagon" title="Hình lục giác">
-                                <svg viewBox="0 0 24 24" width="18" height="18"><polygon points="12,2 21,7 21,17 12,22 3,17 3,7" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12,2 21,7 21,17 12,22 3,17 3,7"/></svg>
                             </button>
                             <button class="shape-option" data-shape="callout" title="Bong bóng thoại">
-                                <svg viewBox="0 0 24 24" width="18" height="18"><path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h4l4 4 4-4h4c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                             </button>
                         </div>
                     </div>
@@ -200,22 +166,22 @@
                         <div class="section-title">Kiến trúc & Nội thất (1m = 40px)</div>
                         <div class="options-grid">
                             <button class="shape-option" data-shape="wall" title="Tường nhà (Xây dựng)">
-                                <svg viewBox="0 0 24 24" width="18" height="18"><rect x="2" y="8" width="20" height="8" rx="1" fill="currentColor"/><line x1="6" y1="8" x2="14" y2="16" stroke="#fff" stroke-width="1"/><line x1="12" y1="8" x2="20" y2="16" stroke="#fff" stroke-width="1"/></svg>
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><rect x="2" y="9" width="20" height="6" rx="1"/></svg>
                             </button>
                             <button class="shape-option" data-shape="door" title="Cửa đi">
-                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21V3h10v18"/><path d="M3 3c5 0 10 5 10 10" stroke-dasharray="2,2"/><line x1="3" y1="21" x2="18" y2="21"/></svg>
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21V3h10v18M3 3c5 0 10 5 10 10"/></svg>
                             </button>
                             <button class="shape-option" data-shape="window" title="Cửa sổ">
                                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="12" rx="1"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="12" y1="6" x2="12" y2="18"/></svg>
                             </button>
                             <button class="shape-option" data-shape="bed" title="Giường ngủ">
-                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><rect x="5" y="5" width="6" height="4" rx="1"/><rect x="13" y="5" width="6" height="4" rx="1"/><path d="M3 11h18"/></svg>
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><rect x="5" y="6" width="5" height="4" rx="1"/><rect x="14" y="6" width="5" height="4" rx="1"/><line x1="3" y1="12" x2="21" y2="12"/></svg>
                             </button>
                             <button class="shape-option" data-shape="sofa" title="Ghế Sofa">
-                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M6 10v9M18 10v9"/></svg>
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="7" width="18" height="11" rx="2"/><path d="M3 11h18M6 11v7M18 11v7"/></svg>
                             </button>
                             <button class="shape-option" data-shape="table" title="Bàn ăn & Ghế">
-                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="7" width="12" height="10" rx="1"/><circle cx="12" cy="4" r="1.5" fill="currentColor"/><circle cx="12" cy="20" r="1.5" fill="currentColor"/><circle cx="3" cy="12" r="1.5" fill="currentColor"/><circle cx="21" cy="12" r="1.5" fill="currentColor"/></svg>
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="8" width="12" height="8" rx="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/><circle cx="3" cy="12" r="1"/><circle cx="21" cy="12" r="1"/></svg>
                             </button>
                             <button class="shape-option" data-shape="plant" title="Cây sân vườn">
                                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="7" stroke-dasharray="2,2"/><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
@@ -227,85 +193,72 @@
 
             <!-- Nút Chèn chữ / Text -->
             <button id="btn-text" class="tool-btn" title="Chèn văn bản (T)">
-                <svg viewBox="0 0 24 24" width="20" height="20">
-                    <path fill="currentColor" d="M12 4.5c.3 0 .5.2.5.5v13.5c0 .3-.2.5-.5.5s-.5-.2-.5-.5V5c0-.3.2-.5.5-.5z"/>
-                    <path fill="currentColor" d="M5 5c0-.3.2-.5.5-.5h13c.3 0 .5.2.5.5s-.2.5-.5.5H5.5c-.3 0-.5-.2-.5-.5z"/>
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="4 7 4 4 20 4 20 7"/>
+                    <line x1="9" y1="20" x2="15" y2="20"/>
+                    <line x1="12" y1="4" x2="12" y2="20"/>
                 </svg>
             </button>
 
             <!-- Nút Đường kết nối / Connector -->
             <button id="btn-connector" class="tool-btn" title="Thước đo / Đường nối (C)">
-                <svg viewBox="0 0 24 24" width="20" height="20">
-                    <circle cx="5" cy="5" r="3" fill="none" stroke="currentColor" stroke-width="2"/>
-                    <circle cx="19" cy="19" r="3" fill="none" stroke="currentColor" stroke-width="2"/>
-                    <path d="M7 7.5l10 9" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="4,4"/>
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="6" cy="6" r="3"/>
+                    <circle cx="18" cy="18" r="3"/>
+                    <line x1="8.5" y1="8.5" x2="15.5" y2="15.5"/>
                 </svg>
             </button>
 
             <!-- Nút Chèn hình ảnh / Image -->
             <button id="btn-image" class="tool-btn" title="Tải ảnh lên (I)">
-                <svg viewBox="0 0 24 24" width="20" height="20">
-                    <rect x="3" y="3" width="18" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="2"/>
-                    <circle cx="8.5" cy="8.5" r="1.5" fill="currentColor"/>
-                    <path fill="none" stroke="currentColor" stroke-width="2" d="M21 15l-5-5L5 21"/>
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                    <polyline points="21 15 16 10 5 21"/>
                 </svg>
                 <input type="file" id="image-loader" accept="image/*" style="display: none;">
             </button>
         </div>
 
-        <!-- Bảng chỉnh sửa thuộc tính nổi (Property Inspector) - Tự động hiển thị khi chọn vật thể -->
-        <div id="inspector-panel" class="glass-panel property-panel hidden">
-            <div class="inspector-header">
-                <span class="inspector-title">Thuộc tính</span>
-                <button id="btn-delete-element" class="danger-btn" title="Xóa vật thể (Delete)">
-                    <svg viewBox="0 0 24 24" width="16" height="16">
-                        <path fill="currentColor" d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+        <!-- BẢNG THUỘC TÍNH NỔI NGỮ CẢNH (Contextual Floating Toolbar) -->
+        <!-- Tự động định vị và bay bám theo vật thể được chọn giống Apple Freeform -->
+        <div id="floating-context-bar" class="glass-panel hidden">
+            <!-- 1. Chọn màu nền (đổ màu pastel cho Note và Shape) -->
+            <div class="ctx-group" id="ctx-fill-group">
+                <button class="ctx-btn-color-preview" id="ctx-btn-fill" title="Màu nền">
+                    <div class="color-circle" id="ctx-fill-preview" style="background-color: transparent;"></div>
+                </button>
+                <div class="ctx-popover glass-panel hidden" id="ctx-fill-popover">
+                    <div class="ctx-color-grid">
+                        <div class="ctx-color-swatch note-yellow" data-color="#FFF9C4" title="Vàng nhạt"></div>
+                        <div class="ctx-color-swatch note-green" data-color="#C8E6C9" title="Xanh lá nhạt"></div>
+                        <div class="ctx-color-swatch note-blue" data-color="#B3E5FC" title="Xanh dương nhạt"></div>
+                        <div class="ctx-color-swatch note-pink" data-color="#F8BBD0" title="Hồng nhạt"></div>
+                        <div class="ctx-color-swatch note-orange" data-color="#FFE0B2" title="Cam nhạt"></div>
+                        <div class="ctx-color-swatch note-purple" data-color="#E1BEE7" title="Tím nhạt"></div>
+                        <div class="ctx-color-swatch note-grey" data-color="#ECEFF1" title="Xám nhạt"></div>
+                        <div class="ctx-color-swatch note-dark" data-color="#37474F" title="Xám tối"></div>
+                        <div class="ctx-color-swatch" data-color="transparent" title="Không màu nền" style="background: linear-gradient(45deg, transparent 40%, #ff453a 45%, #ff453a 55%, transparent 60%), #fff;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Chọn màu và kích thước viền cho Shape -->
+            <div class="ctx-group" id="ctx-stroke-group">
+                <button class="ctx-btn" id="ctx-btn-stroke" title="Đường viền">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M12 2a10 10 0 0 1 8 4"/>
                     </svg>
                 </button>
-            </div>
-            
-            <div class="inspector-body">
-                <!-- [TÍNH NĂNG THIẾT KẾ NHÀ]: Bảng điều chỉnh kích thước chính xác bằng mét -->
-                <div class="property-group" id="prop-dimension-group">
-                    <label>Kích thước thực tế (Mét)</label>
-                    <div class="dimension-inputs">
-                        <div class="input-with-unit">
-                            <span>Rộng:</span>
-                            <input type="number" id="prop-dim-width" step="0.1" min="0.1" title="Chiều rộng thực tế (m)">
-                            <span class="unit">m</span>
-                        </div>
-                        <div class="input-with-unit" style="margin-top: 6px;">
-                            <span>Dài/Cao:</span>
-                            <input type="number" id="prop-dim-height" step="0.1" min="0.1" title="Chiều dài/cao thực tế (m)">
-                            <span class="unit">m</span>
-                        </div>
+                <div class="ctx-popover glass-panel stroke-popover hidden" id="ctx-stroke-popover">
+                    <div class="popover-row">
+                        <span>Màu viền:</span>
+                        <input type="color" id="ctx-stroke-color" value="#007aff">
                     </div>
-                </div>
-
-                <!-- Thuộc tính màu sắc của Sticky Note hoặc Shapes -->
-                <div class="property-group" id="prop-color-group">
-                    <label>Màu sắc</label>
-                    <div class="color-picker-grid">
-                        <!-- Các mã màu pastel sang trọng lấy từ Apple Freeform -->
-                        <div class="color-swatch note-yellow" data-color="#FFF9C4" title="Vàng nhạt"></div>
-                        <div class="color-swatch note-green" data-color="#C8E6C9" title="Xanh lá nhạt"></div>
-                        <div class="color-swatch note-blue" data-color="#B3E5FC" title="Xanh dương nhạt"></div>
-                        <div class="color-swatch note-pink" data-color="#F8BBD0" title="Hồng nhạt"></div>
-                        <div class="color-swatch note-orange" data-color="#FFE0B2" title="Cam nhạt"></div>
-                        <div class="color-swatch note-purple" data-color="#E1BEE7" title="Tím nhạt"></div>
-                        <div class="color-swatch note-grey" data-color="#ECEFF1" title="Xám nhạt"></div>
-                        <div class="color-swatch note-dark" data-color="#37474F" title="Xám tối"></div>
-                    </div>
-                </div>
-
-                <!-- Thuộc tính đường viền cho Shapes -->
-                <div class="property-group" id="prop-stroke-group">
-                    <label>Đường viền</label>
-                    <div class="stroke-controls">
-                        <!-- Màu viền -->
-                        <input type="color" id="prop-stroke-color" value="#000000" title="Màu đường viền">
-                        <!-- Độ dày viền -->
-                        <select id="prop-stroke-width" title="Độ dày viền">
+                    <div class="popover-row" style="margin-top: 8px;">
+                        <span>Độ dày:</span>
+                        <select id="ctx-stroke-width">
                             <option value="0">Không viền</option>
                             <option value="2">Mỏng (2px)</option>
                             <option value="4">Vừa (4px)</option>
@@ -314,13 +267,17 @@
                         </select>
                     </div>
                 </div>
+            </div>
 
-                <!-- Thuộc tính văn bản (Dùng cho Text, Sticky Note, và Shapes) -->
-                <div class="property-group" id="prop-text-group">
-                    <label>Văn bản</label>
-                    <div class="text-controls">
-                        <!-- Cỡ chữ -->
-                        <select id="prop-font-size" title="Cỡ chữ">
+            <!-- 3. Chỉnh sửa chữ (Cỡ chữ, màu chữ) -->
+            <div class="ctx-group" id="ctx-text-group">
+                <button class="ctx-btn" id="ctx-btn-text" title="Định dạng văn bản">
+                    <span style="font-weight: bold; font-family: 'Inter', sans-serif; font-size: 14px;">Aa</span>
+                </button>
+                <div class="ctx-popover glass-panel text-popover hidden" id="ctx-text-popover">
+                    <div class="popover-row">
+                        <span>Cỡ chữ:</span>
+                        <select id="ctx-font-size">
                             <option value="14">Nhỏ (14px)</option>
                             <option value="18">Thường (18px)</option>
                             <option value="24">Vừa (24px)</option>
@@ -328,30 +285,114 @@
                             <option value="48">Rất lớn (48px)</option>
                             <option value="72">Tiêu đề (72px)</option>
                         </select>
-                        <!-- Màu chữ -->
-                        <input type="color" id="prop-text-color" value="#000000" title="Màu chữ">
+                    </div>
+                    <div class="popover-row" style="margin-top: 8px;">
+                        <span>Màu chữ:</span>
+                        <input type="color" id="ctx-text-color" value="#1d1d1f">
                     </div>
                 </div>
+            </div>
 
-                <!-- Thứ tự lớp (Layering) -->
-                <div class="property-group">
-                    <label>Thứ tự hiển thị</label>
-                    <div class="layer-buttons">
-                        <button id="btn-bring-front" class="layer-btn" title="Đưa lên trên cùng">Lên trước</button>
-                        <button id="btn-send-back" class="layer-btn" title="Đưa xuống dưới cùng">Ra sau</button>
+            <!-- 4. Nhập kích thước chính xác (Cho Note, Shape, Image) -->
+            <div class="ctx-group" id="ctx-dim-group">
+                <button class="ctx-btn" id="ctx-btn-dim" title="Kích thước thực tế (Mét)">
+                    <span style="font-family: 'Outfit'; font-size: 12px; font-weight: 500;">📐 m</span>
+                </button>
+                <div class="ctx-popover glass-panel dim-popover hidden" id="ctx-dim-popover">
+                    <div class="popover-row">
+                        <span>Rộng:</span>
+                        <input type="number" id="ctx-dim-width" step="0.1" min="0.1" style="width: 70px; padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(0,0,0,0.15);">
+                        <span style="font-size: 12px; margin-left: 4px;">m</span>
+                    </div>
+                    <div class="popover-row" style="margin-top: 8px;">
+                        <span>Dài/Cao:</span>
+                        <input type="number" id="ctx-dim-height" step="0.1" min="0.1" style="width: 70px; padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(0,0,0,0.15);">
+                        <span style="font-size: 12px; margin-left: 4px;">m</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ctx-divider"></div>
+
+            <!-- 5. Nhân bản vật thể -->
+            <button class="ctx-btn" id="ctx-btn-duplicate" title="Nhân bản (Ctrl+D)">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                </svg>
+            </button>
+
+            <!-- 6. Khóa / Mở khóa vật thể -->
+            <button class="ctx-btn" id="ctx-btn-lock" title="Khóa / Mở khóa vật thể">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="ctx-lock-icon">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+            </button>
+
+            <!-- 7. Xóa vật thể -->
+            <button class="ctx-btn danger" id="ctx-btn-delete" title="Xóa vật thể (Delete)">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6"/>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                    <line x1="10" y1="11" x2="10" y2="17"/>
+                    <line x1="14" y1="11" x2="14" y2="17"/>
+                </svg>
+            </button>
+
+            <div class="ctx-divider"></div>
+
+            <!-- 8. Thêm tác vụ nâng cao -->
+            <div class="ctx-group" id="ctx-more-group">
+                <button class="ctx-btn" id="ctx-btn-more" title="Thêm tác vụ">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="1"/>
+                        <circle cx="19" cy="12" r="1"/>
+                        <circle cx="5" cy="12" r="1"/>
+                    </svg>
+                </button>
+                <div class="ctx-popover glass-panel more-popover hidden" id="ctx-more-popover">
+                    <button class="ctx-more-item" id="ctx-more-bring-front">Đưa lên trên cùng</button>
+                    <button class="ctx-more-item" id="ctx-more-send-back">Đưa ra phía sau</button>
+                    <button class="ctx-more-item" id="ctx-more-aspect">Khóa tỉ lệ kích thước</button>
+                    <div class="dropdown-divider" id="ctx-shape-change-divider" style="display: none;"></div>
+                    <div class="more-sub-section" id="ctx-shape-change-section" style="display: none;">
+                        <span class="sub-section-title">Thay đổi dạng hình:</span>
+                        <div class="shape-change-grid">
+                            <button class="shape-change-btn" data-shape="rectangle" title="Hình chữ nhật">Rectangle</button>
+                            <button class="shape-change-btn" data-shape="circle" title="Hình tròn">Circle</button>
+                            <button class="shape-change-btn" data-shape="triangle" title="Hình tam giác">Triangle</button>
+                            <button class="shape-change-btn" data-shape="wall" title="Tường nhà">Wall</button>
+                            <button class="shape-change-btn" data-shape="door" title="Cửa đi">Door</button>
+                            <button class="shape-change-btn" data-shape="window" title="Cửa sổ">Window</button>
+                            <button class="shape-change-btn" data-shape="bed" title="Giường">Bed</button>
+                            <button class="shape-change-btn" data-shape="sofa" title="Sofa">Sofa</button>
+                            <button class="shape-change-btn" data-shape="table" title="Bàn ăn">Table</button>
+                            <button class="shape-change-btn" data-shape="plant" title="Cây xanh">Plant</button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Bộ thu phóng ở góc dưới bên phải (Zoom Control) -->
+        <!-- Bộ thu phóng tối giản ở góc dưới bên trái (Zoom Control) -->
         <div id="zoom-control" class="glass-panel">
-            <button id="btn-snap-toggle" class="zoom-btn active" title="Bật/Tắt Hít lưới Nam châm (G)">🧲</button>
-            <div class="divider" style="height: 18px; margin: 0 4px;"></div>
-            <button id="btn-zoom-out" class="zoom-btn" title="Thu nhỏ (Ctrl + -)">−</button>
             <span id="zoom-value">100%</span>
-            <button id="btn-zoom-in" class="zoom-btn" title="Phóng to (Ctrl + +)">+</button>
-            <button id="btn-zoom-reset" class="zoom-btn" title="Đặt lại zoom">1:1</button>
+            <button id="btn-zoom-menu-trigger" class="zoom-btn" title="Tùy chọn hiển thị">
+                <svg viewBox="0 0 24 24" width="10" height="10" fill="currentColor">
+                    <path d="M7 10l5 5 5-5z"/>
+                </svg>
+            </button>
+            
+            <!-- Menu zoom options -->
+            <div class="dropdown-menu zoom-menu glass-panel" id="zoom-dropdown">
+                <button id="btn-zoom-in" class="dropdown-item">🔍 Phóng to (Ctrl + +)</button>
+                <button id="btn-zoom-out" class="dropdown-item">🔍 Thu nhỏ (Ctrl + -)</button>
+                <button id="btn-zoom-reset" class="dropdown-item">1:1 Đặt lại thu phóng</button>
+                <div class="dropdown-divider"></div>
+                <button id="btn-grid-toggle" class="dropdown-item">👁️ Bật/Tắt Lưới chấm</button>
+                <button id="btn-snap-toggle" class="dropdown-item active">🧲 Bật/Tắt Hít lưới nam châm</button>
+            </div>
         </div>
 
         <!-- Popover điều chỉnh nét bút vẽ (Hiển thị khi nhấp vào bút đang chọn) -->
@@ -376,205 +417,115 @@
             </div>
         </div>
 
-        <!-- Thanh công cụ bút vẽ nổi dưới cùng (Mô phỏng Apple Freeform) -->
+        <!-- Thanh công cụ bút vẽ nổi dưới cùng (Mô phỏng Apple Freeform Pencil Case) -->
         <div id="bottom-brush-palette" class="glass-panel hidden">
             <div class="brush-wrapper">
-                <!-- Bút kim (Pen) -->
-                <button id="brush-pen" class="brush-item active" title="Bút kim">
+                <!-- Bút vẽ kỹ thuật (Pen) -->
+                <button id="brush-pen" class="brush-item active" title="Bút máy">
+                    <div class="brush-tip pen-tip"></div>
                     <div class="brush-body pen-body"></div>
                 </button>
-                <!-- Bút chì (Pencil) -->
+                <!-- Bút chì phác thảo (Pencil) -->
                 <button id="brush-pencil" class="brush-item" title="Bút chì phác thảo">
+                    <div class="brush-tip pencil-tip"></div>
                     <div class="brush-body pencil-body"></div>
                 </button>
                 <!-- Bút dạ quang (Highlighter) -->
-                <button id="brush-highlighter" class="brush-item" title="Bút dạ quang (Highlighter)">
+                <button id="brush-highlighter" class="brush-item" title="Bút dạ quang (Highlight)">
+                    <div class="brush-tip highlighter-tip"></div>
                     <div class="brush-body highlighter-body"></div>
                 </button>
-                <!-- Cục tẩy (Eraser) -->
+                <!-- Cục tẩy nét vẽ (Eraser) -->
                 <button id="brush-eraser" class="brush-item" title="Cục tẩy nét vẽ">
                     <div class="brush-body eraser-body"></div>
                 </button>
-                <!-- Bảng màu bút tròn -->
+                <div class="brush-divider"></div>
+                <!-- Bảng màu nét bút tròn của Apple -->
                 <div class="brush-color-wrapper" title="Chọn màu nét bút">
                     <input type="color" id="brush-color-input" value="#1d1d1f">
                     <div id="brush-color-swatch-circle" class="color-circle" style="background-color: #1d1d1f;"></div>
                 </div>
             </div>
         </div>
-
-        <!-- Menu ngữ cảnh nổi (Smart Context Menu) - Mô phỏng Apple Freeform -->
-        <div id="context-menu" class="glass-panel hidden">
-            <!-- Hàng đầu tiên: Thứ tự lớp hiển thị (Layering) -->
-            <div class="ctx-layer-row">
-                <button id="ctx-send-back" class="ctx-layer-btn" title="Đưa ra phía sau">
-                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-                        <path d="M4 15h16v2H4zm4-4h8v2H8zm2-4h4v2h-4z"/>
-                    </svg>
-                    <span>Phía sau</span>
-                </button>
-                <div class="ctx-layer-divider"></div>
-                <button id="ctx-bring-front" class="ctx-layer-btn" title="Đưa lên phía trước">
-                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-                        <path d="M10 15h4v2h-4zm-2-4h8v2H8zM4 7h16v2H4z"/>
-                    </svg>
-                    <span>Phía trước</span>
-                </button>
-            </div>
-            
-            <div class="ctx-divider"></div>
-            
-            <!-- Hàng 2: Các nút bấm Clipboard & Khóa -->
-            <button id="ctx-cut" class="ctx-item">
-                <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="margin-right: 8px;"><path d="M9.64 7.64c.23-.5.36-1.05.36-1.64 0-2.21-1.79-4-4-4S2 3.79 2 6s1.79 4 4 4c.59 0 1.14-.13 1.64-.36L10 12l-2.36 2.36C7.14 14.13 6.59 14 6 14c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4c0-.59-.13-1.14-.36-1.64L12 14l7.58 7.58c.39.39 1.02.39 1.41 0 .39-.39.39-1.02 0-1.41L13.41 12l7.58-7.58c.39-.39.39-1.02 0-1.41-.39-.39-1.02-.39-1.41 0L12 10 9.64 7.64zM6 8c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm0 12c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>
-                Cắt (Ctrl+X)
-            </button>
-            <button id="ctx-copy" class="ctx-item">
-                <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="margin-right: 8px;"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-                Sao chép (Ctrl+C)
-            </button>
-            <button id="ctx-duplicate" class="ctx-item">
-                <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="margin-right: 8px;"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-                Nhân bản (Ctrl+D)
-            </button>
-            <button id="ctx-lock" class="ctx-item">
-                <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="margin-right: 8px;"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
-                <span id="ctx-lock-text">Khóa</span>
-            </button>
-            
-            <div class="ctx-divider" id="ctx-shape-divider"></div>
-            
-            <!-- Hàng 3: Đổi hình dạng Shape -->
-            <div id="ctx-change-shape-menu" class="ctx-submenu-trigger">
-                <div class="ctx-item" style="justify-content: space-between; display: flex; width: 100%;">
-                    <span style="display: flex; align-items: center;">
-                        <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="margin-right: 8px;"><path d="M19 8l-4 4h3c0 3.31-2.69 6-6 6-1.01 0-1.97-.25-2.8-.7l-1.46 1.46C8.97 19.54 10.43 20 12 20c4.42 0 8-3.58 8-8h3l-4-4zM6 12c0-3.31 2.69-6 6-6 1.01 0 1.97.25 2.8.7l1.46-1.46C15.03 4.46 13.57 4 12 4c-4.42 0-8 3.58-8 8H1l4 4 4-4H6z"/></svg>
-                        Thay đổi hình
-                    </span>
-                    <span style="color: var(--text-muted); font-size: 10px;">▶</span>
-                </div>
-                <!-- Submenu đổi hình dạng bay sang phải -->
-                <div class="ctx-submenu glass-panel">
-                    <button class="ctx-submenu-item" data-shape="rectangle">Hình chữ nhật</button>
-                    <button class="ctx-submenu-item" data-shape="circle">Hình tròn</button>
-                    <button class="ctx-submenu-item" data-shape="triangle">Hình tam giác</button>
-                    <div class="ctx-submenu-divider"></div>
-                    <button class="ctx-submenu-item" data-shape="wall">🧱 Tường nhà</button>
-                    <button class="ctx-submenu-item" data-shape="door">🚪 Cửa đi</button>
-                    <button class="ctx-submenu-item" data-shape="window">🖼️ Cửa sổ</button>
-                    <div class="ctx-submenu-divider"></div>
-                    <button class="ctx-submenu-item" data-shape="bed">🛏️ Giường ngủ</button>
-                    <button class="ctx-submenu-item" data-shape="sofa">🛋️ Ghế Sofa</button>
-                    <button class="ctx-submenu-item" data-shape="table">🪑 Bàn & Ghế</button>
-                    <button class="ctx-submenu-item" data-shape="plant">🌳 Cây xanh</button>
-                </div>
-            </div>
-            
-            <button id="ctx-aspect" class="ctx-item">
-                <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="margin-right: 8px;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-                Tỷ lệ cố định
-            </button>
-        </div>
     </div>
 
-    <!-- Modals cho Backend (Auth, Projects, Admin) -->
-    <!-- Auth Modal (Tài khoản) - Dark Mode Tím -->
+    <!-- Modals cho Backend (Ẩn mặc định, thiết kế tối giản) -->
+    <!-- Đăng nhập / Tài khoản Modal -->
     <div id="auth-modal" class="modal-overlay hidden">
-        <div class="auth-box">
-            <p class="auth-subtitle">Đăng nhập để tiếp tục</p>
-
+        <div class="auth-box glass-panel">
+            <p class="auth-subtitle">Tài khoản & Quản lý</p>
             <div id="auth-form-area">
                 <div class="auth-tabs">
                     <button id="tab-login" class="active">Đăng nhập</button>
                     <button id="tab-register">Đăng ký</button>
                 </div>
-                
                 <div class="input-group">
-                    <label>
-                        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-                        Tên đăng nhập
-                    </label>
-                    <input type="text" id="auth-email" placeholder="admin">
+                    <label>Tên đăng nhập / Email</label>
+                    <input type="text" id="auth-email" placeholder="Nhập tên đăng nhập...">
                 </div>
-
                 <div class="input-group">
-                    <label>
-                        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM9 6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9V6zm9 14H6V10h12v10zm-6-3c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"/></svg>
-                        Mật khẩu
-                    </label>
+                    <label>Mật khẩu</label>
                     <div style="position: relative;">
                         <input type="password" id="auth-password" placeholder="••••••••">
-                        <button class="eye-btn" tabindex="-1">
-                            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
-                        </button>
+                        <button class="eye-btn" tabindex="-1">👁️</button>
                     </div>
                 </div>
-                
                 <div id="auth-error" class="error-msg"></div>
-                
-                <button id="btn-auth-submit" class="purple-btn">
-                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" style="margin-right:8px"><path d="M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67l-2.58 2.59zM19 3H5c-1.11 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
-                    Đăng Nhập
-                </button>
-
-                <!-- Google Login Button -->
-                <button id="btn-google-login" class="google-btn" style="margin-top: 15px;">
-                    <svg viewBox="0 0 48 48" width="20" height="20" style="margin-right:8px"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+                <button id="btn-auth-submit" class="apple-btn-primary">Xác nhận</button>
+                <button id="btn-google-login" class="apple-btn-secondary" style="margin-top: 10px;">
                     Đăng nhập bằng Google
                 </button>
             </div>
             
-            <!-- User Info Panel (Đã đăng nhập) -->
             <div id="user-info-panel" class="hidden user-logged-in">
                 <div class="user-avatar">
                     <span id="user-avatar-char">U</span>
                 </div>
-                <h3 id="user-name-display" style="margin: 10px 0 5px;">User</h3>
-                <p style="color:#9CA3AF; font-size:14px; margin:0 0 20px;" id="user-email-display">user@gmail.com</p>
-                
+                <h3 id="user-name-display">Người dùng</h3>
+                <p id="user-email-display">user@gmail.com</p>
                 <div class="user-actions">
-                    <button id="btn-change-password" class="outline-purple-btn">Đổi mật khẩu</button>
-                    <button id="btn-logout" class="outline-danger-btn">Đăng xuất</button>
+                    <button id="btn-change-password" class="apple-btn-secondary">Đổi mật khẩu</button>
+                    <button id="btn-logout" class="apple-btn-danger">Đăng xuất</button>
                 </div>
             </div>
+            <button id="btn-auth-close" class="modal-close-btn">Đóng</button>
         </div>
     </div>
     
-    <!-- Admin Modal -->
-    <div id="admin-modal" class="modal-overlay hidden">
-        <div class="glass-panel modal-content admin-content" style="width: 600px; max-width: 90vw;">
-            <h2>Quản lý Hệ thống (Admin)</h2>
-            <div class="admin-stats" style="display: flex; gap: 20px; margin-bottom: 20px;">
-                <div class="stat-box">Thành viên: <span id="admin-users-count" style="font-weight:bold;">0</span></div>
-                <div class="stat-box">Dự án: <span id="admin-projects-count" style="font-weight:bold;">0</span></div>
-            </div>
-            <h3>Danh sách dự án của tất cả thành viên</h3>
-            <ul id="admin-project-list" class="project-list" style="max-height: 300px; overflow-y: auto;"></ul>
-            <div class="modal-actions" style="margin-top: 20px;">
-                <button id="btn-admin-close" class="secondary-btn">Đóng</button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Projects Modal -->
+    <!-- Projects Modal (Dự án lưu trữ trực tuyến) -->
     <div id="projects-modal" class="modal-overlay hidden">
-        <div class="glass-panel modal-content" style="width: 500px; max-width: 90vw;">
-            <h2>Thiết kế của tôi</h2>
-            <p style="font-size: 13px; color: #666;">Các dự án được lưu trữ an toàn trên máy chủ của bạn.</p>
-            <ul id="user-project-list" class="project-list" style="max-height: 300px; overflow-y: auto; margin: 15px 0;"></ul>
+        <div class="modal-content glass-panel">
+            <h2>Thiết kế trực tuyến của tôi</h2>
+            <p class="modal-desc">Đồng bộ các dự án được lưu trữ an toàn trên tài khoản của bạn.</p>
+            <ul id="user-project-list" class="project-list"></ul>
             <div class="modal-actions">
-                <button id="btn-projects-close" class="secondary-btn">Đóng</button>
+                <button id="btn-projects-close" class="apple-btn-secondary">Đóng</button>
             </div>
         </div>
     </div>
 
-    <!-- Nạp các file script -->
-    <script src="utils.js"></script>
-    <script src="elements.js"></script>
-    <script src="canvas.js"></script>
-    <script src="app.js"></script>
-    
-    <!-- Firebase SDK (Sử dụng module Javascript) -->
-    <script type="module" src="firebase-app.js"></script>
+    <!-- Admin Console Modal -->
+    <div id="admin-modal" class="modal-overlay hidden">
+        <div class="modal-content glass-panel" style="width: 600px;">
+            <h2>Bảng quản lý Admin</h2>
+            <div class="admin-stats">
+                <div class="stat-box">Thành viên: <span id="admin-users-count">0</span></div>
+                <div class="stat-box">Dự án: <span id="admin-projects-count">0</span></div>
+            </div>
+            <h3>Danh sách dự án hệ thống</h3>
+            <ul id="admin-project-list" class="project-list"></ul>
+            <div class="modal-actions">
+                <button id="btn-admin-close" class="apple-btn-secondary">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tải các tệp script logic -->
+    <script src="utils.js?v=1.1"></script>
+    <script src="elements.js?v=1.1"></script>
+    <script src="canvas.js?v=1.1"></script>
+    <script src="app.js?v=1.1"></script>
+    <!-- Firebase SDK Modules -->
+    <script type="module" src="firebase-app.js?v=1.1"></script>
 </body>
 </html>

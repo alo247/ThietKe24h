@@ -17,14 +17,29 @@ const btnOpen = document.getElementById('btn-open');
 
 // Khởi tạo
 function initBackend() {
+    // Hàm đăng ký sự kiện an toàn
+    function safeAdd(id, event, callback) {
+        const elem = document.getElementById(id);
+        if (elem) {
+            elem.addEventListener(event, callback);
+            return elem;
+        }
+        return null;
+    }
+
     // 1. Kiểm tra trạng thái đăng nhập từ localStorage
     const savedUser = localStorage.getItem('canvas_user');
     if (savedUser) {
         currentUser = JSON.parse(savedUser);
-        document.getElementById('user-email-display').innerText = currentUser.email;
-        document.getElementById('user-name-display').innerText = currentUser.email.split('@')[0];
-        document.getElementById('user-avatar-char').innerText = currentUser.email.charAt(0).toUpperCase();
-        document.getElementById('user-info-panel').classList.remove('hidden');
+        const userEmailDisp = document.getElementById('user-email-display');
+        const userNameDisp = document.getElementById('user-name-display');
+        const userAvatarChar = document.getElementById('user-avatar-char');
+        const userInfoPanel = document.getElementById('user-info-panel');
+        
+        if (userEmailDisp) userEmailDisp.innerText = currentUser.email;
+        if (userNameDisp) userNameDisp.innerText = currentUser.email.split('@')[0];
+        if (userAvatarChar) userAvatarChar.innerText = currentUser.email.charAt(0).toUpperCase();
+        if (userInfoPanel) userInfoPanel.classList.remove('hidden');
         
         const authFormArea = document.getElementById('auth-form-area');
         if (authFormArea) authFormArea.style.display = 'none';
@@ -57,60 +72,64 @@ function initBackend() {
         btnAuthClose.addEventListener('click', () => authModal.classList.add('hidden'));
     }
     
-    document.getElementById('btn-projects-close').addEventListener('click', () => projectsModal.classList.add('hidden'));
-    document.getElementById('btn-admin-close').addEventListener('click', () => adminModal.classList.add('hidden'));
+    safeAdd('btn-projects-close', 'click', () => projectsModal.classList.add('hidden'));
+    safeAdd('btn-admin-close', 'click', () => adminModal.classList.add('hidden'));
     
     // Ghi nhận lượt truy cập
     let views = parseInt(localStorage.getItem('canvas_page_views') || '0');
     localStorage.setItem('canvas_page_views', (views + 1).toString());
     
     // Nút Google Login Fake
-    const btnGoogle = document.getElementById('btn-google-login');
-    if (btnGoogle) {
-        btnGoogle.addEventListener('click', () => {
-            alert("Đây là Giao diện Mô phỏng (Fake) Đăng nhập Google. Để hoạt động thật, vui lòng kết nối với Firebase Config.");
-        });
-    }
-    
-    // Nút Đổi mật khẩu
-    const btnChangePwd = document.getElementById('btn-change-password');
-    if (btnChangePwd) {
-        btnChangePwd.addEventListener('click', () => {
-            if (!currentUser) return;
-            const newPwd = prompt("Nhập mật khẩu mới của bạn:");
-            if (newPwd) {
-                let users = JSON.parse(localStorage.getItem('canvas_users_db') || '[]');
-                let uIndex = users.findIndex(u => u.id === currentUser.id);
-                if (uIndex > -1) {
-                    users[uIndex].pwd = newPwd.trim();
-                    localStorage.setItem('canvas_users_db', JSON.stringify(users));
-                    currentUser.pwd = newPwd.trim();
-                    localStorage.setItem('canvas_user', JSON.stringify(currentUser));
-                    alert("Đổi mật khẩu thành công!");
-                }
-            }
-        });
-    }
-    
-    // Auth Tabs
-    document.getElementById('tab-login').addEventListener('click', (e) => {
-        e.target.classList.add('active');
-        document.getElementById('tab-register').classList.remove('active');
-        document.getElementById('auth-title').innerText = 'Đăng nhập Firebase';
+    safeAdd('btn-google-login', 'click', () => {
+        alert("Đây là Giao diện Mô phỏng (Fake) Đăng nhập Google. Để hoạt động thật, vui lòng kết nối với Firebase Config.");
     });
     
-    document.getElementById('tab-register').addEventListener('click', (e) => {
+    // Nút Đổi mật khẩu
+    safeAdd('btn-change-password', 'click', () => {
+        if (!currentUser) return;
+        const newPwd = prompt("Nhập mật khẩu mới của bạn:");
+        if (newPwd) {
+            let users = JSON.parse(localStorage.getItem('canvas_users_db') || '[]');
+            let uIndex = users.findIndex(u => u.id === currentUser.id);
+            if (uIndex > -1) {
+                users[uIndex].pwd = newPwd.trim();
+                localStorage.setItem('canvas_users_db', JSON.stringify(users));
+                currentUser.pwd = newPwd.trim();
+                localStorage.setItem('canvas_user', JSON.stringify(currentUser));
+                alert("Đổi mật khẩu thành công!");
+            }
+        }
+    });
+    
+    // Auth Tabs
+    safeAdd('tab-login', 'click', (e) => {
         e.target.classList.add('active');
-        document.getElementById('tab-login').classList.remove('active');
-        document.getElementById('auth-title').innerText = 'Đăng ký Tài khoản';
+        const tabReg = document.getElementById('tab-register');
+        const authTitle = document.getElementById('auth-title');
+        if (tabReg) tabReg.classList.remove('active');
+        if (authTitle) authTitle.innerText = 'Đăng nhập Firebase';
+    });
+    
+    safeAdd('tab-register', 'click', (e) => {
+        e.target.classList.add('active');
+        const tabLog = document.getElementById('tab-login');
+        const authTitle = document.getElementById('auth-title');
+        if (tabLog) tabLog.classList.remove('active');
+        if (authTitle) authTitle.innerText = 'Đăng ký Tài khoản';
     });
     
     // Xử lý Submit (Đăng nhập / Đăng ký Fake bằng LocalStorage)
-    document.getElementById('btn-auth-submit').addEventListener('click', () => {
-        const email = document.getElementById('auth-email').value.trim();
-        const pwd = document.getElementById('auth-password').value.trim();
-        const isRegister = document.getElementById('tab-register').classList.contains('active');
+    safeAdd('btn-auth-submit', 'click', () => {
+        const emailEl = document.getElementById('auth-email');
+        const pwdEl = document.getElementById('auth-password');
+        const tabReg = document.getElementById('tab-register');
         const err = document.getElementById('auth-error');
+        
+        if (!emailEl || !pwdEl || !err) return;
+        
+        const email = emailEl.value.trim();
+        const pwd = pwdEl.value.trim();
+        const isRegister = tabReg ? tabReg.classList.contains('active') : false;
         
         if (!email || !pwd) {
             err.innerText = "Vui lòng nhập Email và Mật khẩu.";
@@ -153,7 +172,7 @@ function initBackend() {
     });
     
     // Đăng xuất
-    document.getElementById('btn-logout').addEventListener('click', () => {
+    safeAdd('btn-logout', 'click', () => {
         currentUser = null;
         localStorage.removeItem('canvas_user');
         stopAutoSave();
@@ -161,7 +180,7 @@ function initBackend() {
     });
     
     // Mở Admin
-    document.getElementById('btn-open-admin').addEventListener('click', openAdminPanel);
+    safeAdd('btn-open-admin', 'click', openAdminPanel);
 }
 
 function loginUser(user) {

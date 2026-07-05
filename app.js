@@ -14,19 +14,18 @@ document.addEventListener('DOMContentLoaded', () => {
         return null;
     }
 
-    // [TÍNH NĂNG MỚI]: Bật/Tắt Dropdown Actions Menu của dự án ở góc trái trên (Dùng pointerdown cho nhạy bén)
-    const btnActionsMenu = document.getElementById('btn-actions-menu');
-    const actionsMenuDropdown = document.querySelector('.actions-menu');
+    // [TÍNH NĂNG MỚI]: Bật/Tắt Dropdown Actions Menu của dự án ở góc trái trên
+    const btnActionsMenu = document.getElementById('project-menu-trigger');
+    const actionsMenuDropdown = document.getElementById('project-dropdown');
     
     if (btnActionsMenu && actionsMenuDropdown) {
-        btnActionsMenu.addEventListener('pointerdown', (e) => {
+        btnActionsMenu.addEventListener('click', (e) => {
             e.stopPropagation();
-            e.preventDefault();
             actionsMenuDropdown.classList.toggle('show');
         });
         
         // Nhấp chuột ra ngoài khoảng trống để đóng Actions Menu
-        window.addEventListener('pointerdown', (e) => {
+        window.addEventListener('click', (e) => {
             if (actionsMenuDropdown.classList.contains('show') && !btnActionsMenu.contains(e.target) && !actionsMenuDropdown.contains(e.target)) {
                 actionsMenuDropdown.classList.remove('show');
             }
@@ -124,14 +123,11 @@ document.addEventListener('DOMContentLoaded', () => {
         'select': document.getElementById('btn-select'),
         'hand': document.getElementById('btn-hand'),
         'draw': document.getElementById('btn-draw'),
-        'erase': document.getElementById('btn-erase'),
         'note': document.getElementById('btn-note'),
         'shape': document.getElementById('btn-shape'),
         'text': document.getElementById('btn-text'),
         'connector': document.getElementById('btn-connector'),
-        'image': document.getElementById('btn-image'),
-        'bucket': document.getElementById('btn-bucket'),
-        'color-picker': document.getElementById('btn-color-picker')
+        'image': document.getElementById('btn-image')
     };
 
     // Chuyển đổi nút active trực quan trên giao diện
@@ -150,7 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const palette = document.getElementById('bottom-brush-palette');
         const popover = document.getElementById('brush-options-popover');
         if (palette) {
-            if (toolName === 'draw') {
+            if (toolName === 'draw' || toolName === 'erase') {
                 palette.classList.remove('hidden');
             } else {
                 palette.classList.add('hidden');
@@ -233,36 +229,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Đăng ký sự kiện đổi màu từ Toolbar (Paint Colors)
-    const color1 = document.getElementById('toolbar-color-1');
-    const color2 = document.getElementById('toolbar-color-2');
-    if (color1) {
-        color1.addEventListener('input', (e) => {
-            const newColor = e.target.value;
-            infiniteCanvas.strokeColor = newColor;
-            // Đồng bộ màu cho brush (Color 1)
-            const brushInput = document.getElementById('brush-color-input');
-            const brushSwatch = document.getElementById('brush-color-swatch-circle');
-            if (brushInput) brushInput.value = newColor;
-            if (brushSwatch) brushSwatch.style.backgroundColor = newColor;
-            // Nếu có vật thể đang chọn, đổi viền nó luôn
-            if (infiniteCanvas.selectedElement) {
-                infiniteCanvas.selectedElement.strokeColor = newColor;
-            }
-            infiniteCanvas.render();
-        });
-    }
-    if (color2) {
-        color2.addEventListener('input', (e) => {
-            const newColor = e.target.value;
-            infiniteCanvas.fillColor = newColor;
-            // Nếu có vật thể đang chọn, đổi nền nó luôn
-            if (infiniteCanvas.selectedElement && !(infiniteCanvas.selectedElement instanceof ConnectorLine)) {
-                infiniteCanvas.selectedElement.color = newColor;
-            }
-            infiniteCanvas.render();
-        });
-    }
+
 
 
     // Nhấp chuột ra ngoài khoảng trống canvas để đóng menu Shapes
@@ -738,117 +705,91 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 5. Quản lý Bảng thuộc tính (Property Inspector Panel)
-    const inspectorPanel = document.getElementById('inspector-panel');
-    const colorSwatches = document.querySelectorAll('.color-swatch');
-    const strokeColorInput = document.getElementById('prop-stroke-color');
-    const strokeWidthSelect = document.getElementById('prop-stroke-width');
-    const fontSizeSelect = document.getElementById('prop-font-size');
-    const textColorInput = document.getElementById('prop-text-color');
+    // 5. Quản lý Bảng thuộc tính ngữ cảnh nổi (Contextual Floating Toolbar)
+    const inspectorPanel = document.getElementById('floating-context-bar');
+    const colorSwatches = document.querySelectorAll('.ctx-color-swatch');
+    const strokeColorInput = document.getElementById('ctx-stroke-color');
+    const strokeWidthSelect = document.getElementById('ctx-stroke-width');
+    const fontSizeSelect = document.getElementById('ctx-font-size');
+    const textColorInput = document.getElementById('ctx-text-color');
     
     // Các phần tử chỉnh kích thước theo mét
-    const propDimWidth = document.getElementById('prop-dim-width');
-    const propDimHeight = document.getElementById('prop-dim-height');
-    const propDimensionGroup = document.getElementById('prop-dimension-group');
-    
-    // Tự động đóng/mở và cập nhật dữ liệu bảng thuộc tính khi chọn vật thể
-    const originalRender = infiniteCanvas.render;
-    infiniteCanvas.render = function() {
-        // Chạy hàm render gốc
-        originalRender.call(infiniteCanvas);
-        
-        // Cập nhật hiển thị Inspector Panel
-        const selected = infiniteCanvas.selectedElement;
-        if (selected) {
-            inspectorPanel.classList.remove('hidden');
-            
-            // Ẩn/Hiện các nhóm thuộc tính tương thích với loại vật thể
-            const colorGroup = document.getElementById('prop-color-group');
-            const strokeGroup = document.getElementById('prop-stroke-group');
-            const textGroup = document.getElementById('prop-text-group');
+    const propDimWidth = document.getElementById('ctx-dim-width');
+    const propDimHeight = document.getElementById('ctx-dim-height');
+    const propDimensionGroup = document.getElementById('ctx-dim-group');
 
-            // Đồng bộ kích thước lên ô input (nếu vật thể hỗ trợ co giãn)
-            if (selected instanceof StickyNote || selected instanceof ShapeElement || selected instanceof ImageElement) {
-                propDimensionGroup.style.display = 'block';
-                // Chỉ điền giá trị nếu người dùng không đang gõ trực tiếp (tránh trôi con trỏ chuột)
-                if (document.activeElement !== propDimWidth) {
-                    propDimWidth.value = Utils.pxToMeter(selected.width);
-                }
-                if (document.activeElement !== propDimHeight) {
-                    propDimHeight.value = Utils.pxToMeter(selected.height);
-                }
-            } else {
-                propDimensionGroup.style.display = 'none';
-            }
+    // Quản lý việc đóng mở các popovers của thanh ngữ cảnh
+    const popoverMappings = [
+        { btnId: 'ctx-btn-fill', popId: 'ctx-fill-popover' },
+        { btnId: 'ctx-btn-stroke', popId: 'ctx-stroke-popover' },
+        { btnId: 'ctx-btn-text', popId: 'ctx-text-popover' },
+        { btnId: 'ctx-btn-dim', popId: 'ctx-dim-popover' },
+        { btnId: 'ctx-btn-more', popId: 'ctx-more-popover' }
+    ];
 
-            if (selected instanceof StickyNote) {
-                colorGroup.style.display = 'block';
-                strokeGroup.style.display = 'none'; // Note không có viền chỉnh được
-                textGroup.style.display = 'block';
-                
-                // Đồng bộ giá trị lên UI
-                fontSizeSelect.value = selected.fontSize;
-                textColorInput.value = selected.textColor;
-                updateActiveColorSwatch(selected.color);
-            } else if (selected instanceof ShapeElement) {
-                colorGroup.style.display = 'block';
-                strokeGroup.style.display = 'block';
-                textGroup.style.display = 'block';
-                
-                fontSizeSelect.value = selected.fontSize;
-                textColorInput.value = selected.textColor;
-                strokeColorInput.value = selected.strokeColor;
-                strokeWidthSelect.value = selected.strokeWidth;
-                updateActiveColorSwatch(selected.color);
-            } else if (selected instanceof TextElement) {
-                colorGroup.style.display = 'none';
-                strokeGroup.style.display = 'none';
-                textGroup.style.display = 'block';
-                
-                fontSizeSelect.value = selected.fontSize;
-                textColorInput.value = selected.textColor;
-            } else if (selected instanceof DrawingPath) {
-                colorGroup.style.display = 'none';
-                strokeGroup.style.display = 'block'; // Xem màu vẽ nét ở mục viền
-                textGroup.style.display = 'none';
-                
-                strokeColorInput.value = selected.strokeColor;
-                strokeWidthSelect.value = selected.strokeWidth;
-            } else if (selected instanceof ImageElement) {
-                colorGroup.style.display = 'none';
-                strokeGroup.style.display = 'none';
-                textGroup.style.display = 'none';
-            }
-        } else {
-            inspectorPanel.classList.add('hidden');
+    popoverMappings.forEach(mapping => {
+        const btn = document.getElementById(mapping.btnId);
+        const pop = document.getElementById(mapping.popId);
+        if (btn && pop) {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                // Đóng tất cả các popover khác
+                popoverMappings.forEach(m => {
+                    if (m.popId !== mapping.popId) {
+                        const otherPop = document.getElementById(m.popId);
+                        if (otherPop) otherPop.classList.add('hidden');
+                    }
+                });
+                pop.classList.toggle('hidden');
+            });
         }
-    };
+    });
 
-    // Đánh dấu swatch màu đang được chọn
-    function updateActiveColorSwatch(hexColor) {
-        colorSwatches.forEach(sw => {
-            const swColor = sw.getAttribute('data-color');
-            if (swColor.toLowerCase() === (hexColor || '').toLowerCase()) {
-                sw.classList.add('active');
-            } else {
-                sw.classList.remove('active');
+    // Bấm chuột ra ngoài để đóng các popovers
+    window.addEventListener('click', (e) => {
+        popoverMappings.forEach(m => {
+            const pop = document.getElementById(m.popId);
+            const btn = document.getElementById(m.btnId);
+            if (pop && !pop.classList.contains('hidden') && !pop.contains(e.target) && (!btn || !btn.contains(e.target))) {
+                pop.classList.add('hidden');
             }
         });
-    }
+        
+        // Đóng dropdown Zoom
+        const zoomDropdown = document.getElementById('zoom-dropdown');
+        const zoomTrigger = document.getElementById('btn-zoom-menu-trigger');
+        if (zoomDropdown && zoomDropdown.classList.contains('show') && !zoomDropdown.contains(e.target) && (!zoomTrigger || !zoomTrigger.contains(e.target))) {
+            zoomDropdown.classList.remove('show');
+        }
+        
+        // Đóng dropdown project
+        const projectDropdown = document.getElementById('project-dropdown');
+        const projectTrigger = document.getElementById('project-menu-trigger');
+        if (projectDropdown && projectDropdown.classList.contains('show') && !projectDropdown.contains(e.target) && (!projectTrigger || !projectTrigger.contains(e.target))) {
+            projectDropdown.classList.remove('show');
+        }
+    });
 
     // Sự kiện thay đổi màu nền (Color Swatches)
     colorSwatches.forEach(swatch => {
-        swatch.addEventListener('click', () => {
+        swatch.addEventListener('click', (e) => {
+            e.stopPropagation();
             const color = swatch.getAttribute('data-color');
             const selected = infiniteCanvas.selectedElement;
             if (selected && (selected instanceof StickyNote || selected instanceof ShapeElement)) {
                 selected.color = color;
                 
-                // Đồng thời ghi nhớ làm màu mặc định cho vật thể tạo mới sau này
+                // Ghi nhớ làm màu mặc định cho vật thể tạo mới sau này
                 if (selected instanceof StickyNote) {
                     infiniteCanvas.noteColor = color;
                 } else {
                     infiniteCanvas.fillColor = color;
+                }
+                
+                // Đồng bộ màu xem trước
+                const fillPreview = document.getElementById('ctx-fill-preview');
+                if (fillPreview) {
+                    fillPreview.style.backgroundColor = color;
                 }
                 
                 saveState();
@@ -858,90 +799,210 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Sự kiện thay đổi màu viền
-    strokeColorInput.addEventListener('change', () => {
-        const selected = infiniteCanvas.selectedElement;
-        if (selected) {
-            selected.strokeColor = strokeColorInput.value;
-            if (selected instanceof DrawingPath) {
-                infiniteCanvas.strokeColor = strokeColorInput.value;
+    if (strokeColorInput) {
+        strokeColorInput.addEventListener('change', () => {
+            const selected = infiniteCanvas.selectedElement;
+            if (selected && selected instanceof ShapeElement) {
+                selected.strokeColor = strokeColorInput.value;
+                saveState();
+                infiniteCanvas.render();
             }
-            saveState();
-            infiniteCanvas.render();
-        }
-    });
+        });
+    }
 
     // Sự kiện thay đổi độ dày viền
-    strokeWidthSelect.addEventListener('change', () => {
-        const selected = infiniteCanvas.selectedElement;
-        if (selected) {
-            selected.strokeWidth = parseInt(strokeWidthSelect.value);
-            if (selected instanceof DrawingPath) {
-                infiniteCanvas.strokeWidth = parseInt(strokeWidthSelect.value);
+    if (strokeWidthSelect) {
+        strokeWidthSelect.addEventListener('change', () => {
+            const selected = infiniteCanvas.selectedElement;
+            if (selected && selected instanceof ShapeElement) {
+                selected.strokeWidth = parseInt(strokeWidthSelect.value);
+                saveState();
+                infiniteCanvas.render();
             }
-            saveState();
-            infiniteCanvas.render();
-        }
-    });
+        });
+    }
 
     // Sự kiện thay đổi cỡ chữ
-    fontSizeSelect.addEventListener('change', () => {
-        const selected = infiniteCanvas.selectedElement;
-        if (selected && (selected instanceof StickyNote || selected instanceof ShapeElement || selected instanceof TextElement)) {
-            selected.fontSize = parseInt(fontSizeSelect.value);
-            saveState();
-            infiniteCanvas.render();
-        }
-    });
+    if (fontSizeSelect) {
+        fontSizeSelect.addEventListener('change', () => {
+            const selected = infiniteCanvas.selectedElement;
+            if (selected && (selected instanceof StickyNote || selected instanceof ShapeElement || selected instanceof TextElement)) {
+                selected.fontSize = parseInt(fontSizeSelect.value);
+                saveState();
+                infiniteCanvas.render();
+            }
+        });
+    }
 
     // Sự kiện thay đổi màu chữ
-    textColorInput.addEventListener('change', () => {
+    if (textColorInput) {
+        textColorInput.addEventListener('change', () => {
+            const selected = infiniteCanvas.selectedElement;
+            if (selected && (selected instanceof StickyNote || selected instanceof ShapeElement || selected instanceof TextElement)) {
+                selected.textColor = textColorInput.value;
+                saveState();
+                infiniteCanvas.render();
+            }
+        });
+    }
+
+    // Sự kiện gõ thay đổi kích thước mét trực tiếp
+    if (propDimWidth) {
+        propDimWidth.addEventListener('input', () => {
+            const selected = infiniteCanvas.selectedElement;
+            if (selected && propDimWidth.value > 0) {
+                const newW = Utils.meterToPx(parseFloat(propDimWidth.value));
+                if (selected instanceof ImageElement) {
+                    selected.width = newW;
+                    selected.height = newW / selected.aspectRatio;
+                    if (propDimHeight) propDimHeight.value = Utils.pxToMeter(selected.height);
+                } else {
+                    selected.width = newW;
+                }
+                saveState();
+                infiniteCanvas.render();
+            }
+        });
+    }
+
+    if (propDimHeight) {
+        propDimHeight.addEventListener('input', () => {
+            const selected = infiniteCanvas.selectedElement;
+            if (selected && propDimHeight.value > 0) {
+                const newH = Utils.meterToPx(parseFloat(propDimHeight.value));
+                if (selected instanceof ImageElement) {
+                    selected.height = newH;
+                    selected.width = newH * selected.aspectRatio;
+                    if (propDimWidth) propDimWidth.value = Utils.pxToMeter(selected.width);
+                } else {
+                    selected.height = newH;
+                }
+                saveState();
+                infiniteCanvas.render();
+            }
+        });
+    }
+
+    // Nhân bản vật thể đang chọn
+    safeAddListener('ctx-btn-duplicate', 'click', (e) => {
+        e.stopPropagation();
         const selected = infiniteCanvas.selectedElement;
-        if (selected && (selected instanceof StickyNote || selected instanceof ShapeElement || selected instanceof TextElement)) {
-            selected.textColor = textColorInput.value;
+        if (selected) {
+            // Nhân bản bằng cách clone element
+            let cloned = null;
+            const xOffset = 30; // dịch chuyển một chút để nhìn rõ bản sao
+            const yOffset = 30;
+            
+            if (selected instanceof StickyNote) {
+                cloned = new StickyNote(selected.x + xOffset, selected.y + yOffset, selected.width, selected.height);
+                cloned.color = selected.color;
+                cloned.text = selected.text;
+                cloned.fontSize = selected.fontSize;
+                cloned.textColor = selected.textColor;
+            } else if (selected instanceof ShapeElement) {
+                cloned = new ShapeElement(selected.shapeType, selected.x + xOffset, selected.y + yOffset, selected.width, selected.height);
+                cloned.color = selected.color;
+                cloned.strokeColor = selected.strokeColor;
+                cloned.strokeWidth = selected.strokeWidth;
+                cloned.text = selected.text;
+                cloned.fontSize = selected.fontSize;
+                cloned.textColor = selected.textColor;
+            } else if (selected instanceof TextElement) {
+                cloned = new TextElement(selected.text, selected.x + xOffset, selected.y + yOffset);
+                cloned.fontSize = selected.fontSize;
+                cloned.textColor = selected.textColor;
+            } else if (selected instanceof ImageElement) {
+                cloned = new ImageElement(selected.image, selected.x + xOffset, selected.y + yOffset, selected.width);
+                cloned.height = selected.height;
+                cloned.aspectRatio = selected.aspectRatio;
+            }
+            
+            if (cloned) {
+                infiniteCanvas.addElement(cloned);
+                infiniteCanvas.clearSelection();
+                cloned.selected = true;
+                infiniteCanvas.selectedElement = cloned;
+                saveState();
+                infiniteCanvas.render();
+            }
+        }
+    });
+
+    // Khóa / Mở khóa vật thể đang chọn
+    safeAddListener('ctx-btn-lock', 'click', (e) => {
+        e.stopPropagation();
+        const selected = infiniteCanvas.selectedElement;
+        if (selected) {
+            selected.locked = !selected.locked;
             saveState();
             infiniteCanvas.render();
         }
     });
 
-    // [TÍNH NĂNG THIẾT KẾ NHÀ]: Sự kiện gõ thay đổi kích thước mét trực tiếp
-    propDimWidth.addEventListener('input', () => {
+    // Xóa vật thể đang chọn
+    safeAddListener('ctx-btn-delete', 'click', (e) => {
+        e.stopPropagation();
         const selected = infiniteCanvas.selectedElement;
-        if (selected && propDimWidth.value > 0) {
-            const newW = Utils.meterToPx(parseFloat(propDimWidth.value));
-            
-            if (selected instanceof ImageElement) {
-                selected.width = newW;
-                selected.height = newW / selected.aspectRatio;
-                propDimHeight.value = Utils.pxToMeter(selected.height);
-            } else {
-                selected.width = newW;
-            }
+        if (selected) {
+            infiniteCanvas.deleteElement(selected);
             saveState();
             infiniteCanvas.render();
         }
     });
 
-    propDimHeight.addEventListener('input', () => {
-        const selected = infiniteCanvas.selectedElement;
-        if (selected && propDimHeight.value > 0) {
-            const newH = Utils.meterToPx(parseFloat(propDimHeight.value));
-            
-            if (selected instanceof ImageElement) {
-                selected.height = newH;
-                selected.width = newH * selected.aspectRatio;
-                propDimWidth.value = Utils.pxToMeter(selected.width);
-            } else {
-                selected.height = newH;
+    // Thay đổi hình dạng của ShapeElement trong popup more
+    const changeShapeBtns = document.querySelectorAll('.shape-change-btn');
+    changeShapeBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const newShape = btn.getAttribute('data-shape');
+            const selected = infiniteCanvas.selectedElement;
+            if (selected && selected instanceof ShapeElement) {
+                selected.shapeType = newShape;
+                saveState();
+                infiniteCanvas.render();
             }
+        });
+    });
+
+    // Đưa lên trên cùng trong popup more
+    safeAddListener('ctx-more-bring-front', 'click', (e) => {
+        e.stopPropagation();
+        const selected = infiniteCanvas.selectedElement;
+        if (selected) {
+            infiniteCanvas.elements = infiniteCanvas.elements.filter(el => el.id !== selected.id);
+            infiniteCanvas.elements.push(selected);
+            saveState();
+            infiniteCanvas.render();
+        }
+    });
+
+    // Đưa ra sau cùng trong popup more
+    safeAddListener('ctx-more-send-back', 'click', (e) => {
+        e.stopPropagation();
+        const selected = infiniteCanvas.selectedElement;
+        if (selected) {
+            infiniteCanvas.elements = infiniteCanvas.elements.filter(el => el.id !== selected.id);
+            infiniteCanvas.elements.unshift(selected);
+            saveState();
+            infiniteCanvas.render();
+        }
+    });
+
+    // Khóa tỉ lệ kích thước trong popup more
+    safeAddListener('ctx-more-aspect', 'click', (e) => {
+        e.stopPropagation();
+        const selected = infiniteCanvas.selectedElement;
+        if (selected) {
+            selected.aspectLocked = !selected.aspectLocked;
             saveState();
             infiniteCanvas.render();
         }
     });
 
     // Quản lý nút Bật/Tắt Hít lưới Nam châm (Grid Snapping)
-    const btnSnapToggle = safeAddListener('btn-snap-toggle', 'pointerdown', (e) => {
+    safeAddListener('btn-snap-toggle', 'click', (e) => {
         e.stopPropagation();
-        e.preventDefault();
         infiniteCanvas.gridSnapEnabled = !infiniteCanvas.gridSnapEnabled;
         const btn = document.getElementById('btn-snap-toggle');
         if (btn) {
@@ -953,38 +1014,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Đưa vật thể lên trên cùng hoặc ra sau cùng
-    safeAddListener('btn-bring-front', 'pointerdown', (e) => {
+    // Quản lý nút Bật/Tắt lưới chấm (Grid Toggle)
+    safeAddListener('btn-grid-toggle', 'click', (e) => {
         e.stopPropagation();
-        e.preventDefault();
-        const selected = infiniteCanvas.selectedElement;
-        if (selected) {
-            infiniteCanvas.elements = infiniteCanvas.elements.filter(el => el.id !== selected.id);
-            infiniteCanvas.elements.push(selected);
-            saveState();
-            infiniteCanvas.render();
+        infiniteCanvas.gridEnabled = !infiniteCanvas.gridEnabled;
+        const btn = document.getElementById('btn-grid-toggle');
+        if (btn) {
+            if (infiniteCanvas.gridEnabled) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
         }
-    });
-
-    safeAddListener('btn-send-back', 'pointerdown', (e) => {
-        e.stopPropagation();
-        e.preventDefault();
-        const selected = infiniteCanvas.selectedElement;
-        if (selected) {
-            infiniteCanvas.elements = infiniteCanvas.elements.filter(el => el.id !== selected.id);
-            infiniteCanvas.elements.unshift(selected); // Thêm vào đầu mảng (vẽ dưới cùng)
-            saveState();
-            infiniteCanvas.render();
-        }
-    });
-
-    // Xóa vật thể qua nút thùng rác
-    safeAddListener('btn-delete-element', 'pointerdown', (e) => {
-        e.stopPropagation();
-        e.preventDefault();
-        if (infiniteCanvas.selectedElement) {
-            infiniteCanvas.deleteElement(infiniteCanvas.selectedElement);
-        }
+        infiniteCanvas.render();
     });
 
     // 6. Xử lý tải ảnh lên (Image Loader)
@@ -1156,22 +1198,29 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 8. Quản lý Bộ thu phóng (Zoom Control)
-    safeAddListener('btn-zoom-in', 'pointerdown', (e) => {
+    const btnZoomMenu = document.getElementById('btn-zoom-menu-trigger');
+    const zoomDropdown = document.getElementById('zoom-dropdown');
+    if (btnZoomMenu && zoomDropdown) {
+        btnZoomMenu.addEventListener('click', (e) => {
+            e.stopPropagation();
+            zoomDropdown.classList.toggle('show');
+        });
+    }
+
+    safeAddListener('btn-zoom-in', 'click', (e) => {
         e.stopPropagation();
-        e.preventDefault();
         infiniteCanvas.zoomStep('in');
     });
     
-    safeAddListener('btn-zoom-out', 'pointerdown', (e) => {
+    safeAddListener('btn-zoom-out', 'click', (e) => {
         e.stopPropagation();
-        e.preventDefault();
         infiniteCanvas.zoomStep('out');
     });
     
-    safeAddListener('btn-zoom-reset', 'pointerdown', (e) => {
+    safeAddListener('btn-zoom-reset', 'click', (e) => {
         e.stopPropagation();
-        e.preventDefault();
         infiniteCanvas.zoomReset();
+        if (zoomDropdown) zoomDropdown.classList.remove('show');
     });
 
     // --- QUẢN LÝ THANH BÚT VẼ NỔI APPLE ---
@@ -1397,109 +1446,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Đăng ký các sự kiện trên Menu Ngữ cảnh Nổi
-    document.getElementById('ctx-send-back').addEventListener('click', (e) => {
-        e.stopPropagation();
-        const selected = infiniteCanvas.selectedElement;
-        if (selected) {
-            infiniteCanvas.elements = infiniteCanvas.elements.filter(el => el.id !== selected.id);
-            infiniteCanvas.elements.unshift(selected);
-            saveState();
-            infiniteCanvas.render();
-        }
-    });
-
-    document.getElementById('ctx-bring-front').addEventListener('click', (e) => {
-        e.stopPropagation();
-        const selected = infiniteCanvas.selectedElement;
-        if (selected) {
-            infiniteCanvas.elements = infiniteCanvas.elements.filter(el => el.id !== selected.id);
-            infiniteCanvas.elements.push(selected);
-            saveState();
-            infiniteCanvas.render();
-        }
-    });
-
-    document.getElementById('ctx-cut').addEventListener('click', (e) => {
-        e.stopPropagation();
-        const selected = infiniteCanvas.selectedElement;
-        if (selected) {
-            copyElement(selected);
-            infiniteCanvas.deleteElement(selected);
-        }
-    });
-
-    document.getElementById('ctx-copy').addEventListener('click', (e) => {
-        e.stopPropagation();
-        const selected = infiniteCanvas.selectedElement;
-        if (selected) {
-            copyElement(selected);
-        }
-    });
-
-    document.getElementById('ctx-duplicate').addEventListener('click', (e) => {
-        e.stopPropagation();
-        const selected = infiniteCanvas.selectedElement;
-        if (selected) {
-            copyElement(selected);
-            // Dán lệch đi 24px so với vật thể cũ
-            const screenPos = infiniteCanvas.canvasToScreen(selected.x, selected.y);
-            pasteElement(screenPos.x + 24, screenPos.y + 24);
-            saveState();
-        }
-    });
-
-    document.getElementById('ctx-lock').addEventListener('click', (e) => {
-        e.stopPropagation();
-        const selected = infiniteCanvas.selectedElement;
-        if (selected) {
-            selected.locked = !selected.locked; // Đảo trạng thái khóa
-            saveState();
-            infiniteCanvas.render();
-        }
-    });
-
-    document.getElementById('ctx-aspect').addEventListener('click', (e) => {
-        e.stopPropagation();
-        const selected = infiniteCanvas.selectedElement;
-        if (selected) {
-            selected.aspectLocked = !selected.aspectLocked; // Đảo trạng thái khóa tỉ lệ
-            saveState();
-            infiniteCanvas.render();
-        }
-    });
-
-    // Thay đổi nhanh hình dạng Shape trong Submenu
-    document.querySelectorAll('.ctx-submenu-item').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const selected = infiniteCanvas.selectedElement;
-            if (selected && selected instanceof ShapeElement) {
-                const newShape = btn.getAttribute('data-shape');
-                selected.shapeType = newShape;
-                
-                // Tối ưu hóa kích thước & màu mặc định nếu đổi sang các đối tượng kiến trúc
-                if (newShape === 'wall') {
-                    selected.width = 160;
-                    selected.height = 15;
-                    selected.color = '#5c5c5e';
-                } else if (newShape === 'door' || newShape === 'window') {
-                    selected.width = 60;
-                    selected.height = 60;
-                    selected.color = '#e1f5fe';
-                } else if (newShape === 'bed') {
-                    selected.width = 80;
-                    selected.height = 100;
-                } else if (newShape === 'sofa') {
-                    selected.width = 120;
-                    selected.height = 50;
-                }
-                
-                saveState();
-                infiniteCanvas.render();
-            }
-        });
-    });
+    // [ĐÃ DỌN DẸP]: Loại bỏ các sự kiện menu ngữ cảnh cũ để tránh lỗi addEventListener trên phần tử null
 
     // Theo dõi tọa độ chuột màn hình hiện tại phục vụ dán (Paste) đúng vị trí chuột
     let currentGlobalMousePos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
