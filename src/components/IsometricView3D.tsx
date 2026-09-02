@@ -97,8 +97,14 @@ export default function IsometricView3D({ board, onExit3D, onOpenAIRenderStudio 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const width = canvas.width = window.innerWidth;
-    const height = canvas.height = window.innerHeight;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    canvas.width = width * dpr;
+    canvas.height = height * dpr;
+    canvas.style.width = `${width}px`;
+    canvas.style.height = `${height}px`;
+    ctx.scale(dpr, dpr);
 
     // 1. TÍNH TOÁN BẦU TRỜI & ÁNH SÁNG THEO GIỜ TRONG NGÀY
     const bgGradient = ctx.createLinearGradient(0, 0, 0, height);
