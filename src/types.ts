@@ -202,3 +202,39 @@ export interface PenSettings {
   eraser: { mode: 'pixel' | 'object'; size: number };
   bucket: { color: string };
 }
+
+// === CÁC KIỂU DỮ LIỆU TRỢ LÝ AI KIẾN TRÚC SƯ COPILOT & ĐĂNG NHẬP AI ===
+export type AIProvider = 'native' | 'openai' | 'gemini' | 'claude' | 'deepseek' | 'custom';
+
+export interface AIAuthConfig {
+  provider: AIProvider;
+  apiKey?: string;
+  model?: string;
+  endpoint?: string;
+  isActive: boolean;
+}
+
+export interface AIChatMessage {
+  id: string;
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+  timestamp: string;
+  suggestedActions?: { label: string; prompt: string }[];
+  executedActionType?: string;
+}
+
+export interface AICanvasCommand {
+  type: 
+    | 'create_house_garden' 
+    | 'create_land_plot' 
+    | 'add_item' 
+    | 'switch_view_3d' 
+    | 'switch_view_2d' 
+    | 'open_cost_estimator' 
+    | 'set_sunlight_time' 
+    | 'consultation';
+  payload?: any;
+  explanation: string;
+  suggestedChips?: { label: string; prompt: string }[];
+}
+

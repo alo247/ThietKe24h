@@ -18,6 +18,9 @@ import Toolbar from './components/Toolbar';
 import ShapesMenu from './components/ShapesMenu';
 import IsometricView3D from './components/IsometricView3D';
 import CostEstimatorModal from './components/CostEstimatorModal';
+import AICopilotDrawer from './components/AICopilotDrawer';
+import AIAccountModal, { DEFAULT_AI_CONFIG } from './components/AIAccountModal';
+import { AIAuthConfig } from './types';
 import { HOUSE_TEMPLATES, createLandPlotBoard, createTropicalVillaBoard } from './data/houseTemplates';
 import { getSymbolDef, ARCHITECTURAL_SYMBOLS } from './data/architecturalSymbols';
 import { motion, AnimatePresence } from 'motion/react';
@@ -48,6 +51,17 @@ export default function App() {
 
   // Chế độ xem: 2D Mặt bằng hoặc 3D Isometric
   const [viewMode, setViewMode] = useState<ViewMode>('2d');
+
+  // Cấu hình Tài khoản AI & Trạng thái Modal Đăng nhập AI
+  const [aiConfig, setAiConfig] = useState<AIAuthConfig>(() => {
+    try {
+      const stored = localStorage.getItem('ai_auth_config');
+      return stored ? JSON.parse(stored) : DEFAULT_AI_CONFIG;
+    } catch (e) {
+      return DEFAULT_AI_CONFIG;
+    }
+  });
+  const [showAIAccountModal, setShowAIAccountModal] = useState(false);
 
   // Trạng thái hiển thị Modal Mẫu Thiết Kế, Khung Đất & Dự Toán Chi Phí
   const [showTemplatesModal, setShowTemplatesModal] = useState(false);
@@ -490,6 +504,12 @@ export default function App() {
     }
   };
 
+  // Lưu cấu hình tài khoản AI
+  const handleSaveAIConfig = (newConfig: AIAuthConfig) => {
+    setAiConfig(newConfig);
+    localStorage.setItem('ai_auth_config', JSON.stringify(newConfig));
+  };
+
   return (
     <div className="w-screen h-screen overflow-hidden bg-slate-50 font-sans relative">
       <AnimatePresence mode="wait">
@@ -779,6 +799,34 @@ export default function App() {
                     <CostEstimatorModal
                       board={activeBoard}
                       onClose={() => setShowCostEstimatorModal(false)}
+                    />
+                  )}
+                </AnimatePresence>
+
+                {/* TRỢ LÝ AI KIẾN TRÚC SƯ COPILOT TƯƠNG TÁC GIỌNG NÓI & CHAT ĐỒNG BỘ */}
+                <AICopilotDrawer
+                  currentBoard={activeBoard}
+                  aiConfig={aiConfig}
+                  onOpenAccountModal={() => setShowAIAccountModal(true)}
+                  onApplyNewBoard={(newBoard) => {
+                    const updated = [newBoard, ...boards];
+                    saveBoards(updated);
+                    handleSelectBoard(newBoard.id);
+                  }}
+                  onAddGardenItem={(symbolId) => {
+                    handleAddGardenFurniture(symbolId);
+                  }}
+                  onSwitchViewMode={setViewMode}
+                  onOpenCostEstimator={() => setShowCostEstimatorModal(true)}
+                />
+
+                {/* MODAL 4: TRUNG TÂM ĐĂNG NHẬP & KẾT NỐI ĐA TÀI KHOẢN AI */}
+                <AnimatePresence>
+                  {showAIAccountModal && (
+                    <AIAccountModal
+                      currentConfig={aiConfig}
+                      onClose={() => setShowAIAccountModal(false)}
+                      onSaveConfig={handleSaveAIConfig}
                     />
                   )}
                 </AnimatePresence>
