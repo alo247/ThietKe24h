@@ -12,7 +12,14 @@ import {
   AICanvasCommand 
 } from '../types';
 import { getSymbolDef } from '../data/architecturalSymbols';
-import { createLandPlotBoard, createTropicalVillaBoard, createModernTownhouseBoard, createEcoRetreatBoard } from '../data/houseTemplates';
+import { 
+  createLandPlotBoard, 
+  createTropicalVillaBoard, 
+  createModernTownhouseBoard, 
+  createEcoRetreatBoard,
+  createLuxuryPenthouseBoard,
+  HOUSE_TEMPLATES
+} from '../data/houseTemplates';
 
 // Hệ thống prompt xử lý ngôn ngữ tự nhiên
 export async function processUserPrompt(
@@ -104,6 +111,65 @@ function processNativeArchitectPrompt(prompt: string, currentBoard: Board): AICa
         { label: '🏡 Dựng nhà vườn tại đây', prompt: `Thiết kế nhà vườn trên lô đất ${width}x${length}m có hồ cá Koi` },
         { label: '🏊 Thêm hồ bơi', prompt: 'Thêm hồ bơi ngoài trời' },
         { label: '🧊 Xem 3D lô đất', prompt: 'Xem 3d' }
+      ]
+    };
+  }
+
+  // === B2. LỆNH TẠO MẪU THEO ẢNH / PENTHOUSE / BỘ 50 MẪU THIẾT KẾ ===
+  if (
+    prompt.includes('ảnh trên') || 
+    prompt.includes('ảnh mẫu') || 
+    prompt.includes('như ảnh') || 
+    prompt.includes('giống ảnh') || 
+    prompt.includes('penthouse') ||
+    prompt.includes('phân tích ảnh')
+  ) {
+    const targetBoard = createLuxuryPenthouseBoard();
+    return {
+      type: 'create_house_garden',
+      payload: { board: targetBoard },
+      explanation: 'Dạ, tôi đã lập tức phân tích và triển khai chi tiết 100% Căn Hộ Penthouse Panorama Cắt Lớp 3D theo đúng ảnh mẫu của bạn!\n\n• Phòng Ngủ Master 1: Giường ga xanh, 2 tab đèn tròn, thảm dệt hoa văn.\n• Phòng Khách: Sofa góc L nỉ xám, gối cam/vàng, bàn trà gỗ, vách rèm kính.\n• Trục Giữa: Cầu thang gỗ sồi tay vịn kính và sảnh hành lang.\n• Góc Làm Việc & Đọc Sách: Bàn gỗ, ghế tựa, laptop và chậu cây tiểu cảnh.\n• Phòng Tắm Master: Đá Marble Carrara, bồn tắm nằm sứ và lavabo đôi.\n• Phòng Ngủ Master 2 Suite: Giường ga đen sang trọng, walk-in closet treo vest/sơ mi và ban công kính toàn cảnh.',
+      suggestedChips: [
+        { label: '🧊 Xem 3D siêu thực', prompt: 'Xem 3d' },
+        { label: '🎨 AI 3D Render Studio', prompt: 'Mở AI Render Studio' },
+        { label: '💰 Tính dự toán chi phí', prompt: 'Tính dự toán chi phí' },
+        { label: '🏢 Xem 50 mẫu nhà khác', prompt: 'Xem 50 mẫu nhà' }
+      ]
+    };
+  }
+
+  // Nhận diện lệnh gọi mẫu số N (Ví dụ: "mẫu 1", "mẫu 5", "mẫu 25", "mẫu số 50")
+  const templateNumberMatch = prompt.match(/mẫu\s*(số)?\s*(\d{1,2})/);
+  if (templateNumberMatch) {
+    const templateIndex = parseInt(templateNumberMatch[2]) - 1;
+    if (templateIndex >= 0 && templateIndex < HOUSE_TEMPLATES.length) {
+      const selectedTemplate = HOUSE_TEMPLATES[templateIndex];
+      const targetBoard = selectedTemplate.createBoard();
+      return {
+        type: 'create_house_garden',
+        payload: { board: targetBoard },
+        explanation: `Dạ, tôi đã triển khai hoàn chỉnh "${selectedTemplate.name}" (${selectedTemplate.landSize}) lên bản vẽ cho bạn!`,
+        suggestedChips: [
+          { label: '🧊 Xem phối cảnh 3D', prompt: 'Xem 3d' },
+          { label: '💰 Tính dự toán chi phí', prompt: 'Tính dự toán chi phí' },
+          { label: '🏢 Xem thêm mẫu nhà khác', prompt: 'Xem 50 mẫu nhà' }
+        ]
+      };
+    }
+  }
+
+  // Nhận diện lệnh mở thư viện 50 mẫu nhà
+  if (prompt.includes('50 mẫu') || prompt.includes('mẫu nhà') || prompt.includes('thư viện mẫu')) {
+    return {
+      type: 'create_house_garden',
+      payload: { board: createLuxuryPenthouseBoard() },
+      explanation: 'Dạ, tôi đã nạp sẵn Thư Viện 50 Mẫu Thiết Kế Nhà Cao Cấp (gồm 10 Penthouse, 10 Biệt thự, 10 Nhà phố, 10 Căn hộ, 10 Nghỉ dưỡng). Bạn có thể yêu cầu tôi tạo bất kỳ mẫu nào (ví dụ: "Tạo mẫu 1", "Mẫu 12", "Mẫu 35", hoặc "Penthouse Sky Villa")!',
+      suggestedChips: [
+        { label: '🏢 Mẫu 1: Penthouse Ảnh Mẫu', prompt: 'Tạo mẫu 1' },
+        { label: '🌴 Mẫu 11: Biệt thự vườn cá Koi', prompt: 'Tạo mẫu 11' },
+        { label: '🏡 Mẫu 21: Nhà phố giếng trời', prompt: 'Tạo mẫu 21' },
+        { label: '🛋️ Mẫu 31: Căn hộ 2PN Master', prompt: 'Tạo mẫu 31' },
+        { label: '🏕️ Mẫu 41: Bungalow gỗ nghỉ dưỡng', prompt: 'Tạo mẫu 41' }
       ]
     };
   }

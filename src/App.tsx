@@ -22,6 +22,7 @@ import AICopilotDrawer from './components/AICopilotDrawer';
 import AIAccountModal, { DEFAULT_AI_CONFIG } from './components/AIAccountModal';
 import AIVisionModal from './components/AIVisionModal';
 import AIRenderStudioModal from './components/AIRenderStudioModal';
+import HouseTemplatesModal from './components/HouseTemplatesModal';
 import { AIAuthConfig } from './types';
 import { HOUSE_TEMPLATES, createLandPlotBoard, createTropicalVillaBoard, createLuxuryPenthouseBoard } from './data/houseTemplates';
 import { getSymbolDef, ARCHITECTURAL_SYMBOLS } from './data/architecturalSymbols';
@@ -640,66 +641,13 @@ export default function App() {
                   )}
                 </AnimatePresence>
 
-                {/* MODAL 1: MẪU THIẾT KẾ NHÀ VƯỜN (HOUSE & GARDEN TEMPLATES) */}
+                {/* MODAL 1: THƯ VIỆN 50 MẪU THIẾT KẾ NHÀ CAO CẤP (50 HOUSE TEMPLATES) */}
                 <AnimatePresence>
                   {showTemplatesModal && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                        className="bg-white rounded-3xl p-6 shadow-2xl max-w-2xl w-full border border-slate-100 max-h-[90vh] overflow-y-auto no-scrollbar space-y-5"
-                      >
-                        <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                          <div className="flex items-center gap-2.5">
-                            <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
-                              🏡
-                            </div>
-                            <div>
-                              <h3 className="font-bold text-slate-900 text-base">Thư Viện Mẫu Thiết Kế Nhà Vườn</h3>
-                              <p className="text-xs text-slate-500">Chọn mẫu mặt bằng có sẵn để tùy biến theo nhu cầu</p>
-                            </div>
-                          </div>
-                          <button
-                            onClick={() => setShowTemplatesModal(false)}
-                            className="p-2 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition cursor-pointer"
-                          >
-                            <X className="w-5 h-5" />
-                          </button>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                          {HOUSE_TEMPLATES.map((tmpl) => (
-                            <div 
-                              key={tmpl.id}
-                              className="border border-slate-200/80 rounded-2xl p-4 flex flex-col justify-between hover:border-blue-500 hover:shadow-lg transition group bg-slate-50/50 hover:bg-white"
-                            >
-                              <div className="space-y-2">
-                                <div className="text-2xl">
-                                  {tmpl.id === 'tropical_villa' ? '🌴' : tmpl.id === 'modern_townhouse' ? '🏡' : '🌊'}
-                                </div>
-                                <h4 className="font-bold text-slate-900 text-sm group-hover:text-blue-600 transition">
-                                  {tmpl.name}
-                                </h4>
-                                <span className="inline-block text-[10px] bg-blue-100 text-blue-700 font-bold px-2 py-0.5 rounded-full">
-                                  {tmpl.landSize}
-                                </span>
-                                <p className="text-xs text-slate-500 line-clamp-3">
-                                  {tmpl.description}
-                                </p>
-                              </div>
-
-                              <button
-                                onClick={() => handleApplyTemplate(tmpl.createBoard)}
-                                className="w-full mt-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs transition active:scale-95 shadow-md shadow-blue-500/25 cursor-pointer"
-                              >
-                                Sử dụng mẫu này
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                      </motion.div>
-                    </div>
+                    <HouseTemplatesModal
+                      onClose={() => setShowTemplatesModal(false)}
+                      onApplyTemplate={handleApplyTemplate}
+                    />
                   )}
                 </AnimatePresence>
 
