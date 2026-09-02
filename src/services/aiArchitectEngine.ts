@@ -20,6 +20,7 @@ import {
   createLuxuryPenthouseBoard,
   HOUSE_TEMPLATES
 } from '../data/houseTemplates';
+import { generateHouseFromNaturalPrompt } from '../core/ai/AIHomePlanner';
 
 // Hệ thống prompt xử lý ngôn ngữ tự nhiên
 export async function processUserPrompt(
@@ -174,35 +175,24 @@ function processNativeArchitectPrompt(prompt: string, currentBoard: Board): AICa
     };
   }
 
-  // === C. THIẾT KẾ NHÀ VƯỜN / BIỆT THỰ HOÀN CHỈNH ===
-  if (prompt.includes('biệt thự') || prompt.includes('nhà vườn') || (prompt.includes('thiết kế') && prompt.includes('nhà'))) {
-    // Trích xuất diện tích nếu có
-    const width = plotMatch ? parseInt(plotMatch[1]) : 12;
-    const length = plotMatch ? parseInt(plotMatch[3]) : 20;
-
-    let targetBoard: Board;
-    let desc = '';
-
-    if (prompt.includes('phố') || prompt.includes('ống') || width <= 6) {
-      targetBoard = createModernTownhouseBoard();
-      desc = 'Mẫu Nhà Phố Hiện Đại kèm Giếng Trời và Sân Vườn thư giãn';
-    } else if (prompt.includes('nghỉ dưỡng') || prompt.includes('resort') || prompt.includes('sinh thái') || prompt.includes('hồ bơi')) {
-      targetBoard = createEcoRetreatBoard();
-      desc = 'Khu Nghỉ Dưỡng Sinh Thái kèm Hồ Bơi Vô Cực và Chòi Gỗ';
-    } else {
-      targetBoard = createTropicalVillaBoard();
-      desc = `Biệt Thự Vườn Nhiệt Đới chuẩn ${width}m x ${length}m có Hồ Cá Koi, Phòng Khách, 2 Phòng Ngủ, Bếp và Cây Cổ Thụ`;
-    }
-
+  // === C. THIẾT KẾ NHÀ THEO YÊU CẦU ĐA PHÒNG & KÍCH THƯỚC (AI HOME PLANNER) ===
+  if (
+    prompt.includes('phòng ngủ') || 
+    prompt.includes('phòng thờ') || 
+    prompt.includes('wc') || 
+    prompt.includes('vệ sinh') ||
+    (prompt.includes('thiết kế') && (prompt.includes('nhà') || prompt.includes('biệt thự') || plotMatch !== null))
+  ) {
+    const planResult = generateHouseFromNaturalPrompt(prompt);
     return {
       type: 'create_house_garden',
-      payload: { board: targetBoard },
-      explanation: `Dạ, tôi đã lập tức triển khai hoàn chỉnh ${desc}! Bạn có thể xem mặt bằng 2D hoặc bấm nút 3D để chiêm ngưỡng phối cảnh.`,
+      payload: { board: planResult.board },
+      explanation: planResult.explanation,
       suggestedChips: [
-        { label: '🧊 Xem phối cảnh 3D', prompt: 'Xem 3D lúc 15h' },
-        { label: '💰 Tính dự toán kinh phí', prompt: 'Tính dự toán chi phí' },
-        { label: '🌳 Thêm cây bóng mát', prompt: 'Thêm cây bóng mát' },
-        { label: '🔥 Thêm bếp BBQ ngoài trời', prompt: 'Thêm bếp BBQ ngoài trời' }
+        { label: '🧊 Xem phối cảnh 3D', prompt: 'Xem 3d' },
+        { label: '🎨 AI 3D Render Studio', prompt: 'Mở AI Render Studio' },
+        { label: '💰 Bảng dự toán BOQ', prompt: 'Tính dự toán chi phí' },
+        { label: '📐 Xem mặt bằng 2D', prompt: 'Về mặt bằng 2d' }
       ]
     };
   }
