@@ -62,6 +62,8 @@ interface ToolbarProps {
   onOpenTemplates?: () => void;
   onOpenLandWizard?: () => void;
   onOpenCostEstimator?: () => void;
+  onOpenAIVision?: () => void;
+  onOpenAIRenderStudio?: () => void;
   onToggleView3D?: () => void;
   is3DView?: boolean;
 }
@@ -83,6 +85,8 @@ export default function Toolbar({
   onOpenTemplates,
   onOpenLandWizard,
   onOpenCostEstimator,
+  onOpenAIVision,
+  onOpenAIRenderStudio,
   onToggleView3D,
   is3DView
 }: ToolbarProps) {
@@ -525,7 +529,7 @@ export default function Toolbar({
             )}
 
             {/* Bottom Quick Action Buttons */}
-            <div className="pt-2 border-t border-slate-100 grid grid-cols-3 gap-1.5">
+            <div className="pt-2 border-t border-slate-100 grid grid-cols-3 gap-1.5 mb-1.5">
               <button
                 onClick={() => { onOpenTemplates?.(); setActivePopover(null); }}
                 className="py-2 px-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl font-bold text-[10px] flex items-center justify-center gap-1 transition cursor-pointer border border-blue-200/60"
@@ -548,6 +552,27 @@ export default function Toolbar({
               >
                 <span>💰</span>
                 <span className="truncate">Dự Toán</span>
+              </button>
+            </div>
+
+            {/* AI Vision & AI 3D Render Studio Buttons */}
+            <div className="grid grid-cols-2 gap-1.5">
+              <button
+                onClick={() => { onOpenAIVision?.(); setActivePopover(null); }}
+                className="py-2 px-2 bg-gradient-to-r from-indigo-50 to-blue-50 hover:from-indigo-100 hover:to-blue-100 text-indigo-700 rounded-xl font-bold text-[10px] flex items-center justify-center gap-1.5 transition cursor-pointer border border-indigo-200/80 shadow-2xs"
+                title="Tải ảnh 2D/3D lên để AI phân tích tự động"
+              >
+                <span>📸</span>
+                <span className="truncate">Tải Ảnh AI Vision</span>
+              </button>
+
+              <button
+                onClick={() => { onOpenAIRenderStudio?.(); setActivePopover(null); }}
+                className="py-2 px-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:opacity-95 text-white rounded-xl font-bold text-[10px] flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer shadow-xs"
+                title="Mở AI Render Studio tạo ảnh phối cảnh 3D siêu thực"
+              >
+                <span>🎨</span>
+                <span className="truncate">AI Render 3D</span>
               </button>
             </div>
           </motion.div>

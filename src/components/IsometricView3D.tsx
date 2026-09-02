@@ -25,9 +25,10 @@ import { motion } from 'motion/react';
 interface IsometricView3DProps {
   board: Board;
   onExit3D: () => void;
+  onOpenAIRenderStudio?: () => void;
 }
 
-export default function IsometricView3D({ board, onExit3D }: IsometricView3DProps) {
+export default function IsometricView3D({ board, onExit3D, onOpenAIRenderStudio }: IsometricView3DProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   // Trạng thái Camera 3D: Góc xoay, Thu phóng và Tọa độ Pan
@@ -663,8 +664,20 @@ export default function IsometricView3D({ board, onExit3D }: IsometricView3DProp
           <span>Phối Cảnh 3D Cắt Lớp: <strong className="text-emerald-300">{directionNames[rotationAngle]}</strong></span>
         </div>
 
-        {/* Cụm Nút Xuất File: AutoCAD .DXF & Lưu Ảnh 3D */}
+        {/* Cụm Nút Xuất File: AI 3D Render Studio, AutoCAD .DXF & Lưu Ảnh 3D */}
         <div className="flex items-center gap-2 pointer-events-auto">
+          {/* Nút AI Render 3D Siêu Thực */}
+          {onOpenAIRenderStudio && (
+            <button
+              onClick={onOpenAIRenderStudio}
+              className="px-4 py-2.5 bg-gradient-to-r from-purple-600 via-indigo-600 to-pink-600 text-white rounded-full shadow-lg shadow-purple-500/30 text-xs font-bold flex items-center gap-2 hover:opacity-95 active:scale-95 transition cursor-pointer border border-white/20"
+              title="Mở AI 3D Render Studio tạo ảnh phối cảnh siêu thực"
+            >
+              <Sparkles className="w-4 h-4 text-yellow-300 animate-pulse" />
+              <span>AI Render 3D Siêu Thực</span>
+            </button>
+          )}
+
           {/* Nút Xuất File AutoCAD DXF */}
           <button
             onClick={handleExportAutoCAD}

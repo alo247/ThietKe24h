@@ -20,6 +20,8 @@ import IsometricView3D from './components/IsometricView3D';
 import CostEstimatorModal from './components/CostEstimatorModal';
 import AICopilotDrawer from './components/AICopilotDrawer';
 import AIAccountModal, { DEFAULT_AI_CONFIG } from './components/AIAccountModal';
+import AIVisionModal from './components/AIVisionModal';
+import AIRenderStudioModal from './components/AIRenderStudioModal';
 import { AIAuthConfig } from './types';
 import { HOUSE_TEMPLATES, createLandPlotBoard, createTropicalVillaBoard, createLuxuryPenthouseBoard } from './data/houseTemplates';
 import { getSymbolDef, ARCHITECTURAL_SYMBOLS } from './data/architecturalSymbols';
@@ -63,10 +65,12 @@ export default function App() {
   });
   const [showAIAccountModal, setShowAIAccountModal] = useState(false);
 
-  // Trạng thái hiển thị Modal Mẫu Thiết Kế, Khung Đất & Dự Toán Chi Phí
+  // Trạng thái hiển thị Modal Mẫu Thiết Kế, Khung Đất & Dự Toán Chi Phí & AI
   const [showTemplatesModal, setShowTemplatesModal] = useState(false);
   const [showLandPlotModal, setShowLandPlotModal] = useState(false);
   const [showCostEstimatorModal, setShowCostEstimatorModal] = useState(false);
+  const [showAIVisionModal, setShowAIVisionModal] = useState(false);
+  const [showAIRenderStudioModal, setShowAIRenderStudioModal] = useState(false);
   const [plotWidth, setPlotWidth] = useState(10);
   const [plotLength, setPlotLength] = useState(20);
   const [plotName, setPlotName] = useState('');
@@ -549,6 +553,7 @@ export default function App() {
                   <IsometricView3D
                     board={activeBoard}
                     onExit3D={() => setViewMode('2d')}
+                    onOpenAIRenderStudio={() => setShowAIRenderStudioModal(true)}
                   />
                 ) : (
                   <>
@@ -603,6 +608,8 @@ export default function App() {
                         onOpenTemplates={() => setShowTemplatesModal(true)}
                         onOpenLandWizard={() => setShowLandPlotModal(true)}
                         onOpenCostEstimator={() => setShowCostEstimatorModal(true)}
+                        onOpenAIVision={() => setShowAIVisionModal(true)}
+                        onOpenAIRenderStudio={() => setShowAIRenderStudioModal(true)}
                         onToggleView3D={() => setViewMode('3d')}
                         is3DView={viewMode === '3d'}
                       />
@@ -827,6 +834,32 @@ export default function App() {
                       currentConfig={aiConfig}
                       onClose={() => setShowAIAccountModal(false)}
                       onSaveConfig={handleSaveAIConfig}
+                    />
+                  )}
+                </AnimatePresence>
+
+                {/* MODAL 5: AI VISION - TẢI ẢNH BẢN VẼ & TRÍCH XUẤT 3D TỰ ĐỘNG */}
+                <AnimatePresence>
+                  {showAIVisionModal && (
+                    <AIVisionModal
+                      aiConfig={aiConfig}
+                      onClose={() => setShowAIVisionModal(false)}
+                      onApplyAnalyzedBoard={(newBoard) => {
+                        const updated = [newBoard, ...boards];
+                        saveBoards(updated);
+                        handleSelectBoard(newBoard.id);
+                        setShowAIVisionModal(false);
+                      }}
+                    />
+                  )}
+                </AnimatePresence>
+
+                {/* MODAL 6: AI 3D RENDER STUDIO - XUẤT PHỐI CẢNH 3D SIÊU THỰC 4K */}
+                <AnimatePresence>
+                  {showAIRenderStudioModal && activeBoard && (
+                    <AIRenderStudioModal
+                      board={activeBoard}
+                      onClose={() => setShowAIRenderStudioModal(false)}
                     />
                   )}
                 </AnimatePresence>
