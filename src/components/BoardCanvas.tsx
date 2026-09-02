@@ -71,9 +71,9 @@ export default function BoardCanvas({
 }: BoardCanvasProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   
-  // State for panning/zooming
-  const [pan, setPan] = useState({ x: board.panX, y: board.panY });
-  const [zoom, setZoom] = useState(board.zoom);
+  // State for panning/zooming (khởi tạo an toàn)
+  const [pan, setPan] = useState({ x: board?.panX ?? 0, y: board?.panY ?? 0 });
+  const [zoom, setZoom] = useState(board?.zoom ?? 1);
   const [isPanning, setIsPanning] = useState(false);
   const panStart = useRef({ x: 0, y: 0 });
 

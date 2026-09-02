@@ -58,8 +58,38 @@ const defaultPenSettings: PenSettings = {
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState<'dashboard' | 'canvas'>('canvas');
-  const [boards, setBoards] = useState<Board[]>([]);
-  const [activeBoardId, setActiveBoardId] = useState<string | null>(null);
+  // Khởi tạo an toàn đồng bộ từ LocalStorage hoặc bảng chào đón mặc định
+  const [boards, setBoards] = useState<Board[]>(() => {
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        const stored = localStorage.getItem('freeform_boards');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            return parsed;
+          }
+        }
+      }
+    } catch (e) {
+      console.error('Lỗi khi tải bảng ban đầu:', e);
+    }
+    return [createWelcomeBoard()];
+  });
+
+  const [activeBoardId, setActiveBoardId] = useState<string | null>(() => {
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        const stored = localStorage.getItem('freeform_boards');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            return parsed[0].id;
+          }
+        }
+      }
+    } catch (e) {}
+    return 'template-penthouse-panorama-master';
+  });
 
   // Chế độ xem: 2D Mặt Bằng hoặc 3D WebGL Three.js
   const [viewMode, setViewMode] = useState<ViewMode>('2d');
@@ -127,7 +157,9 @@ export default function App() {
     localStorage.setItem('freeform_boards', JSON.stringify(newBoards));
   };
 
-  const activeBoard = boards.find(b => b.id === activeBoardId) || boards[0];
+  const activeBoard = (boards && boards.length > 0) 
+    ? (boards.find(b => b.id === activeBoardId) || boards[0]) 
+    : createWelcomeBoard();
 
   const pushToHistory = (newItems: BoardItem[]) => {
     const updatedStack = historyStack.slice(0, historyIndex + 1);
@@ -243,7 +275,7 @@ export default function App() {
     if (selectedItemId && activeBoard) {
       const updatedItems = activeBoard.items.map(item => {
         if (item.id === selectedItemId) {
-          return { ...item, color: material.color };
+          return { ...item, color: material.color } as BoardItem;
         }
         return item;
       });
