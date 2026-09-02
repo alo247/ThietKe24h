@@ -28,6 +28,7 @@ import {
 import ContextMenu from './ContextMenu';
 import { motion, AnimatePresence } from 'motion/react';
 import { renderWall, renderDoorWindow, renderGardenFurniture, renderDimension } from './ArchitecturalCanvasItems';
+import { downloadAutoCADDXF } from '../services/dxfExporter';
 
 interface BoardCanvasProps {
   board: Board;
@@ -1373,7 +1374,7 @@ export default function BoardCanvas({
                     <span className="text-slate-400">📥</span>
                   </button>
 
-                  {/* Export Board */}
+                  {/* Export Board JSON */}
                   <button
                     onClick={() => {
                       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(board, null, 2));
@@ -1390,6 +1391,19 @@ export default function BoardCanvas({
                   >
                     <span>Xuất bảng (.json)</span>
                     <span className="text-slate-400">📤</span>
+                  </button>
+
+                  {/* Export AutoCAD DXF */}
+                  <button
+                    onClick={() => {
+                      downloadAutoCADDXF(board);
+                      setOptionsMenuOpen(false);
+                    }}
+                    className="w-full text-left px-3 py-2 hover:bg-red-50 rounded-lg flex items-center justify-between font-bold cursor-pointer text-red-600"
+                    title="Xuất bản vẽ AutoCAD (.DXF) chuẩn thi công"
+                  >
+                    <span>Xuất AutoCAD (.dxf)</span>
+                    <span>📐</span>
                   </button>
 
                   <div className="h-px bg-slate-100 my-1" />
