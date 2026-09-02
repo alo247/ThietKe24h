@@ -446,15 +446,116 @@ export default function IsometricView3D({ board, onExit3D }: IsometricView3DProp
         }
 
         // Bàn cafe sân vườn + Dù che nắng kẻ sọc (Patio Umbrella)
-        else if (symbolId === 'coffee_table_outdoor') {
+        else if (symbolId === 'coffee_table_outdoor' || symbolId === 'patio_table') {
           const cx = g.x + g.width / 2;
           const cy = g.y + g.height / 2;
           // Bàn gỗ
           drawPhotorealisticBox(cx - 15, cy - 15, 30, 30, 0.75 * PIXEL_PER_METER_3D, '#d4a373', '#b08968', '#7f5539');
-          // Cán dù
+          // Cán dù kim loại
           drawPhotorealisticBox(cx - 3, cy - 3, 6, 6, 2.8 * PIXEL_PER_METER_3D, '#334155', '#1e293b', '#0f172a');
-          // Tán dù kẻ sọc xanh trắng
+          // Tán dù kẻ sọc xanh trắng xòe rộng
           drawPhotorealisticBox(g.x - 10, g.y - 10, g.width + 20, g.height + 20, 0.6 * PIXEL_PER_METER_3D, '#0284c7', '#0369a1', '#075985', 2.8 * PIXEL_PER_METER_3D);
+        }
+
+        // Tủ quần áo âm tường & Phòng thay đồ (Walk-in Closet)
+        else if (symbolId === 'walk_in_closet') {
+          // Thân tủ gỗ óc chó / đen
+          drawPhotorealisticBox(g.x, g.y, g.width, g.height, 2.2 * PIXEL_PER_METER_3D, '#1e293b', '#0f172a', '#020617');
+          // Giá treo quần áo trắng/xám bên trong
+          drawPhotorealisticBox(g.x + 8, g.y + 4, g.width - 16, g.height - 8, 1.4 * PIXEL_PER_METER_3D, '#f1f5f9', '#cbd5e1', '#94a3b8', 0.6 * PIXEL_PER_METER_3D);
+        }
+
+        // Kệ TV & Tủ sách trang trí (TV Wall Unit)
+        else if (symbolId === 'tv_unit') {
+          // Kệ gỗ sồi treo tường
+          drawPhotorealisticBox(g.x, g.y, g.width, g.height, 0.45 * PIXEL_PER_METER_3D, '#78350f', '#451a03', '#451a03');
+          // Màn hình Tivi siêu mỏng đen bóng
+          drawPhotorealisticBox(g.x + g.width * 0.2, g.y + 2, g.width * 0.6, 6, 1.1 * PIXEL_PER_METER_3D, '#09090b', '#000000', '#000000', 0.55 * PIXEL_PER_METER_3D);
+        }
+
+        // Bàn làm việc & Bàn trang điểm (Work Desk)
+        else if (symbolId === 'work_desk') {
+          // Mặt bàn gỗ sồi
+          drawPhotorealisticBox(g.x, g.y, g.width, g.height, 0.75 * PIXEL_PER_METER_3D, '#d4a373', '#b08968', '#7f5539');
+          // Ghế làm việc tựa lưng
+          drawPhotorealisticBox(g.x + g.width * 0.3, g.y + g.height + 4, 25, 25, 0.85 * PIXEL_PER_METER_3D, '#334155', '#1e293b', '#0f172a');
+        }
+
+        // Cầu thang gỗ nội thất tay vịn kính (Interior Stairs)
+        else if (symbolId === 'interior_stairs') {
+          const stepCount = 6;
+          const stepH = (2.6 * PIXEL_PER_METER_3D) / stepCount;
+          const stepDepth = g.height / stepCount;
+          for (let s = 0; s < stepCount; s++) {
+            drawPhotorealisticBox(
+              g.x, g.y + s * stepDepth, g.width, stepDepth, stepH,
+              '#d4a373', '#b08968', '#7f5539', s * stepH
+            );
+          }
+          // Lan can kính dọc cầu thang
+          drawPhotorealisticBox(
+            g.x + g.width - 4, g.y, 4, g.height, 0.9 * PIXEL_PER_METER_3D,
+            'rgba(186, 230, 253, 0.5)', 'rgba(14, 165, 233, 0.4)', 'rgba(2, 132, 199, 0.5)',
+            1.2 * PIXEL_PER_METER_3D
+          );
+        }
+
+        // Bàn Lavabo đôi Marble (Double Vanity)
+        else if (symbolId === 'double_vanity') {
+          // Bàn đá Marble trắng
+          drawPhotorealisticBox(g.x, g.y, g.width, g.height, 0.85 * PIXEL_PER_METER_3D, '#f8fafc', '#e2e8f0', '#cbd5e1');
+          // 2 Chậu rửa âm bàn sứ trắng
+          drawPhotorealisticBox(g.x + 8, g.y + 6, 26, 20, 0.1 * PIXEL_PER_METER_3D, '#0284c7', '#0369a1', '#075985', 0.85 * PIXEL_PER_METER_3D);
+          drawPhotorealisticBox(g.x + g.width - 34, g.y + 6, 26, 20, 0.1 * PIXEL_PER_METER_3D, '#0284c7', '#0369a1', '#075985', 0.85 * PIXEL_PER_METER_3D);
+        }
+
+        // Cabin tắm đứng vách kính (Glass Shower)
+        else if (symbolId === 'glass_shower') {
+          // Vách kính tắm đứng trong suốt
+          drawPhotorealisticBox(
+            g.x, g.y, g.width, g.height, 2.2 * PIXEL_PER_METER_3D,
+            'rgba(186, 230, 253, 0.4)', 'rgba(14, 165, 233, 0.3)', 'rgba(2, 132, 199, 0.4)'
+          );
+          // Cây sen tắm đứng chrome
+          drawPhotorealisticBox(g.x + g.width / 2 - 3, g.y + 4, 6, 6, 2.1 * PIXEL_PER_METER_3D, '#94a3b8', '#64748b', '#475569');
+        }
+
+        // Ghế nằm tắm nắng ban công (Lounge Sunbed)
+        else if (symbolId === 'lounge_sunbed') {
+          // Khung gỗ Teak
+          drawPhotorealisticBox(g.x, g.y, g.width, g.height, 0.3 * PIXEL_PER_METER_3D, '#78350f', '#451a03', '#451a03');
+          // Đệm nằm trắng kem + Gối đầu
+          drawPhotorealisticBox(g.x + 2, g.y + 2, g.width - 4, g.height - 4, 0.2 * PIXEL_PER_METER_3D, '#f8fafc', '#e2e8f0', '#cbd5e1', 0.3 * PIXEL_PER_METER_3D);
+          drawPhotorealisticBox(g.x + 4, g.y + 4, g.width - 8, 20, 0.15 * PIXEL_PER_METER_3D, '#38bdf8', '#0284c7', '#0369a1', 0.5 * PIXEL_PER_METER_3D);
+        }
+
+        // Giàn Pergola che nắng sân thượng (Terrace Pergola)
+        else if (symbolId === 'terrace_pergola') {
+          const postH = 2.6 * PIXEL_PER_METER_3D;
+          // 4 Cột gỗ chịu lực
+          drawPhotorealisticBox(g.x + 4, g.y + 4, 8, 8, postH, '#451a03', '#291002', '#291002');
+          drawPhotorealisticBox(g.x + g.width - 12, g.y + 4, 8, 8, postH, '#451a03', '#291002', '#291002');
+          drawPhotorealisticBox(g.x + 4, g.y + g.height - 12, 8, 8, postH, '#451a03', '#291002', '#291002');
+          drawPhotorealisticBox(g.x + g.width - 12, g.y + g.height - 12, 8, 8, postH, '#451a03', '#291002', '#291002');
+          // Các thanh nan gỗ che nắng phía trên
+          for (let lx = g.x; lx <= g.x + g.width; lx += 20) {
+            drawPhotorealisticBox(lx, g.y, 6, g.height, 6, '#78350f', '#451a03', '#451a03', postH);
+          }
+        }
+
+        // Chậu cây cọ / Cây bàng nội thất (Indoor Potted Palm)
+        else if (symbolId === 'indoor_potted_palm') {
+          const cx = g.x + g.width / 2;
+          const cy = g.y + g.height / 2;
+          // Chậu sứ trắng / gốm
+          drawPhotorealisticBox(cx - 10, cy - 10, 20, 20, 0.6 * PIXEL_PER_METER_3D, '#ffffff', '#e2e8f0', '#cbd5e1');
+          // Tán lá cọ xanh tươi vươn rộng
+          drawPhotorealisticBox(cx - 16, cy - 16, 32, 32, 1.4 * PIXEL_PER_METER_3D, '#22c55e', '#16a34a', '#15803d', 0.6 * PIXEL_PER_METER_3D);
+        }
+
+        // Thảm nỉ trải sàn dệt sợi (Living Rug)
+        else if (symbolId === 'living_rug') {
+          drawPhotorealisticBox(g.x, g.y, g.width, g.height, 2, '#cbd5e1', '#94a3b8', '#64748b');
         }
 
         // Mặc định các đồ nội thất khác

@@ -361,6 +361,122 @@ export const renderGardenFurniture = (item: GardenFurnitureItem, isSelected: boo
         </div>
       )}
 
+      {/* 3.17. TỦ ÁO ÂM TƯỜNG & PHÒNG THAY ĐỒ (WALK-IN CLOSET) */}
+      {symbolId === 'walk_in_closet' && (
+        <div className="w-full h-full rounded-xl bg-slate-100 border-2 border-slate-700 p-1 flex items-center justify-between shadow-xs">
+          <div className="w-1/3 h-full border-r border-dashed border-slate-400 flex flex-col justify-evenly items-center text-[8px] text-slate-500">
+            <span>👔</span>
+            <span>👗</span>
+          </div>
+          <div className="flex-1 text-center font-bold text-slate-800 text-[9px]">
+            Tủ Quần Áo
+          </div>
+          <div className="w-1/4 h-full bg-slate-200 border border-slate-300 rounded-xs flex items-center justify-center text-[8px]">
+            Kệ
+          </div>
+        </div>
+      )}
+
+      {/* 3.18. KỆ TIVI & TỦ SÁCH TRANG TRÍ (TV WALL UNIT) */}
+      {symbolId === 'tv_unit' && (
+        <div className="w-full h-full rounded-lg bg-slate-900 border border-slate-700 p-1 flex items-center justify-between text-white shadow-xs">
+          <div className="w-2 h-full bg-amber-700 rounded-xs" />
+          <div className="flex-1 text-center font-bold text-[9px] flex items-center justify-center gap-1">
+            <span>📺</span>
+            <span>Kệ TV & Tủ Sách</span>
+          </div>
+          <div className="w-2 h-full bg-amber-700 rounded-xs" />
+        </div>
+      )}
+
+      {/* 3.19. BÀN LÀM VIỆC & BÀN TRANG ĐIỂM (WORK DESK) */}
+      {symbolId === 'work_desk' && (
+        <div className="w-full h-full rounded-xl bg-amber-50 border-2 border-amber-700 p-1 flex items-center justify-between shadow-xs">
+          <div className="w-3/5 h-full bg-white border border-amber-300 rounded flex items-center justify-center text-[9px]">
+            💻 Bàn làm việc
+          </div>
+          <div className="w-1/3 h-full bg-amber-200 border border-amber-400 rounded-full flex items-center justify-center text-[8px]">
+            Ghế
+          </div>
+        </div>
+      )}
+
+      {/* 3.20. CẦU THANG GỖ NỘI THẤT (STAIRS) */}
+      {symbolId === 'interior_stairs' && (
+        <div className="w-full h-full rounded-xl bg-amber-100 border-2 border-amber-900 p-1 flex flex-col justify-evenly overflow-hidden relative shadow-xs">
+          <div className="w-full h-1 bg-amber-800/40" />
+          <div className="w-full h-1 bg-amber-800/40" />
+          <div className="w-full h-1 bg-amber-800/40" />
+          <div className="w-full h-1 bg-amber-800/40" />
+          <div className="w-full h-1 bg-amber-800/40" />
+          <div className="absolute inset-0 flex items-center justify-center font-bold text-amber-950 text-[10px] bg-white/60">
+            ▲ LÊN LẦU (STAIRS)
+          </div>
+        </div>
+      )}
+
+      {/* 3.21. BÀN LAVABO ĐÔI MARBLE (DOUBLE VANITY) */}
+      {symbolId === 'double_vanity' && (
+        <div className="w-full h-full rounded-xl bg-slate-50 border-2 border-slate-300 p-1 flex items-center justify-around shadow-xs">
+          <div className="w-2/5 h-4/5 bg-white border border-sky-300 rounded-full flex items-center justify-center text-[8px] text-sky-700 font-bold">
+            Lavabo 1
+          </div>
+          <div className="w-2/5 h-4/5 bg-white border border-sky-300 rounded-full flex items-center justify-center text-[8px] text-sky-700 font-bold">
+            Lavabo 2
+          </div>
+        </div>
+      )}
+
+      {/* 3.22. CABIN TẮM ĐỨNG VÁCH KÍNH (GLASS SHOWER) */}
+      {symbolId === 'glass_shower' && (
+        <div className="w-full h-full rounded-xl bg-sky-50 border-2 border-sky-400 p-1 flex items-center justify-center shadow-xs relative overflow-hidden">
+          <div className="w-5 h-5 rounded-full border-2 border-dashed border-sky-500 flex items-center justify-center text-[8px]">
+            🚿
+          </div>
+        </div>
+      )}
+
+      {/* 3.23. GHẾ NẰM TẮM NẮNG BAN CÔNG (LOUNGE SUNBED) */}
+      {symbolId === 'lounge_sunbed' && (
+        <div className="w-full h-full rounded-xl bg-amber-100 border-2 border-amber-700 p-1 flex flex-col justify-between shadow-xs">
+          <div className="w-full h-1/4 bg-white border border-amber-400 rounded-t flex items-center justify-center text-[7px]">
+            Gối
+          </div>
+          <div className="w-full h-3/4 bg-amber-400 rounded-b flex items-center justify-center text-[8px] font-bold text-white">
+            Sunbed
+          </div>
+        </div>
+      )}
+
+      {/* 3.24. GIÀN PERGOLA SÂN THƯỢNG (TERRACE PERGOLA) */}
+      {symbolId === 'terrace_pergola' && (
+        <div className="w-full h-full rounded-2xl bg-amber-900/10 border-2 border-amber-900 flex flex-col justify-evenly p-1">
+          <div className="w-full h-1 bg-amber-900" />
+          <div className="w-full h-1 bg-amber-900" />
+          <div className="w-full h-1 bg-amber-900" />
+          <div className="w-full h-1 bg-amber-900" />
+          <div className="text-center font-bold text-amber-950 text-[9px]">
+            GIÀN LAM PERGOLA
+          </div>
+        </div>
+      )}
+
+      {/* 3.25. CHẬU CÂY CỌ / CÂY BÀNG NỘI THẤT */}
+      {symbolId === 'indoor_potted_palm' && (
+        <div className="w-full h-full rounded-full bg-emerald-100 border-2 border-emerald-600 flex items-center justify-center relative shadow-xs">
+          <div className="w-5 h-5 rounded-full bg-amber-800 flex items-center justify-center text-[9px]">
+            🪴
+          </div>
+        </div>
+      )}
+
+      {/* 3.26. THẢM TRẢI SÀN (LIVING RUG) */}
+      {symbolId === 'living_rug' && (
+        <div className="w-full h-full rounded-xl bg-slate-200/80 border-2 border-dashed border-slate-400 flex items-center justify-center text-[9px] font-bold text-slate-600">
+          Thảm Nỉ Dệt Sợi
+        </div>
+      )}
+
       {/* Nhãn văn bản nếu có */}
       {label && symbolId !== 'grass_patch' && symbolId !== 'koi_pond' && (
         <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 bg-slate-900/80 text-white text-[9px] font-medium px-1.5 py-0.2 rounded-full whitespace-nowrap pointer-events-none shadow-xs">

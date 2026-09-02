@@ -21,14 +21,14 @@ import CostEstimatorModal from './components/CostEstimatorModal';
 import AICopilotDrawer from './components/AICopilotDrawer';
 import AIAccountModal, { DEFAULT_AI_CONFIG } from './components/AIAccountModal';
 import { AIAuthConfig } from './types';
-import { HOUSE_TEMPLATES, createLandPlotBoard, createTropicalVillaBoard } from './data/houseTemplates';
+import { HOUSE_TEMPLATES, createLandPlotBoard, createTropicalVillaBoard, createLuxuryPenthouseBoard } from './data/houseTemplates';
 import { getSymbolDef, ARCHITECTURAL_SYMBOLS } from './data/architecturalSymbols';
 import { motion, AnimatePresence } from 'motion/react';
 import { Home, Trees, Box, Plus, X, Layers, Sparkles, MapPin, Maximize2, Ruler } from 'lucide-react';
 
-// Bảng khởi tạo ban đầu: Mẫu Biệt Thự Vườn Nhiệt Đới hoàn chỉnh
+// Bảng khởi tạo ban đầu: Mẫu Penthouse Panorama Cắt Lớp 3D hoàn chỉnh
 const createWelcomeBoard = (): Board => {
-  return createTropicalVillaBoard();
+  return createLuxuryPenthouseBoard();
 };
 
 // Cài đặt công cụ vẽ mặc định

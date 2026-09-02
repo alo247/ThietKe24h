@@ -222,6 +222,118 @@ export const ARCHITECTURAL_SYMBOLS: ArchitecturalSymbolDef[] = [
     color: '#06b6d4',
     iconName: 'Bath',
     description: 'Combo Lavabo, bồn cầu và bồn tắm nằm'
+  },
+
+  // --- CÁC MÔ-ĐUN NỘI THẤT & BAN CÔNG CAO CẤP MỚI (THEO ẢNH MẪU 3D) ---
+  {
+    id: 'walk_in_closet',
+    name: 'Tủ áo âm tường & Phòng thay đồ',
+    category: 'interior',
+    defaultWidth: 100, // 2.0m x 1.0m
+    defaultHeight: 50,
+    height3D: 2.2,
+    color: '#334155',
+    iconName: 'Shirt',
+    description: 'Hệ tủ quần áo mở có giá treo, ngăn kéo và đèn led'
+  },
+  {
+    id: 'tv_unit',
+    name: 'Kệ TV & Tủ sách trang trí',
+    category: 'interior',
+    defaultWidth: 120, // 2.4m x 0.5m
+    defaultHeight: 25,
+    height3D: 1.8,
+    color: '#1e293b',
+    iconName: 'Tv',
+    description: 'Kệ TV gỗ sồi treo tường, tivi siêu mỏng và tủ kệ sách'
+  },
+  {
+    id: 'work_desk',
+    name: 'Bàn làm việc & Bàn trang điểm',
+    category: 'interior',
+    defaultWidth: 70, // 1.4m x 0.8m
+    defaultHeight: 40,
+    height3D: 0.75,
+    color: '#b45309',
+    iconName: 'Laptop',
+    description: 'Bàn làm việc phòng ngủ kèm ghế tựa và laptop'
+  },
+  {
+    id: 'interior_stairs',
+    name: 'Cầu thang gỗ tay vịn kính',
+    category: 'interior',
+    defaultWidth: 60, // 1.2m x 2.2m
+    defaultHeight: 110,
+    height3D: 2.8,
+    color: '#78350f',
+    iconName: 'Footprints',
+    description: 'Cầu thang bậc gỗ sồi kèm lan can kính sang trọng'
+  },
+  {
+    id: 'double_vanity',
+    name: 'Bàn Lavabo đôi mặt đá Marble',
+    category: 'interior',
+    defaultWidth: 90, // 1.8m x 0.8m
+    defaultHeight: 40,
+    height3D: 0.85,
+    color: '#f8fafc',
+    iconName: 'Sparkles',
+    description: 'Bàn lavabo đôi cao cấp, gương led cảm ứng phòng tắm Master'
+  },
+  {
+    id: 'glass_shower',
+    name: 'Cabin tắm đứng vách kính',
+    category: 'interior',
+    defaultWidth: 50, // 1.0m x 1.0m
+    defaultHeight: 50,
+    height3D: 2.2,
+    color: '#38bdf8',
+    iconName: 'ShowerHead',
+    description: 'Vách kính cường lực tắm đứng kèm vòi sen cây chrome'
+  },
+  {
+    id: 'lounge_sunbed',
+    name: 'Ghế nằm tắm nắng ban công',
+    category: 'outdoor_furniture',
+    defaultWidth: 40, // 0.8m x 2.0m
+    defaultHeight: 100,
+    height3D: 0.5,
+    color: '#d4a373',
+    iconName: 'Armchair',
+    description: 'Giường tắm nắng ngoài trời bọc nệm gỗ teak'
+  },
+  {
+    id: 'terrace_pergola',
+    name: 'Giàn Pergola che nắng sân thượng',
+    category: 'outdoor_furniture',
+    defaultWidth: 120, // 2.4m x 1.8m
+    defaultHeight: 90,
+    height3D: 2.6,
+    color: '#451a03',
+    iconName: 'Grid',
+    description: 'Giàn lam gỗ che nắng sân thượng thoáng đãng'
+  },
+  {
+    id: 'indoor_potted_palm',
+    name: 'Chậu cây cọ / Cây bàng cảnh',
+    category: 'plants',
+    defaultWidth: 45, // 0.9m x 0.9m
+    defaultHeight: 45,
+    height3D: 1.8,
+    color: '#16a34a',
+    iconName: 'Trees',
+    description: 'Chậu cây xanh nội thất đặt góc phòng và ban công'
+  },
+  {
+    id: 'living_rug',
+    name: 'Thảm nỉ dệt sợi cao cấp',
+    category: 'interior',
+    defaultWidth: 140, // 2.8m x 2.0m
+    defaultHeight: 100,
+    height3D: 0.05,
+    color: '#cbd5e1',
+    iconName: 'Layers',
+    description: 'Thảm trải sàn họa tiết hình học phòng khách và phòng ngủ'
   }
 ];
 
@@ -229,3 +341,4 @@ export const ARCHITECTURAL_SYMBOLS: ArchitecturalSymbolDef[] = [
 export function getSymbolDef(symbolId: string): ArchitecturalSymbolDef | undefined {
   return ARCHITECTURAL_SYMBOLS.find(s => s.id === symbolId);
 }
+
