@@ -109,7 +109,7 @@ export interface AttachmentItem extends BaseItem {
   iconName?: string;
 }
 
-// === CÁC KIỂU DỮ LIỆU CHUYÊN BIỆT THIẾT KẾ NHÀ & SÂN VƯỜN ===
+// === CÁC KIỂU DỮ LIỆU CHUYÊN BIỆT THIẾT KẾ NHÀ & SÂN VƯỜN 3D (ĐẦY ĐỦ DÀI X RỘNG X CAO) ===
 
 // Kiểu tường (Tường chính 200mm, tường ngăn 100mm, tường rào sân vườn)
 export interface WallItem extends BaseItem {
@@ -118,8 +118,8 @@ export interface WallItem extends BaseItem {
   y1: number;
   x2: number;
   y2: number;
-  thickness: number; // Độ dày tường (pixel, quy ước 10px = 100mm, 20px = 200mm)
-  wallHeight: number; // Chiều cao tường 3D (m, ví dụ 3.0m)
+  thickness: number; // Chiều Rộng / Độ dày tường (pixel: 10px = 100mm, 20px = 200mm)
+  wallHeight: number; // Chiều Cao tường 3D (Trục Z, tính bằng Mét: ví dụ 2.8m, 3.3m)
   wallColor: string;
   isFence?: boolean; // Tường rào ngoài trời hay tường nhà
 }
@@ -132,7 +132,8 @@ export interface DoorWindowItem extends BaseItem {
   subType: DoorWindowType;
   wallId?: string; // Gắn với tường nào (tùy chọn)
   wallAngle?: number; // Góc xoay theo tường
-  doorWidth: number; // Chiều rộng cửa
+  doorWidth: number; // Chiều Rộng cửa (pixel: 45px = 0.9m)
+  doorHeight3D?: number; // Chiều Cao cửa 3D (Trục Z: ví dụ 2.2m hoặc 2.4m)
   openDirection?: 'left' | 'right' | 'inward' | 'outward'; // Hướng mở cửa
 }
 
@@ -142,10 +143,14 @@ export type LandscapeCategory = 'plants' | 'water' | 'paving' | 'outdoor_furnitu
 export interface GardenFurnitureItem extends BaseItem {
   type: 'garden_item';
   category: LandscapeCategory;
-  symbolId: string; // Mã định danh biểu tượng (tree_large, pool, koi_pond, grass_patch, v.v.)
-  label?: string; // Nhãn tên phòng hoặc vật thể (VD: "Phòng Khách", "Cây Bàng Đài Loan")
+  symbolId: string; // Mã định danh biểu tượng (bed_double, living_sofa, walk_in_closet, v.v.)
+  label?: string; // Nhãn tên phòng hoặc vật thể (VD: "Phòng Khách", "Giường Ngủ Master")
   color?: string;
-  height3D?: number; // Chiều cao thực tế mô phỏng trong 3D
+  // Kích thước 3D chuẩn xác 3 trục không gian:
+  // width: Chiều Dài (Trục X)
+  // height: Chiều Rộng/Sâu (Trục Y)
+  // height3D: Chiều Cao thực tế trong 3D (Trục Z, tính bằng Mét)
+  height3D?: number;
 }
 
 // Thước đo kích thước

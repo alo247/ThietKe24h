@@ -198,28 +198,151 @@ function processNativeArchitectPrompt(prompt: string, currentBoard: Board): AICa
     };
   }
 
+  // 5. Sofa phòng khách
   if (prompt.includes('sofa') || prompt.includes('phòng khách')) {
     return {
       type: 'add_item',
       payload: { symbolId: 'living_sofa', label: 'Sofa Phòng Khách Chữ L' },
-      explanation: 'Dạ, tôi đã thêm Bộ Sofa Phòng Khách Chữ L cao cấp kèm bàn trà vào bản vẽ.',
+      explanation: 'Dạ, tôi đã thêm Bộ Sofa Phòng Khách Chữ L bọc nỉ cao cấp kèm bàn trà vào bản vẽ.',
       suggestedChips: [
-        { label: '🛏️ Thêm phòng ngủ Master', prompt: 'Thêm giường ngủ Master' },
-        { label: '🍳 Thêm tủ bếp & bàn ăn', prompt: 'Thêm tủ bếp hiện đại' }
+        { label: '📺 Thêm kệ TV & Tủ sách', prompt: 'Thêm kệ tivi treo tường' },
+        { label: '🧶 Thêm thảm trải sàn', prompt: 'Thêm thảm trải sàn phòng khách' },
+        { label: '🛏️ Thêm phòng ngủ Master', prompt: 'Thêm giường ngủ Master' }
       ]
     };
   }
 
-  // === E. TRƯỜNG HỢP CÂU LỆNH CHƯA ĐỦ THÔNG TIN HOẶC CẦN TƯ VẤN KIẾN TRÚC ===
+  // 6. Giường ngủ Master King Size
+  if (prompt.includes('giường') || prompt.includes('phòng ngủ') || prompt.includes('ngủ')) {
+    return {
+      type: 'add_item',
+      payload: { symbolId: 'bed_double', label: 'Giường Ngủ Master King Size' },
+      explanation: 'Dạ, tôi đã bố trí Giường Ngủ Đôi King Size kèm nệm êm ái, ga gối và 2 tab đầu giường vào phòng!',
+      suggestedChips: [
+        { label: '👔 Thêm tủ áo âm tường', prompt: 'Thêm tủ quần áo âm tường' },
+        { label: '💻 Thêm bàn làm việc', prompt: 'Thêm bàn làm việc phòng ngủ' },
+        { label: '🛁 Thêm phòng tắm Master', prompt: 'Thêm phòng tắm có bồn tắm nằm' }
+      ]
+    };
+  }
+
+  // 7. Tủ quần áo âm tường & Phòng thay đồ (Walk-in Closet)
+  if (prompt.includes('tủ áo') || prompt.includes('quần áo') || prompt.includes('closet') || prompt.includes('thay đồ')) {
+    return {
+      type: 'add_item',
+      payload: { symbolId: 'walk_in_closet', label: 'Tủ Quần Áo Âm Tường (Walk-in Closet)' },
+      explanation: 'Dạ, tôi đã gắn thêm Hệ Tủ Quần Áo Âm Tường chia ngăn treo vest, đầm và kệ trang trí!',
+      suggestedChips: [
+        { label: '💄 Thêm bàn trang điểm', prompt: 'Thêm bàn trang điểm' },
+        { label: '🧊 Xem 3D phòng ngủ', prompt: 'Xem 3d' }
+      ]
+    };
+  }
+
+  // 8. Kệ TV & Tủ sách trang trí
+  if (prompt.includes('tivi') || prompt.includes('tv') || prompt.includes('kệ sách')) {
+    return {
+      type: 'add_item',
+      payload: { symbolId: 'tv_unit', label: 'Kệ TV & Tủ Sách Trang Trí' },
+      explanation: 'Dạ, tôi đã lắp Kệ TV gỗ sồi ốp tường kèm màn hình TV siêu mỏng và tủ sách vào phòng khách!',
+      suggestedChips: [
+        { label: '🛋️ Thêm sofa phòng khách', prompt: 'Thêm sofa phòng khách' },
+        { label: '🪴 Thêm chậu cây cảnh', prompt: 'Thêm chậu cây cảnh' }
+      ]
+    };
+  }
+
+  // 9. Bàn làm việc / Bàn trang điểm / Bàn học
+  if (prompt.includes('làm việc') || prompt.includes('trang điểm') || prompt.includes('bàn học')) {
+    return {
+      type: 'add_item',
+      payload: { symbolId: 'work_desk', label: 'Bàn Làm Việc & Ghế Tựa' },
+      explanation: 'Dạ, tôi đã bố trí Bàn Làm Việc gỗ sồi kèm ghế tựa êm ái và laptop vào không gian phòng!',
+      suggestedChips: [
+        { label: '🛏️ Thêm giường ngủ', prompt: 'Thêm giường ngủ Master' },
+        { label: '🪴 Thêm chậu cây xanh', prompt: 'Thêm chậu cây cảnh' }
+      ]
+    };
+  }
+
+  // 10. Phòng tắm Master / Bồn tắm nằm / Lavabo đôi
+  if (prompt.includes('tắm') || prompt.includes('bồn tắm') || prompt.includes('lavabo') || prompt.includes('vệ sinh') || prompt.includes('wc')) {
+    const isShower = prompt.includes('đứng') || prompt.includes('vòi sen') || prompt.includes('cabin');
+    const symbolId = isShower ? 'glass_shower' : prompt.includes('đôi') ? 'double_vanity' : 'bathroom_set';
+    return {
+      type: 'add_item',
+      payload: { symbolId, label: 'Khu Vực Vệ Sinh & Tắm Cao Cấp' },
+      explanation: 'Dạ, tôi đã thiết kế Khu Vệ Sinh & Phòng Tắm Master mặt đá Marble sang trọng vào bản vẽ!',
+      suggestedChips: [
+        { label: '🚿 Thêm cabin tắm kính', prompt: 'Thêm cabin tắm đứng kính' },
+        { label: '🛁 Thêm bồn tắm nằm', prompt: 'Thêm bồn tắm nằm' }
+      ]
+    };
+  }
+
+  // 11. Cầu thang gỗ nội thất
+  if (prompt.includes('cầu thang') || prompt.includes('lên tầng') || prompt.includes('lên lầu')) {
+    return {
+      type: 'add_item',
+      payload: { symbolId: 'interior_stairs', label: 'Cầu Thang Gỗ Tay Vịn Kính' },
+      explanation: 'Dạ, tôi đã đặt Cầu Thang bậc gỗ sồi kèm lan can kính sang trọng để kết nối các tầng!',
+      suggestedChips: [
+        { label: '🧊 Xem 3D cầu thang', prompt: 'Xem 3d' },
+        { label: '📐 Về mặt bằng 2D', prompt: 'Về mặt bằng 2d' }
+      ]
+    };
+  }
+
+  // 12. Giường tắm nắng ban công / Ghế ngoài trời
+  if (prompt.includes('tắm nắng') || prompt.includes('sunbed') || prompt.includes('ban công') || prompt.includes('ghế nằm')) {
+    return {
+      type: 'add_item',
+      payload: { symbolId: 'lounge_sunbed', label: 'Giường Tắm Nắng Ban Công' },
+      explanation: 'Dạ, tôi đã đặt Giường Nằm Tắm Nắng ngoài trời bọc nệm trắng thư giãn ra khu vực ban công!',
+      suggestedChips: [
+        { label: '☂️ Thêm dù che nắng', prompt: 'Thêm bàn cafe sân vườn' },
+        { label: '🪴 Thêm chậu cây cọ', prompt: 'Thêm chậu cây cảnh' }
+      ]
+    };
+  }
+
+  // 13. Giàn Pergola che nắng sân thượng
+  if (prompt.includes('pergola') || prompt.includes('giàn lam') || prompt.includes('sân thượng')) {
+    return {
+      type: 'add_item',
+      payload: { symbolId: 'terrace_pergola', label: 'Giàn Pergola Che Nắng' },
+      explanation: 'Dạ, tôi đã dựng Giàn Lam Gỗ Pergola che nắng thoáng đãng cho khu vực sân thượng!',
+      suggestedChips: [
+        { label: '☕ Thêm bàn cafe', prompt: 'Thêm bàn cafe sân vườn' },
+        { label: '🧊 Xem 3D sân thượng', prompt: 'Xem 3d' }
+      ]
+    };
+  }
+
+  // 14. Bếp & Bàn ăn gia đình
+  if (prompt.includes('bếp') || prompt.includes('bàn ăn') || prompt.includes('nấu')) {
+    const symbolId = prompt.includes('ăn') ? 'dining_table' : 'kitchen_counter';
+    return {
+      type: 'add_item',
+      payload: { symbolId, label: prompt.includes('ăn') ? 'Bàn Ăn Gia Đình' : 'Tủ Bếp & Đảo Bếp Marble' },
+      explanation: 'Dạ, tôi đã bố trí Khu Vực Bếp Nấu & Bàn Ăn gia đình hiện đại vào không gian mở!',
+      suggestedChips: [
+        { label: '🛋️ Thêm sofa phòng khách', prompt: 'Thêm sofa phòng khách' },
+        { label: '🧊 Xem 3D bếp', prompt: 'Xem 3d' }
+      ]
+    };
+  }
+
+  // === E. TRƯỜNG HỢP CÂU LỆNH CẦN TƯ VẤN KIẾN TRÚC ===
   return {
     type: 'consultation',
-    explanation: `Dạ, tôi đã lắng nghe yêu cầu của bạn: "${prompt}".\n\nĐể tôi có thể triển khai bản vẽ chuẩn xác và đẹp nhất, bạn vui lòng chọn hoặc nói rõ thêm về mong muốn của mình nhé:`,
+    explanation: `Dạ, tôi đã lắng nghe yêu cầu của bạn: "${prompt}".\n\nTôi có thể triển khai ngay bất kỳ chi tiết nào (Phòng khách, Phòng ngủ Master, Bếp, Ban công, Cầu thang, Bồn tắm, Hồ cá...). Bạn muốn tôi thêm gì tiếp theo?`,
     suggestedChips: [
-      { label: '🌴 Biệt thự vườn 10x20m', prompt: 'Thiết kế biệt thự vườn 10x20m có hồ cá Koi và 2 phòng ngủ' },
-      { label: '🏡 Nhà phố hiện đại 5x20m', prompt: 'Thiết kế nhà phố 5x20m có giếng trời' },
-      { label: '🌊 Khu nghỉ dưỡng hồ bơi', prompt: 'Thiết kế khu nghỉ dưỡng sinh thái có hồ bơi' },
-      { label: '📐 Tạo khung đất 8x15m', prompt: 'Lô đất 8x15m' },
-      { label: '💰 Tính dự toán kinh phí', prompt: 'Tính dự toán chi phí' }
+      { label: '🛏️ Thêm phòng ngủ Master', prompt: 'Thêm giường ngủ Master' },
+      { label: '🛋️ Thêm sofa phòng khách', prompt: 'Thêm sofa phòng khách' },
+      { label: '🛁 Thêm bồn tắm nằm', prompt: 'Thêm bồn tắm nằm' },
+      { label: '🏖️ Thêm ghế tắm nắng ban công', prompt: 'Thêm ghế tắm nắng ngoài trời' },
+      { label: '🧊 Xem 3D ngay', prompt: 'Xem 3d' }
     ]
   };
 }
