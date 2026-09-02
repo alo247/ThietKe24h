@@ -1,4 +1,4 @@
-export type ItemType = 'sticky' | 'text' | 'shape' | 'table' | 'drawing' | 'attachment';
+export type ItemType = 'sticky' | 'text' | 'shape' | 'table' | 'drawing' | 'attachment' | 'wall' | 'door_window' | 'garden_item' | 'dimension';
 
 export interface Point {
   x: number;
@@ -79,7 +79,7 @@ export interface TableItem extends BaseItem {
   type: 'table';
   rows: number;
   cols: number;
-  data: TableCell[][]; // rows x cols
+  data: TableCell[][]; // Ma trận ô rows x cols
   colWidths?: number[];
   rowHeights?: number[];
 }
@@ -103,10 +103,59 @@ export interface AttachmentItem extends BaseItem {
   attachmentType: AttachmentType;
   title: string;
   url?: string;
-  blobUrl?: string; // For uploaded files
+  blobUrl?: string; // Dành cho file tải lên từ máy
   fileSize?: string;
   fileType?: string;
   iconName?: string;
+}
+
+// === CÁC KIỂU DỮ LIỆU CHUYÊN BIỆT THIẾT KẾ NHÀ & SÂN VƯỜN ===
+
+// Kiểu tường (Tường chính 200mm, tường ngăn 100mm, tường rào sân vườn)
+export interface WallItem extends BaseItem {
+  type: 'wall';
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+  thickness: number; // Độ dày tường (pixel, quy ước 10px = 100mm, 20px = 200mm)
+  wallHeight: number; // Chiều cao tường 3D (m, ví dụ 3.0m)
+  wallColor: string;
+  isFence?: boolean; // Tường rào ngoài trời hay tường nhà
+}
+
+// Cửa đi & Cửa sổ
+export type DoorWindowType = 'single_door' | 'double_door' | 'sliding_door' | 'window';
+
+export interface DoorWindowItem extends BaseItem {
+  type: 'door_window';
+  subType: DoorWindowType;
+  wallId?: string; // Gắn với tường nào (tùy chọn)
+  wallAngle?: number; // Góc xoay theo tường
+  doorWidth: number; // Chiều rộng cửa
+  openDirection?: 'left' | 'right' | 'inward' | 'outward'; // Hướng mở cửa
+}
+
+// Danh mục cảnh quan sân vườn & nội thất
+export type LandscapeCategory = 'plants' | 'water' | 'paving' | 'outdoor_furniture' | 'interior';
+
+export interface GardenFurnitureItem extends BaseItem {
+  type: 'garden_item';
+  category: LandscapeCategory;
+  symbolId: string; // Mã định danh biểu tượng (tree_large, pool, koi_pond, grass_patch, v.v.)
+  label?: string; // Nhãn tên phòng hoặc vật thể (VD: "Phòng Khách", "Cây Bàng Đài Loan")
+  color?: string;
+  height3D?: number; // Chiều cao thực tế mô phỏng trong 3D
+}
+
+// Thước đo kích thước
+export interface DimensionItem extends BaseItem {
+  type: 'dimension';
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+  unit: 'm' | 'cm' | 'mm';
 }
 
 export type BoardItem =
@@ -115,7 +164,17 @@ export type BoardItem =
   | ShapeItem
   | TableItem
   | DrawingItem
-  | AttachmentItem;
+  | AttachmentItem
+  | WallItem
+  | DoorWindowItem
+  | GardenFurnitureItem
+  | DimensionItem;
+
+// Chế độ góc nhìn 2D Mặt Bằng hoặc 3D Isometric
+export type ViewMode = '2d' | '3d';
+
+// Hướng xoay 3D Isometric (4 góc nhìn: Đông Nam, Tây Nam, Tây Bắc, Đông Bắc)
+export type IsometricAngle = 0 | 90 | 180 | 270;
 
 export interface Board {
   id: string;

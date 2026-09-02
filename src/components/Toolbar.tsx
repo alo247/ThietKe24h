@@ -8,20 +8,41 @@ import {
   Table as TableIcon, 
   Image as ImageIcon, 
   Link as LinkIcon, 
-  FolderPlus,
-  Compass,
-  Smile,
-  Palette,
-  Eraser,
-  Sparkles,
-  PenTool,
-  Paintbrush,
-  PaintBucket,
-  Pipette,
-  Search,
-  X
+  FolderPlus, 
+  Compass, 
+  Smile, 
+  Palette, 
+  Eraser, 
+  Sparkles, 
+  PenTool, 
+  Paintbrush, 
+  PaintBucket, 
+  Pipette, 
+  Search, 
+  X,
+  Home,
+  Trees,
+  Ruler,
+  DoorClosed,
+  Box,
+  Layers,
+  Fish,
+  Waves,
+  Footprints,
+  Tent,
+  Sun,
+  Flame,
+  Armchair,
+  Utensils,
+  Bed,
+  ChefHat,
+  Bath,
+  Flower2,
+  TreePine,
+  Maximize2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { ARCHITECTURAL_SYMBOLS } from '../data/architecturalSymbols';
 
 interface ToolbarProps {
   isDrawingMode: boolean;
@@ -33,6 +54,16 @@ interface ToolbarProps {
   onToggleShapesMenu: () => void;
   penSettings: PenSettings;
   onChangePenSettings: (settings: PenSettings) => void;
+  // Các hàm mở rộng cho Thiết Kế Nhà & Sân Vườn
+  onAddWall?: (thickness: number, isFence?: boolean) => void;
+  onAddDoorWindow?: (subType: 'single_door' | 'double_door' | 'sliding_door' | 'window') => void;
+  onAddGardenFurniture?: (symbolId: string) => void;
+  onAddDimension?: () => void;
+  onOpenTemplates?: () => void;
+  onOpenLandWizard?: () => void;
+  onOpenCostEstimator?: () => void;
+  onToggleView3D?: () => void;
+  is3DView?: boolean;
 }
 
 export default function Toolbar({
@@ -44,9 +75,19 @@ export default function Toolbar({
   onAddAttachment,
   onToggleShapesMenu,
   penSettings,
-  onChangePenSettings
+  onChangePenSettings,
+  onAddWall,
+  onAddDoorWindow,
+  onAddGardenFurniture,
+  onAddDimension,
+  onOpenTemplates,
+  onOpenLandWizard,
+  onOpenCostEstimator,
+  onToggleView3D,
+  is3DView
 }: ToolbarProps) {
-  const [activePopover, setActivePopover] = useState<'sticky' | 'attachment' | 'pen_custom' | 'eraser_custom' | 'color_custom' | null>(null);
+  const [activePopover, setActivePopover] = useState<'sticky' | 'attachment' | 'architecture' | 'pen_custom' | 'eraser_custom' | 'color_custom' | null>(null);
+  const [archCategory, setArchCategory] = useState<'walls' | 'garden' | 'interior'>('walls');
 
   // iOS-style colors for Sticky Notes
   const stickyColors: { color: StickyColor; bg: string; border: string }[] = [
@@ -291,6 +332,224 @@ export default function Toolbar({
               <FolderPlus className="w-4.5 h-4.5 shrink-0" />
               Duyệt Trung tâm nội dung
             </button>
+          </motion.div>
+        )}
+
+        {/* 3. Architecture & Garden Popover - Thiết Kế Nhà & Sân Vườn */}
+        {activePopover === 'architecture' && (
+          <motion.div
+            initial={{ opacity: 0, y: 15, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 15, scale: 0.95 }}
+            className="absolute bottom-20 left-1/2 -translate-x-1/2 w-84 bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-slate-200/80 p-3 z-50 text-xs apple-shadow text-slate-800 space-y-3"
+          >
+            {/* Header with Title & Category Tabs */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between px-1">
+                <div className="flex items-center gap-2 font-bold text-slate-900 text-sm">
+                  <Home className="w-4.5 h-4.5 text-blue-600" />
+                  <span>Thiết Kế Nhà & Sân Vườn</span>
+                </div>
+                <button
+                  onClick={() => setActivePopover(null)}
+                  className="p-1 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Category Segmented Tabs */}
+              <div className="flex bg-slate-100 p-1 rounded-xl">
+                <button
+                  onClick={() => setArchCategory('walls')}
+                  className={`flex-1 py-1.5 rounded-lg font-bold text-[11px] transition cursor-pointer ${
+                    archCategory === 'walls' ? 'bg-white text-blue-600 shadow-xs' : 'text-slate-500 hover:text-slate-800'
+                  }`}
+                >
+                  Tường & Cửa
+                </button>
+                <button
+                  onClick={() => setArchCategory('garden')}
+                  className={`flex-1 py-1.5 rounded-lg font-bold text-[11px] transition cursor-pointer ${
+                    archCategory === 'garden' ? 'bg-white text-emerald-600 shadow-xs' : 'text-slate-500 hover:text-slate-800'
+                  }`}
+                >
+                  Sân Vườn
+                </button>
+                <button
+                  onClick={() => setArchCategory('interior')}
+                  className={`flex-1 py-1.5 rounded-lg font-bold text-[11px] transition cursor-pointer ${
+                    archCategory === 'interior' ? 'bg-white text-indigo-600 shadow-xs' : 'text-slate-500 hover:text-slate-800'
+                  }`}
+                >
+                  Nội Thất
+                </button>
+              </div>
+            </div>
+
+            {/* Tab 1: Tường & Cửa & Thước Đo */}
+            {archCategory === 'walls' && (
+              <div className="grid grid-cols-2 gap-2 max-h-56 overflow-y-auto pr-1 no-scrollbar">
+                <button
+                  onClick={() => { onAddWall?.(20, false); setActivePopover(null); }}
+                  className="p-2.5 rounded-xl border border-slate-200 hover:border-blue-400 hover:bg-blue-50/50 flex flex-col items-center gap-1.5 transition text-left cursor-pointer group"
+                >
+                  <div className="w-full h-4 bg-slate-700 rounded-xs group-hover:bg-blue-600 transition" />
+                  <span className="font-bold text-[11px] text-slate-800">Tường chính 200mm</span>
+                  <span className="text-[9px] text-slate-400">Tường chịu lực bao quanh</span>
+                </button>
+
+                <button
+                  onClick={() => { onAddWall?.(10, false); setActivePopover(null); }}
+                  className="p-2.5 rounded-xl border border-slate-200 hover:border-blue-400 hover:bg-blue-50/50 flex flex-col items-center gap-1.5 transition text-left cursor-pointer group"
+                >
+                  <div className="w-full h-2 bg-slate-500 rounded-xs group-hover:bg-blue-500 transition" />
+                  <span className="font-bold text-[11px] text-slate-800">Tường ngăn 100mm</span>
+                  <span className="text-[9px] text-slate-400">Vách ngăn phòng ngủ, bếp</span>
+                </button>
+
+                <button
+                  onClick={() => { onAddWall?.(10, true); setActivePopover(null); }}
+                  className="p-2.5 rounded-xl border border-slate-200 hover:border-emerald-400 hover:bg-emerald-50/50 flex flex-col items-center gap-1.5 transition text-left cursor-pointer group"
+                >
+                  <div className="w-full h-3 border-2 border-dashed border-emerald-600 rounded-xs bg-emerald-50" />
+                  <span className="font-bold text-[11px] text-slate-800">Tường rào sân vườn</span>
+                  <span className="text-[9px] text-slate-400">Hàng rào hoa văn thoáng</span>
+                </button>
+
+                <button
+                  onClick={() => { onAddDoorWindow?.('single_door'); setActivePopover(null); }}
+                  className="p-2.5 rounded-xl border border-slate-200 hover:border-amber-400 hover:bg-amber-50/50 flex flex-col items-center gap-1.5 transition text-left cursor-pointer group"
+                >
+                  <DoorClosed className="w-5 h-5 text-amber-600" />
+                  <span className="font-bold text-[11px] text-slate-800">Cửa đi đơn 1 cánh</span>
+                  <span className="text-[9px] text-slate-400">Mở xoay 90° (0.9m)</span>
+                </button>
+
+                <button
+                  onClick={() => { onAddDoorWindow?.('double_door'); setActivePopover(null); }}
+                  className="p-2.5 rounded-xl border border-slate-200 hover:border-amber-400 hover:bg-amber-50/50 flex flex-col items-center gap-1.5 transition text-left cursor-pointer group"
+                >
+                  <DoorClosed className="w-5 h-5 text-amber-700" />
+                  <span className="font-bold text-[11px] text-slate-800">Cửa chính 2 cánh</span>
+                  <span className="text-[9px] text-slate-400">Mặt tiền phòng khách</span>
+                </button>
+
+                <button
+                  onClick={() => { onAddDoorWindow?.('sliding_door'); setActivePopover(null); }}
+                  className="p-2.5 rounded-xl border border-slate-200 hover:border-blue-400 hover:bg-blue-50/50 flex flex-col items-center gap-1.5 transition text-left cursor-pointer group"
+                >
+                  <Layers className="w-5 h-5 text-blue-500" />
+                  <span className="font-bold text-[11px] text-slate-800">Cửa trượt lùa</span>
+                  <span className="text-[9px] text-slate-400">Cửa kính mở ra sân vườn</span>
+                </button>
+
+                <button
+                  onClick={() => { onAddDoorWindow?.('window'); setActivePopover(null); }}
+                  className="p-2.5 rounded-xl border border-slate-200 hover:border-sky-400 hover:bg-sky-50/50 flex flex-col items-center gap-1.5 transition text-left cursor-pointer group"
+                >
+                  <div className="w-6 h-4 border-2 border-sky-500 bg-sky-100 rounded-xs flex items-center justify-center">
+                    <div className="w-1/2 h-full bg-sky-400" />
+                  </div>
+                  <span className="font-bold text-[11px] text-slate-800">Cửa sổ kính</span>
+                  <span className="text-[9px] text-slate-400">Cửa sổ lấy sáng tự nhiên</span>
+                </button>
+
+                <button
+                  onClick={() => { onAddDimension?.(); setActivePopover(null); }}
+                  className="p-2.5 rounded-xl border border-slate-200 hover:border-red-400 hover:bg-red-50/50 flex flex-col items-center gap-1.5 transition text-left cursor-pointer group"
+                >
+                  <Ruler className="w-5 h-5 text-red-500" />
+                  <span className="font-bold text-[11px] text-slate-800">Thước đo khoảng cách</span>
+                  <span className="text-[9px] text-slate-400">Hiển thị mét tự động</span>
+                </button>
+              </div>
+            )}
+
+            {/* Tab 2: Cảnh Quan Sân Vườn */}
+            {archCategory === 'garden' && (
+              <div className="grid grid-cols-2 gap-2 max-h-56 overflow-y-auto pr-1 no-scrollbar">
+                {ARCHITECTURAL_SYMBOLS.filter(s => s.category !== 'interior').map(sym => (
+                  <button
+                    key={sym.id}
+                    onClick={() => { onAddGardenFurniture?.(sym.id); setActivePopover(null); }}
+                    className="p-2 rounded-xl border border-slate-200 hover:border-emerald-400 hover:bg-emerald-50/40 flex items-center gap-2.5 transition text-left cursor-pointer"
+                  >
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 shadow-xs" style={{ backgroundColor: `${sym.color}20`, color: sym.color }}>
+                      {sym.id === 'tree_large' && <Trees className="w-5 h-5" />}
+                      {sym.id === 'tree_pine' && <TreePine className="w-5 h-5" />}
+                      {sym.id === 'flower_bed' && <Flower2 className="w-5 h-5" />}
+                      {sym.id === 'bush_hedge' && <Sparkles className="w-5 h-5" />}
+                      {sym.id === 'koi_pond' && <Fish className="w-5 h-5" />}
+                      {sym.id === 'swimming_pool' && <Waves className="w-5 h-5" />}
+                      {sym.id === 'fountain' && <Waves className="w-5 h-5" />}
+                      {sym.id === 'stone_path' && <Footprints className="w-5 h-5" />}
+                      {sym.id === 'wooden_deck' && <Layers className="w-5 h-5" />}
+                      {sym.id === 'grass_patch' && <Sparkles className="w-5 h-5" />}
+                      {sym.id === 'gazebo' && <Tent className="w-5 h-5" />}
+                      {sym.id === 'patio_table' && <Sun className="w-5 h-5" />}
+                      {sym.id === 'bbq_station' && <Flame className="w-5 h-5" />}
+                    </div>
+                    <div className="min-w-0">
+                      <div className="font-bold text-[11px] text-slate-800 truncate">{sym.name}</div>
+                      <div className="text-[9px] text-slate-400 truncate">{sym.description}</div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Tab 3: Nội Thất Trong Nhà */}
+            {archCategory === 'interior' && (
+              <div className="grid grid-cols-2 gap-2 max-h-56 overflow-y-auto pr-1 no-scrollbar">
+                {ARCHITECTURAL_SYMBOLS.filter(s => s.category === 'interior').map(sym => (
+                  <button
+                    key={sym.id}
+                    onClick={() => { onAddGardenFurniture?.(sym.id); setActivePopover(null); }}
+                    className="p-2 rounded-xl border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/40 flex items-center gap-2.5 transition text-left cursor-pointer"
+                  >
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 shadow-xs" style={{ backgroundColor: `${sym.color}20`, color: sym.color }}>
+                      {sym.id === 'living_sofa' && <Armchair className="w-5 h-5" />}
+                      {sym.id === 'dining_table' && <Utensils className="w-5 h-5" />}
+                      {sym.id === 'bed_double' && <Bed className="w-5 h-5" />}
+                      {sym.id === 'kitchen_counter' && <ChefHat className="w-5 h-5" />}
+                      {sym.id === 'bathroom_set' && <Bath className="w-5 h-5" />}
+                    </div>
+                    <div className="min-w-0">
+                      <div className="font-bold text-[11px] text-slate-800 truncate">{sym.name}</div>
+                      <div className="text-[9px] text-slate-400 truncate">{sym.description}</div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Bottom Quick Action Buttons */}
+            <div className="pt-2 border-t border-slate-100 grid grid-cols-3 gap-1.5">
+              <button
+                onClick={() => { onOpenTemplates?.(); setActivePopover(null); }}
+                className="py-2 px-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl font-bold text-[10px] flex items-center justify-center gap-1 transition cursor-pointer border border-blue-200/60"
+              >
+                <span>🏡</span>
+                <span className="truncate">Mẫu Nhà</span>
+              </button>
+
+              <button
+                onClick={() => { onOpenLandWizard?.(); setActivePopover(null); }}
+                className="py-2 px-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-xl font-bold text-[10px] flex items-center justify-center gap-1 transition cursor-pointer border border-emerald-200/60"
+              >
+                <span>📐</span>
+                <span className="truncate">Khung Đất</span>
+              </button>
+
+              <button
+                onClick={() => { onOpenCostEstimator?.(); setActivePopover(null); }}
+                className="py-2 px-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 rounded-xl font-bold text-[10px] flex items-center justify-center gap-1 transition cursor-pointer border border-amber-200/60"
+              >
+                <span>💰</span>
+                <span className="truncate">Dự Toán</span>
+              </button>
+            </div>
           </motion.div>
         )}
 
@@ -670,7 +929,7 @@ export default function Toolbar({
             {/* Separator */}
             <div className="w-px h-8 bg-slate-200 mx-1" />
 
-            {/* Rightmost: Shapes selector */}
+            {/* Shapes selector */}
             <button
               onClick={onToggleShapesMenu}
               className="p-3 rounded-2xl text-slate-600 hover:bg-slate-50 transition cursor-pointer"
@@ -678,6 +937,37 @@ export default function Toolbar({
             >
               <Square className="w-5.5 h-5.5 text-blue-500 fill-blue-500/20 stroke-1.5" />
             </button>
+
+            {/* Separator */}
+            <div className="w-px h-8 bg-slate-200 mx-1" />
+
+            {/* Architecture & Garden Button (Thiết Kế Nhà & Sân Vườn) */}
+            <button
+              onClick={() => setActivePopover(activePopover === 'architecture' ? null : 'architecture')}
+              className={`p-3 rounded-2xl transition cursor-pointer relative flex items-center gap-1.5 ${
+                activePopover === 'architecture' 
+                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/25' 
+                  : 'text-slate-700 hover:bg-slate-100'
+              }`}
+              title="Thiết Kế Nhà & Sân Vườn"
+            >
+              <div className="flex items-center">
+                <Home className="w-5 h-5 text-emerald-500 stroke-2" />
+              </div>
+              <span className="text-[11px] font-bold hidden sm:inline">Nhà & Vườn</span>
+            </button>
+
+            {/* 3D Isometric View Switcher Button */}
+            {onToggleView3D && (
+              <button
+                onClick={onToggleView3D}
+                className="px-3 py-2 rounded-2xl bg-slate-900 text-white hover:bg-slate-800 transition active:scale-95 cursor-pointer flex items-center gap-1.5 shadow-md shadow-slate-900/20 font-bold text-xs ml-1"
+                title="Xem phối cảnh 3D"
+              >
+                <Box className="w-4 h-4 text-emerald-400" />
+                <span>3D</span>
+              </button>
+            )}
           </>
         ) : (
           /* State 2: Upgraded Paint Suite Skeuomorphic Drawing Dock */

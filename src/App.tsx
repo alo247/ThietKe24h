@@ -1,108 +1,34 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Board, BoardItem, StickyColor, AttachmentType, PenSettings, TableCell } from './types';
+import { 
+  Board, 
+  BoardItem, 
+  StickyColor, 
+  AttachmentType, 
+  PenSettings, 
+  TableCell,
+  ViewMode,
+  WallItem,
+  DoorWindowItem,
+  GardenFurnitureItem,
+  DimensionItem
+} from './types';
 import BoardsList from './components/BoardsList';
 import BoardCanvas from './components/BoardCanvas';
 import Toolbar from './components/Toolbar';
 import ShapesMenu from './components/ShapesMenu';
+import IsometricView3D from './components/IsometricView3D';
+import CostEstimatorModal from './components/CostEstimatorModal';
+import { HOUSE_TEMPLATES, createLandPlotBoard, createTropicalVillaBoard } from './data/houseTemplates';
+import { getSymbolDef, ARCHITECTURAL_SYMBOLS } from './data/architecturalSymbols';
 import { motion, AnimatePresence } from 'motion/react';
+import { Home, Trees, Box, Plus, X, Layers, Sparkles, MapPin, Maximize2, Ruler } from 'lucide-react';
 
-// Default initial onboarding board to show craftsmanship
+// Bảng khởi tạo ban đầu: Mẫu Biệt Thự Vườn Nhiệt Đới hoàn chỉnh
 const createWelcomeBoard = (): Board => {
-  const welcomeBoardId = 'welcome-board-' + Date.now();
-  const baseItems: BoardItem[] = [
-    {
-      id: 'sticky-welcome',
-      type: 'sticky',
-      x: 100,
-      y: 100,
-      width: 200,
-      height: 200,
-      color: 'yellow',
-      text: 'Chào mừng bạn đến với Freeform Web! 🎨\n\n- Nhấp đúp vào giấy ghi chú để viết nội dung.\n- Kéo các góc để co giãn kích thước.\n- Nhấp chuột phải (hoặc nhấn giữ) để mở Menu thuộc tính.',
-      zIndex: 1
-    },
-    {
-      id: 'sticky-tips',
-      type: 'sticky',
-      x: 340,
-      y: 100,
-      width: 200,
-      height: 200,
-      color: 'blue',
-      text: '💡 Mẹo thu phóng & di chuyển:\n\n- Lăn bánh xe chuột để thu phóng canvas.\n- Nhấn giữ Shift + Kéo chuột (hoặc dùng chuột giữa) để dịch chuyển không giới hạn.',
-      zIndex: 2
-    },
-    {
-      id: 'shape-intro',
-      type: 'shape',
-      shapeType: 'rectangle',
-      x: 100,
-      y: 340,
-      width: 440,
-      height: 80,
-      fillColor: '#60a5fa',
-      strokeColor: '#2563eb',
-      strokeWidth: 2,
-      textColor: '#ffffff',
-      textFontSize: 16,
-      text: 'Hỗ trợ hơn 20 loại hình học vector chuyên nghiệp',
-      zIndex: 3
-    },
-    {
-      id: 'table-sample',
-      type: 'table',
-      x: 580,
-      y: 100,
-      width: 320,
-      height: 180,
-      rows: 4,
-      cols: 3,
-      data: [
-        [{ text: 'Tính năng' }, { text: 'Trạng thái' }, { text: 'Ghi chú' }],
-        [{ text: 'Bản vẽ bút' }, { text: 'Hoàn thành' }, { text: 'Skeuomorphic' }],
-        [{ text: 'Lưới bám dính' }, { text: 'Hoạt động' }, { text: 'Snap-to-grid' }],
-        [{ text: 'Xuất / Nhập' }, { text: 'Có sẵn' }, { text: 'File JSON' }]
-      ],
-      zIndex: 4
-    },
-    {
-      id: 'drawing-arrow',
-      type: 'drawing',
-      tool: 'pen',
-      x: 250,
-      y: 280,
-      width: 100,
-      height: 50,
-      points: [
-        { x: 250, y: 310 },
-        { x: 280, y: 315 },
-        { x: 310, y: 300 },
-        { x: 330, y: 290 },
-        { x: 340, y: 285 }
-      ],
-      color: '#ff3b30',
-      strokeWidth: 4,
-      opacity: 0.9,
-      zIndex: 5
-    }
-  ];
-
-  return {
-    id: welcomeBoardId,
-    name: 'Bảng chào mừng Freeform 🚀',
-    items: baseItems,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    isFavorite: false,
-    zoom: 1.0,
-    panX: 100,
-    panY: 100,
-    showGrid: true,
-    snapToGrid: true
-  };
+  return createTropicalVillaBoard();
 };
 
-// Initial Pen settings matching Screenshots
+// Cài đặt công cụ vẽ mặc định
 const defaultPenSettings: PenSettings = {
   tool: 'pencil',
   pencil: { color: '#000000', width: 2, opacity: 0.8 },
@@ -119,6 +45,17 @@ export default function App() {
   const [currentScreen, setCurrentScreen] = useState<'dashboard' | 'canvas'>('dashboard');
   const [boards, setBoards] = useState<Board[]>([]);
   const [activeBoardId, setActiveBoardId] = useState<string | null>(null);
+
+  // Chế độ xem: 2D Mặt bằng hoặc 3D Isometric
+  const [viewMode, setViewMode] = useState<ViewMode>('2d');
+
+  // Trạng thái hiển thị Modal Mẫu Thiết Kế, Khung Đất & Dự Toán Chi Phí
+  const [showTemplatesModal, setShowTemplatesModal] = useState(false);
+  const [showLandPlotModal, setShowLandPlotModal] = useState(false);
+  const [showCostEstimatorModal, setShowCostEstimatorModal] = useState(false);
+  const [plotWidth, setPlotWidth] = useState(10);
+  const [plotLength, setPlotLength] = useState(20);
+  const [plotName, setPlotName] = useState('');
 
   // Canvas Options & Pen controls
   const [isDrawingMode, setIsDrawingMode] = useState(false);
@@ -144,7 +81,7 @@ export default function App() {
       }
     }
 
-    // Default startup welcome board
+    // Mặc định nạp mẫu nhà vườn đẹp mắt
     const welcome = createWelcomeBoard();
     setBoards([welcome]);
     localStorage.setItem('freeform_boards', JSON.stringify([welcome]));
@@ -409,6 +346,127 @@ export default function App() {
     handleUpdateBoard({ ...activeBoard, items: updatedItems });
   };
 
+  // === CÁC HÀM THÊM ĐỐI TƯỢNG KIẾN TRÚC & SÂN VƯỜN ===
+  const handleAddWall = (thickness: number, isFence?: boolean) => {
+    if (!activeBoard) return;
+    const targetX = Math.round(((window.innerWidth / 2 - 100) - activeBoard.panX) / activeBoard.zoom);
+    const targetY = Math.round(((window.innerHeight / 2 - 10) - activeBoard.panY) / activeBoard.zoom);
+    const wallLength = 200; // Mặc định 4.0m
+
+    const newWall: WallItem = {
+      id: 'wall-' + Date.now() + Math.random().toString(36).substring(2, 5),
+      type: 'wall',
+      x: targetX,
+      y: targetY,
+      width: wallLength,
+      height: thickness,
+      x1: targetX,
+      y1: targetY,
+      x2: targetX + wallLength,
+      y2: targetY,
+      thickness,
+      wallHeight: isFence ? 1.8 : 3.0,
+      wallColor: isFence ? '#94a3b8' : '#334155',
+      isFence,
+      zIndex: Math.max(0, ...activeBoard.items.map(i => i.zIndex)) + 1
+    };
+
+    const updatedItems = [...activeBoard.items, newWall];
+    handleUpdateBoard({ ...activeBoard, items: updatedItems });
+  };
+
+  const handleAddDoorWindow = (subType: 'single_door' | 'double_door' | 'sliding_door' | 'window') => {
+    if (!activeBoard) return;
+    const targetX = Math.round(((window.innerWidth / 2 - 45) - activeBoard.panX) / activeBoard.zoom);
+    const targetY = Math.round(((window.innerHeight / 2 - 20) - activeBoard.panY) / activeBoard.zoom);
+    const width = subType === 'double_door' ? 90 : subType === 'sliding_door' ? 100 : subType === 'window' ? 70 : 50;
+    const height = 40;
+
+    const newDoorWindow: DoorWindowItem = {
+      id: 'door-window-' + Date.now() + Math.random().toString(36).substring(2, 5),
+      type: 'door_window',
+      subType,
+      x: targetX,
+      y: targetY,
+      width,
+      height,
+      doorWidth: width,
+      zIndex: Math.max(0, ...activeBoard.items.map(i => i.zIndex)) + 1
+    };
+
+    const updatedItems = [...activeBoard.items, newDoorWindow];
+    handleUpdateBoard({ ...activeBoard, items: updatedItems });
+  };
+
+  const handleAddGardenFurniture = (symbolId: string) => {
+    if (!activeBoard) return;
+    const symDef = getSymbolDef(symbolId);
+    const width = symDef?.defaultWidth || 100;
+    const height = symDef?.defaultHeight || 100;
+    const targetX = Math.round(((window.innerWidth / 2 - width / 2) - activeBoard.panX) / activeBoard.zoom);
+    const targetY = Math.round(((window.innerHeight / 2 - height / 2) - activeBoard.panY) / activeBoard.zoom);
+
+    const newGardenItem: GardenFurnitureItem = {
+      id: 'garden-' + Date.now() + Math.random().toString(36).substring(2, 5),
+      type: 'garden_item',
+      category: symDef?.category || 'plants',
+      symbolId,
+      label: symDef?.name,
+      x: targetX,
+      y: targetY,
+      width,
+      height,
+      height3D: symDef?.height3D,
+      zIndex: Math.max(0, ...activeBoard.items.map(i => i.zIndex)) + 1
+    };
+
+    const updatedItems = [...activeBoard.items, newGardenItem];
+    handleUpdateBoard({ ...activeBoard, items: updatedItems });
+  };
+
+  const handleAddDimension = () => {
+    if (!activeBoard) return;
+    const width = 200; // 4.0m
+    const targetX = Math.round(((window.innerWidth / 2 - width / 2) - activeBoard.panX) / activeBoard.zoom);
+    const targetY = Math.round(((window.innerHeight / 2 - 15) - activeBoard.panY) / activeBoard.zoom);
+
+    const newDim: DimensionItem = {
+      id: 'dim-' + Date.now() + Math.random().toString(36).substring(2, 5),
+      type: 'dimension',
+      x: targetX,
+      y: targetY,
+      width,
+      height: 30,
+      x1: targetX,
+      y1: targetY + 15,
+      x2: targetX + width,
+      y2: targetY + 15,
+      unit: 'm',
+      zIndex: Math.max(0, ...activeBoard.items.map(i => i.zIndex)) + 1
+    };
+
+    const updatedItems = [...activeBoard.items, newDim];
+    handleUpdateBoard({ ...activeBoard, items: updatedItems });
+  };
+
+  // Nạp mẫu thiết kế dựng sẵn
+  const handleApplyTemplate = (templateCreator: () => Board) => {
+    const newBoard = templateCreator();
+    const updated = [newBoard, ...boards];
+    saveBoards(updated);
+    handleSelectBoard(newBoard.id);
+    setShowTemplatesModal(false);
+  };
+
+  // Tạo khung đất mới theo kích thước
+  const handleCreateLandPlot = () => {
+    const newBoard = createLandPlotBoard(plotWidth, plotLength, plotName || undefined);
+    const updated = [newBoard, ...boards];
+    saveBoards(updated);
+    handleSelectBoard(newBoard.id);
+    setShowLandPlotModal(false);
+  };
+
   // Undo & Redo trigger
   const handleUndo = () => {
     if (historyIndex > 0 && activeBoard) {
@@ -466,54 +524,73 @@ export default function App() {
           >
             {activeBoard && (
               <>
-                {/* Master Interactive Dotted Board Canvas */}
-                <BoardCanvas
-                  board={activeBoard}
-                  isDrawingMode={isDrawingMode}
-                  penSettings={penSettings}
-                  shapesMenuOpen={shapesMenuOpen}
-                  onUpdateBoard={handleUpdateBoard}
-                  onAddSticky={handleAddSticky}
-                  onAddTextBox={handleAddTextBox}
-                  onAddTable={handleAddTable}
-                  onAddAttachment={handleAddAttachment}
-                  onAddShape={handleAddShape}
-                  onDeleteSelected={handleDeleteSelected}
-                  onUndo={handleUndo}
-                  onRedo={handleRedo}
-                  canUndo={historyIndex > 0}
-                  canRedo={historyIndex < historyStack.length - 1}
-                  onGoBack={() => {
-                    setIsDrawingMode(false);
-                    setShapesMenuOpen(false);
-                    setCurrentScreen('dashboard');
-                    setActiveBoardId(null);
-                  }}
-                  onChangePenSettings={setPenSettings}
-                />
-
-                {/* Floating Bottom Toolbar Dock */}
-                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-40">
-                  <Toolbar
-                    isDrawingMode={isDrawingMode}
-                    onToggleDrawingMode={() => {
-                      setIsDrawingMode(!isDrawingMode);
-                      setShapesMenuOpen(false);
-                    }}
-                    onAddSticky={handleAddSticky}
-                    onAddTextBox={handleAddTextBox}
-                    onAddTable={handleAddTable}
-                    onAddAttachment={handleAddAttachment}
-                    onToggleShapesMenu={() => {
-                      setShapesMenuOpen(!shapesMenuOpen);
-                      setIsDrawingMode(false);
-                    }}
-                    penSettings={penSettings}
-                    onChangePenSettings={setPenSettings}
+                {/* Chế độ 3D Isometric View */}
+                {viewMode === '3d' ? (
+                  <IsometricView3D
+                    board={activeBoard}
+                    onExit3D={() => setViewMode('2d')}
                   />
-                </div>
+                ) : (
+                  <>
+                    {/* Master Interactive Dotted Board Canvas (2D) */}
+                    <BoardCanvas
+                      board={activeBoard}
+                      isDrawingMode={isDrawingMode}
+                      penSettings={penSettings}
+                      shapesMenuOpen={shapesMenuOpen}
+                      onUpdateBoard={handleUpdateBoard}
+                      onAddSticky={handleAddSticky}
+                      onAddTextBox={handleAddTextBox}
+                      onAddTable={handleAddTable}
+                      onAddAttachment={handleAddAttachment}
+                      onAddShape={handleAddShape}
+                      onDeleteSelected={handleDeleteSelected}
+                      onUndo={handleUndo}
+                      onRedo={handleRedo}
+                      canUndo={historyIndex > 0}
+                      canRedo={historyIndex < historyStack.length - 1}
+                      onGoBack={() => {
+                        setIsDrawingMode(false);
+                        setShapesMenuOpen(false);
+                        setCurrentScreen('dashboard');
+                        setActiveBoardId(null);
+                      }}
+                      onChangePenSettings={setPenSettings}
+                    />
 
-                {/* Sliding Shape Selector Window Popover - Screenshot 7 & 8 */}
+                    {/* Floating Bottom Toolbar Dock */}
+                    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-40">
+                      <Toolbar
+                        isDrawingMode={isDrawingMode}
+                        onToggleDrawingMode={() => {
+                          setIsDrawingMode(!isDrawingMode);
+                          setShapesMenuOpen(false);
+                        }}
+                        onAddSticky={handleAddSticky}
+                        onAddTextBox={handleAddTextBox}
+                        onAddTable={handleAddTable}
+                        onAddAttachment={handleAddAttachment}
+                        onToggleShapesMenu={() => {
+                          setShapesMenuOpen(!shapesMenuOpen);
+                          setIsDrawingMode(false);
+                        }}
+                        penSettings={penSettings}
+                        onChangePenSettings={setPenSettings}
+                        onAddWall={handleAddWall}
+                        onAddDoorWindow={handleAddDoorWindow}
+                        onAddGardenFurniture={handleAddGardenFurniture}
+                        onAddDimension={handleAddDimension}
+                        onOpenTemplates={() => setShowTemplatesModal(true)}
+                        onOpenLandWizard={() => setShowLandPlotModal(true)}
+                        onOpenCostEstimator={() => setShowCostEstimatorModal(true)}
+                        onToggleView3D={() => setViewMode('3d')}
+                        is3DView={viewMode === '3d'}
+                      />
+                    </div>
+                  </>
+                )}
+
+                {/* Sliding Shape Selector Window Popover */}
                 <AnimatePresence>
                   {shapesMenuOpen && (
                     <>
@@ -533,6 +610,176 @@ export default function App() {
                         />
                       </motion.div>
                     </>
+                  )}
+                </AnimatePresence>
+
+                {/* MODAL 1: MẪU THIẾT KẾ NHÀ VƯỜN (HOUSE & GARDEN TEMPLATES) */}
+                <AnimatePresence>
+                  {showTemplatesModal && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                        className="bg-white rounded-3xl p-6 shadow-2xl max-w-2xl w-full border border-slate-100 max-h-[90vh] overflow-y-auto no-scrollbar space-y-5"
+                      >
+                        <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+                              🏡
+                            </div>
+                            <div>
+                              <h3 className="font-bold text-slate-900 text-base">Thư Viện Mẫu Thiết Kế Nhà Vườn</h3>
+                              <p className="text-xs text-slate-500">Chọn mẫu mặt bằng có sẵn để tùy biến theo nhu cầu</p>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => setShowTemplatesModal(false)}
+                            className="p-2 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition cursor-pointer"
+                          >
+                            <X className="w-5 h-5" />
+                          </button>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          {HOUSE_TEMPLATES.map((tmpl) => (
+                            <div 
+                              key={tmpl.id}
+                              className="border border-slate-200/80 rounded-2xl p-4 flex flex-col justify-between hover:border-blue-500 hover:shadow-lg transition group bg-slate-50/50 hover:bg-white"
+                            >
+                              <div className="space-y-2">
+                                <div className="text-2xl">
+                                  {tmpl.id === 'tropical_villa' ? '🌴' : tmpl.id === 'modern_townhouse' ? '🏡' : '🌊'}
+                                </div>
+                                <h4 className="font-bold text-slate-900 text-sm group-hover:text-blue-600 transition">
+                                  {tmpl.name}
+                                </h4>
+                                <span className="inline-block text-[10px] bg-blue-100 text-blue-700 font-bold px-2 py-0.5 rounded-full">
+                                  {tmpl.landSize}
+                                </span>
+                                <p className="text-xs text-slate-500 line-clamp-3">
+                                  {tmpl.description}
+                                </p>
+                              </div>
+
+                              <button
+                                onClick={() => handleApplyTemplate(tmpl.createBoard)}
+                                className="w-full mt-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs transition active:scale-95 shadow-md shadow-blue-500/25 cursor-pointer"
+                              >
+                                Sử dụng mẫu này
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </motion.div>
+                    </div>
+                  )}
+                </AnimatePresence>
+
+                {/* MODAL 2: TRÌNH TẠO KHUNG ĐẤT (LAND PLOT WIZARD) */}
+                <AnimatePresence>
+                  {showLandPlotModal && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                        className="bg-white rounded-3xl p-6 shadow-2xl max-w-md w-full border border-slate-100 space-y-5"
+                      >
+                        <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
+                              📐
+                            </div>
+                            <div>
+                              <h3 className="font-bold text-slate-900 text-base">Tạo Khung Lô Đất Tự Động</h3>
+                              <p className="text-xs text-slate-500">Nhập kích thước để vẽ ranh mốc và thước đo</p>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => setShowLandPlotModal(false)}
+                            className="p-2 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition cursor-pointer"
+                          >
+                            <X className="w-5 h-5" />
+                          </button>
+                        </div>
+
+                        <div className="space-y-4">
+                          <div>
+                            <label className="block text-xs font-bold text-slate-700 mb-1">
+                              Tên lô đất / Dự án (Tùy chọn)
+                            </label>
+                            <input
+                              type="text"
+                              value={plotName}
+                              onChange={(e) => setPlotName(e.target.value)}
+                              placeholder={`Ví dụ: Lô đất biệt thự ${plotWidth}m x ${plotLength}m`}
+                              className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+                            />
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-3">
+                            <div>
+                              <label className="block text-xs font-bold text-slate-700 mb-1">
+                                Chiều rộng (Mét)
+                              </label>
+                              <input
+                                type="number"
+                                min="3"
+                                max="100"
+                                value={plotWidth}
+                                onChange={(e) => setPlotWidth(Math.max(1, parseInt(e.target.value) || 0))}
+                                className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-sm font-mono font-bold text-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-xs font-bold text-slate-700 mb-1">
+                                Chiều dài (Mét)
+                              </label>
+                              <input
+                                type="number"
+                                min="3"
+                                max="100"
+                                value={plotLength}
+                                onChange={(e) => setPlotLength(Math.max(1, parseInt(e.target.value) || 0))}
+                                className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-sm font-mono font-bold text-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="p-3 bg-emerald-50 rounded-2xl text-emerald-800 text-xs flex items-center justify-between font-semibold">
+                            <span>Diện tích dự kiến:</span>
+                            <span className="font-bold text-sm">{plotWidth * plotLength} m²</span>
+                          </div>
+                        </div>
+
+                        <div className="flex gap-2 pt-2">
+                          <button
+                            onClick={() => setShowLandPlotModal(false)}
+                            className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition cursor-pointer"
+                          >
+                            Hủy bỏ
+                          </button>
+                          <button
+                            onClick={handleCreateLandPlot}
+                            className="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs transition active:scale-95 shadow-md shadow-emerald-500/25 cursor-pointer"
+                          >
+                            Tạo Mặt Bằng Đất
+                          </button>
+                        </div>
+                      </motion.div>
+                    </div>
+                  )}
+                </AnimatePresence>
+
+                {/* MODAL 3: BẢNG DỰ TOÁN CHI PHÍ & BÓC TÁCH VẬT TƯ (BOM & COST ESTIMATOR) */}
+                <AnimatePresence>
+                  {showCostEstimatorModal && activeBoard && (
+                    <CostEstimatorModal
+                      board={activeBoard}
+                      onClose={() => setShowCostEstimatorModal(false)}
+                    />
                   )}
                 </AnimatePresence>
               </>

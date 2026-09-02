@@ -27,6 +27,7 @@ import {
 } from 'lucide-react';
 import ContextMenu from './ContextMenu';
 import { motion, AnimatePresence } from 'motion/react';
+import { renderWall, renderDoorWindow, renderGardenFurniture, renderDimension } from './ArchitecturalCanvasItems';
 
 interface BoardCanvasProps {
   board: Board;
@@ -98,6 +99,10 @@ export default function BoardCanvas({
 
   // Options menu popover state
   const [optionsMenuOpen, setOptionsMenuOpen] = useState(false);
+
+  // Thước gióng nam châm laser thông minh (Smart Magnetic Alignment Guides)
+  const [alignmentGuides, setAlignmentGuides] = useState<{ type: 'x' | 'y'; pos: number }[]>([]);
+  const [showMiniMap, setShowMiniMap] = useState(true);
 
   // Interactive dimensions states
   const [unit, setUnit] = useState<'px' | 'mm' | 'cm' | 'm' | 'km'>('cm');
@@ -515,7 +520,7 @@ export default function BoardCanvas({
       return;
     }
 
-    // Handle Item Dragging
+    // Handle Item Dragging with Smart Magnetic Laser Alignment Guides
     if (draggingId && !resizingDir) {
       const item = board.items.find(i => i.id === draggingId);
       if (item && !item.isLocked) {
@@ -523,8 +528,53 @@ export default function BoardCanvas({
         let targetX = pt.x - dragOffset.current.x;
         let targetY = pt.y - dragOffset.current.y;
 
+        const guides: { type: 'x' | 'y'; pos: number }[] = [];
+        const SNAP_DIST = 8;
+        const targetCenterX = targetX + item.width / 2;
+        const targetCenterY = targetY + item.height / 2;
+
+        board.items.forEach(other => {
+          if (other.id === draggingId) return;
+          const otherCenterX = other.x + other.width / 2;
+          const otherCenterY = other.y + other.height / 2;
+
+          // Căn giữa trục X (Center Alignment)
+          if (Math.abs(targetCenterX - otherCenterX) < SNAP_DIST) {
+            targetX = otherCenterX - item.width / 2;
+            guides.push({ type: 'x', pos: otherCenterX });
+          }
+          // Căn mép trái (Left edge)
+          else if (Math.abs(targetX - other.x) < SNAP_DIST) {
+            targetX = other.x;
+            guides.push({ type: 'x', pos: other.x });
+          }
+          // Căn mép phải (Right edge)
+          else if (Math.abs((targetX + item.width) - (other.x + other.width)) < SNAP_DIST) {
+            targetX = other.x + other.width - item.width;
+            guides.push({ type: 'x', pos: other.x + other.width });
+          }
+
+          // Căn giữa trục Y (Center Alignment)
+          if (Math.abs(targetCenterY - otherCenterY) < SNAP_DIST) {
+            targetY = otherCenterY - item.height / 2;
+            guides.push({ type: 'y', pos: otherCenterY });
+          }
+          // Căn mép trên (Top edge)
+          else if (Math.abs(targetY - other.y) < SNAP_DIST) {
+            targetY = other.y;
+            guides.push({ type: 'y', pos: other.y });
+          }
+          // Căn mép dưới (Bottom edge)
+          else if (Math.abs((targetY + item.height) - (other.y + other.height)) < SNAP_DIST) {
+            targetY = other.y + other.height - item.height;
+            guides.push({ type: 'y', pos: other.y + other.height });
+          }
+        });
+
+        setAlignmentGuides(guides);
+
         const bypassSnap = e.shiftKey || e.altKey || e.ctrlKey || e.metaKey;
-        if (board.snapToGrid && !bypassSnap) {
+        if (board.snapToGrid && !bypassSnap && guides.length === 0) {
           targetX = Math.round(targetX / 24) * 24;
           targetY = Math.round(targetY / 24) * 24;
         }
@@ -636,6 +686,7 @@ export default function BoardCanvas({
 
     if (draggingId) {
       setDraggingId(null);
+      setAlignmentGuides([]);
     }
 
     if (resizingDir) {
@@ -1774,6 +1825,18 @@ export default function BoardCanvas({
                     )}
                   </div>
                 )}
+
+                {/* 6. TƯỜNG KIẾN TRÚC & TƯỜNG RÀO */}
+                {item.type === 'wall' && renderWall(item, isSelected)}
+
+                {/* 7. CỬA ĐI & CỬA SỔ GẮN TƯỜNG */}
+                {item.type === 'door_window' && renderDoorWindow(item, isSelected)}
+
+                {/* 8. CẢNH QUAN SÂN VƯỜN & NỘI THẤT */}
+                {item.type === 'garden_item' && renderGardenFurniture(item, isSelected)}
+
+                {/* 9. THƯỚC ĐO KÍCH THƯỚC (DIMENSION) */}
+                {item.type === 'dimension' && renderDimension(item, isSelected)}
               </div>
             );
           })}
@@ -1936,8 +1999,112 @@ export default function BoardCanvas({
               );
             })()
           )}
+
+          {/* Thước gióng nam châm laser thông minh (Smart Magnetic Laser Alignment Guides) */}
+          {alignmentGuides.map((guide, idx) => (
+            <div
+              key={`guide-${idx}`}
+              className={`absolute pointer-events-none z-[9990] ${
+                guide.type === 'x'
+                  ? 'top-[-10000px] bottom-[-10000px] w-[1.5px] bg-blue-500 shadow-[0_0_8px_#3b82f6]'
+                  : 'left-[-10000px] right-[-10000px] h-[1.5px] bg-blue-500 shadow-[0_0_8px_#3b82f6]'
+              }`}
+              style={{
+                left: guide.type === 'x' ? `${guide.pos}px` : undefined,
+                top: guide.type === 'y' ? `${guide.pos}px` : undefined,
+              }}
+            />
+          ))}
         </div>
       </div>
+
+      {/* Bản Đồ Thu Nhỏ Toàn Cảnh (Architectural Mini-Map) - Góc dưới bên phải */}
+      {showMiniMap && board.items.length > 0 && (
+        <div className="absolute bottom-6 right-6 z-30 bg-white/90 backdrop-blur-md p-2 rounded-2xl border border-slate-200/80 shadow-xl hidden md:block">
+          <div className="flex items-center justify-between pb-1 px-1 text-[10px] font-bold text-slate-500">
+            <span>Bản đồ mặt bằng</span>
+            <button 
+              onClick={() => setShowMiniMap(false)}
+              className="text-slate-400 hover:text-slate-600 cursor-pointer"
+            >
+              ✕
+            </button>
+          </div>
+          <div 
+            className="w-36 h-24 bg-slate-100 rounded-xl overflow-hidden relative cursor-crosshair border border-slate-200"
+            onClick={(e) => {
+              const rect = e.currentTarget.getBoundingClientRect();
+              const clickXRatio = (e.clientX - rect.left) / rect.width;
+              const clickYRatio = (e.clientY - rect.top) / rect.height;
+
+              let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+              board.items.forEach(i => {
+                minX = Math.min(minX, i.x);
+                minY = Math.min(minY, i.y);
+                maxX = Math.max(maxX, i.x + i.width);
+                maxY = Math.max(maxY, i.y + i.height);
+              });
+              const bW = Math.max(500, maxX - minX + 200);
+              const bH = Math.max(400, maxY - minY + 200);
+
+              const targetCanvasX = (minX - 100) + clickXRatio * bW;
+              const targetCanvasY = (minY - 100) + clickYRatio * bH;
+
+              onUpdateBoard({
+                ...board,
+                panX: window.innerWidth / 2 - targetCanvasX * board.zoom,
+                panY: window.innerHeight / 2 - targetCanvasY * board.zoom
+              });
+            }}
+          >
+            {/* SVG Render các đối tượng thu nhỏ */}
+            {(() => {
+              let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+              board.items.forEach(i => {
+                minX = Math.min(minX, i.x);
+                minY = Math.min(minY, i.y);
+                maxX = Math.max(maxX, i.x + i.width);
+                maxY = Math.max(maxY, i.y + i.height);
+              });
+              const pad = 100;
+              const bX = minX - pad;
+              const bY = minY - pad;
+              const bW = Math.max(500, maxX - minX + pad * 2);
+              const bH = Math.max(400, maxY - minY + pad * 2);
+
+              return (
+                <svg className="w-full h-full" viewBox={`${bX} ${bY} ${bW} ${bH}`}>
+                  {board.items.map(item => (
+                    <rect
+                      key={item.id}
+                      x={item.x}
+                      y={item.y}
+                      width={item.width}
+                      height={item.height}
+                      fill={
+                        item.type === 'wall' ? '#334155' :
+                        item.type === 'garden_item' ? '#22c55e' :
+                        item.type === 'door_window' ? '#0ea5e9' : '#3b82f6'
+                      }
+                      opacity={0.8}
+                    />
+                  ))}
+                  {/* Khung viền góc nhìn camera hiện tại */}
+                  <rect
+                    x={-board.panX / board.zoom}
+                    y={-board.panY / board.zoom}
+                    width={window.innerWidth / board.zoom}
+                    height={window.innerHeight / board.zoom}
+                    fill="rgba(59, 130, 246, 0.15)"
+                    stroke="#2563eb"
+                    strokeWidth={Math.max(4, bW / 60)}
+                  />
+                </svg>
+              );
+            })()}
+          </div>
+        </div>
+      )}
 
       {/* Floating Active Element Context Menu (iOS-style, Screenshot 9) */}
       {contextMenuPos && getSelectedItem && (
