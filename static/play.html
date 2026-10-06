@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎮 Chơi Thử Nhân Vật Godot 4 - Game Feel Playground</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@500;700&family=Outfit:wght@700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --card: rgba(15, 23, 42, 0.85);
+      --border: rgba(255, 255, 255, 0.1);
+      --accent-blue: #38bdf8;
+      --accent-pink: #f472b6;
+      --accent-green: #34d399;
+      --text: #f8fafc;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    /* Top Nav */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 24px;
+      background: rgba(15, 23, 42, 0.95);
+      border-bottom: 1px solid var(--border);
+      z-index: 10;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .badge-godot {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.15);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      color: var(--accent-blue);
+      font-weight: 700;
+    }
+
+    .header-controls {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn-nav {
+      padding: 6px 14px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-nav:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    /* Main Container */
+    .game-area {
+      flex: 1;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at 50% 30%, #1e293b 0%, #090d16 100%);
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      image-rendering: pixelated;
+    }
+
+    /* Floating HUD & Telemetry */
+    .hud-overlay {
+      position: absolute;
+      top: 16px;
+      left: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: none;
+    }
+
+    .hud-chip {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    .state-badge {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 700;
+      font-size: 11px;
+    }
+
+    .state-idle { background: rgba(148, 163, 184, 0.2); color: #cbd5e1; }
+    .state-run { background: rgba(56, 189, 248, 0.2); color: #38bdf8; }
+    .state-jump { background: rgba(244, 114, 182, 0.25); color: #f472b6; }
+    .state-fall { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+    .state-coyote { background: rgba(52, 211, 153, 0.3); color: #34d399; animation: pulse 0.5s infinite; }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    /* Controls Helper */
+    .controls-helper {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 8px 20px;
+      display: flex;
+      gap: 20px;
+      font-size: 12px;
+      font-weight: 500;
+      color: #94a3b8;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+      pointer-events: none;
+    }
+
+    .key-badge {
+      display: inline-block;
+      padding: 2px 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+      color: #ffffff;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      margin-right: 4px;
+    }
+
+    /* Physics Tweaker Panel */
+    .tweaker-panel {
+      position: absolute;
+      top: 16px;
+      right: 20px;
+      width: 280px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      backdrop-filter: blur(14px);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+    }
+
+    .tweaker-header {
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--accent-pink);
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .slider-group {
+      margin-bottom: 12px;
+    }
+
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: #94a3b8;
+      font-weight: 600;
+      margin-bottom: 4px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 2px;
+      appearance: none;
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent-blue);
+      cursor: pointer;
+      box-shadow: 0 0 8px rgba(56, 189, 248, 0.6);
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <div class="brand">
+      <span style="font-size: 22px;">🎮</span>
+      <h1>Godot 4 Physics Playground</h1>
+      <span class="badge-godot">CharacterBody2D Sim</span>
+    </div>
+    <div class="header-controls">
+      <a href="/" class="btn-nav">👾 Xem Steal the Stack</a>
+      <button id="resetBtn" class="btn-nav">🔄 Reset Vị Trí [R]</button>
+    </div>
+  </header>
+
+  <!-- Game Stage -->
+  <div class="game-area">
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- Telemetry HUD -->
+    <div class="hud-overlay">
+      <div class="hud-chip">
+        <span>Trạng thái:</span>
+        <span id="hudState" class="state-badge state-idle">ĐỨNG YÊN</span>
+      </div>
+      <div class="hud-chip">
+        <span>Vận tốc:</span>
+        <span id="hudVel" style="color: var(--accent-blue);">vx: 0, vy: 0</span>
+      </div>
+      <div class="hud-chip">
+        <span>Coyote Window:</span>
+        <span id="hudCoyote" style="color: var(--accent-green);">120 ms</span>
+      </div>
+      <div class="hud-chip">
+        <span>Ngọc thu thập:</span>
+        <span id="hudScore" style="color: #fbbf24;">💎 0 / 8</span>
+      </div>
+    </div>
+
+    <!-- Onscreen Controls Info -->
+    <div class="controls-helper">
+      <div><span class="key-badge">A / D</span> hoặc <span class="key-badge">◄ ►</span> Di chuyển</div>
+      <div><span class="key-badge">Space</span> hoặc <span class="key-badge">W</span> Nhảy</div>
+      <div><span class="key-badge">R</span> Hồi sinh</div>
+    </div>
+
+    <!-- Live Game Feel Tweaker -->
+    <div class="tweaker-panel">
+      <div class="tweaker-header">
+        <span>⚙️ Tinh Chỉnh Game Feel</span>
+        <span style="font-size: 11px; color: #64748b;">@game-designer</span>
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-label"><span>Max Speed</span><span id="valSpeed">300</span></div>
+        <input type="range" id="slSpeed" min="150" max="600" value="300">
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-label"><span>Jump Force</span><span id="valJump">-460</span></div>
+        <input type="range" id="slJump" min="300" max="750" value="460">
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-label"><span>Base Gravity</span><span id="valGrav">1200</span></div>
+        <input type="range" id="slGrav" min="600" max="2500" value="1200">
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-label"><span>Coyote Time (s)</span><span id="valCoyote">0.12</span></div>
+        <input type="range" id="slCoyote" min="0.02" max="0.30" step="0.01" value="0.12">
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- SYNTH AUDIO FX (WEB AUDIO API) ---
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    let audioCtx = null;
+    function initAudio() {
+      if (!audioCtx) audioCtx = new AudioContext();
+    }
+
+    function playTone(freq, type, duration) {
+      if (!audioCtx) return;
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch(e) {}
+    }
+
+    // --- GAME ENGINE & GODOT 4 PHYSICS SIMULATOR ---
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    function resize() {
+      canvas.width = canvas.parentElement.clientWidth;
+      canvas.height = canvas.parentElement.clientHeight;
+    }
+    window.addEventListener("resize", resize);
+    resize();
+
+    // Physics Parameters (Matching player_controller.gd)
+    let PARAMS = {
+      max_speed: 300,
+      acceleration: 2000,
+      ground_friction: 2400,
+      air_friction: 800,
+      jump_velocity: -460,
+      base_gravity: 1200,
+      fall_gravity_multiplier: 1.6,
+      jump_cut_multiplier: 0.5,
+      coyote_time: 0.12,
+      jump_buffer_time: 0.10
+    };
+
+    // UI Hook Sliders
+    const slSpeed = document.getElementById("slSpeed");
+    const slJump = document.getElementById("slJump");
+    const slGrav = document.getElementById("slGrav");
+    const slCoyote = document.getElementById("slCoyote");
+
+    slSpeed.oninput = (e) => { PARAMS.max_speed = +e.target.value; document.getElementById("valSpeed").innerText = e.target.value; };
+    slJump.oninput = (e) => { PARAMS.jump_velocity = -e.target.value; document.getElementById("valJump").innerText = -e.target.value; };
+    slGrav.oninput = (e) => { PARAMS.base_gravity = +e.target.value; document.getElementById("valGrav").innerText = e.target.value; };
+    slCoyote.oninput = (e) => { PARAMS.coyote_time = +e.target.value; document.getElementById("valCoyote").innerText = e.target.value; };
+
+    // Player State
+    const player = {
+      x: 100,
+      y: 200,
+      w: 26,
+      h: 36,
+      vx: 0,
+      vy: 0,
+      on_floor: false,
+      coyote_timer: 0,
+      jump_buffer_timer: 0,
+      facing: 1,
+      scaleX: 1,
+      scaleY: 1,
+      score: 0
+    };
+
+    // Particles
+    const particles = [];
+    function spawnDust(x, y, count, color = "rgba(255,255,255,0.7)") {
+      for(let i = 0; i < count; i++) {
+        particles.push({
+          x: x + (Math.random() - 0.5) * 16,
+          y: y,
+          vx: (Math.random() - 0.5) * 80,
+          vy: -Math.random() * 60,
+          life: 0.35,
+          maxLife: 0.35,
+          size: Math.random() * 4 + 2,
+          color: color
+        });
+      }
+    }
+
+    // Level Platforms
+    const platforms = [
+      { x: 40, y: 450, w: 260, h: 24, color: "#38bdf8" },
+      { x: 360, y: 450, w: 180, h: 24, color: "#38bdf8" }, // gap for testing Coyote Time!
+      { x: 600, y: 400, w: 200, h: 24, color: "#818cf8" },
+      { x: 860, y: 340, w: 180, h: 24, color: "#c084fc" },
+      { x: 680, y: 240, w: 140, h: 24, color: "#f472b6" },
+      { x: 440, y: 200, w: 180, h: 24, color: "#34d399" },
+      { x: 180, y: 220, w: 160, h: 24, color: "#facc15" },
+      { x: 0, y: 550, w: 2000, h: 50, color: "#1e293b" } // Floor
+    ];
+
+    // Collectibles (Gems)
+    const gems = [
+      { x: 200, y: 410, collected: false },
+      { x: 440, y: 410, collected: false },
+      { x: 700, y: 360, collected: false },
+      { x: 950, y: 300, collected: false },
+      { x: 750, y: 200, collected: false },
+      { x: 520, y: 160, collected: false },
+      { x: 260, y: 180, collected: false },
+      { x: 100, y: 160, collected: false }
+    ];
+
+    // Inputs
+    const keys = {};
+    window.addEventListener("keydown", (e) => {
+      initAudio();
+      keys[e.code] = true;
+      if (e.code === "Space" || e.code === "KeyW" || e.code === "ArrowUp") {
+        player.jump_buffer_timer = PARAMS.jump_buffer_time;
+      }
+      if (e.code === "KeyR") resetPlayer();
+    });
+    window.addEventListener("keyup", (e) => { keys[e.code] = false; });
+
+    document.getElementById("resetBtn").onclick = resetPlayer;
+
+    function resetPlayer() {
+      player.x = 100;
+      player.y = 200;
+      player.vx = 0;
+      player.vy = 0;
+      player.score = 0;
+      gems.forEach(g => g.collected = false);
+      document.getElementById("hudScore").innerText = `💎 0 / ${gems.length}`;
+    }
+
+    // Camera
+    let camX = 0, camY = 0;
+
+    // Game Loop
+    let lastTime = performance.now();
+
+    function gameLoop(now) {
+      const dt = Math.min((now - lastTime) / 1000, 0.05);
+      lastTime = now;
+
+      update(dt);
+      render();
+
+      requestAnimationFrame(gameLoop);
+    }
+
+    function update(dt) {
+      // 1. Timers
+      if (player.on_floor) {
+        player.coyote_timer = PARAMS.coyote_time;
+      } else {
+        player.coyote_timer = Math.max(0, player.coyote_timer - dt);
+      }
+      if (player.jump_buffer_timer > 0) {
+        player.jump_buffer_timer = Math.max(0, player.jump_buffer_timer - dt);
+      }
+
+      // 2. Gravity
+      if (!player.on_floor) {
+        let grav = PARAMS.base_gravity;
+        if (player.vy > 0) {
+          grav *= PARAMS.fall_gravity_multiplier; // Fall faster
+        } else if (player.vy < 0 && !(keys["Space"] || keys["KeyW"] || keys["ArrowUp"])) {
+          grav *= (1.0 + PARAMS.jump_cut_multiplier); // Short jump
+        }
+        player.vy += grav * dt;
+      }
+
+      // 3. Jump Execution
+      const canJump = (player.coyote_timer > 0);
+      const wantsJump = (player.jump_buffer_timer > 0);
+
+      if (canJump && wantsJump) {
+        player.vy = PARAMS.jump_velocity;
+        player.coyote_timer = 0;
+        player.jump_buffer_timer = 0;
+        player.scaleX = 0.7; // Squash & Stretch
+        player.scaleY = 1.4;
+        spawnDust(player.x + player.w/2, player.y + player.h, 8, "#f472b6");
+        playTone(520, "triangle", 0.12);
+      }
+
+      // 4. Horizontal movement
+      let moveDir = 0;
+      if (keys["KeyA"] || keys["ArrowLeft"]) moveDir -= 1;
+      if (keys["KeyD"] || keys["ArrowRight"]) moveDir += 1;
+
+      if (moveDir !== 0) {
+        player.facing = moveDir;
+        // Accelerate
+        const targetSpeed = moveDir * PARAMS.max_speed;
+        const accel = PARAMS.acceleration * dt;
+        if (player.vx < targetSpeed) player.vx = Math.min(player.vx + accel, targetSpeed);
+        else if (player.vx > targetSpeed) player.vx = Math.max(player.vx - accel, targetSpeed);
+      } else {
+        // Friction
+        const fric = (player.on_floor ? PARAMS.ground_friction : PARAMS.air_friction) * dt;
+        if (player.vx > 0) player.vx = Math.max(0, player.vx - fric);
+        else if (player.vx < 0) player.vx = Math.min(0, player.vx + fric);
+      }
+
+      // Squash recover
+      player.scaleX += (1 - player.scaleX) * 12 * dt;
+      player.scaleY += (1 - player.scaleY) * 12 * dt;
+
+      // 5. Move & Collide (Godot CharacterBody2D approximation)
+      const nextX = player.x + player.vx * dt;
+      const nextY = player.y + player.vy * dt;
+
+      // Horizontal Collision
+      player.x = nextX;
+
+      // Vertical Collision
+      const wasOnFloor = player.on_floor;
+      player.on_floor = false;
+
+      for (let p of platforms) {
+        // Check Landing
+        if (
+          player.x + player.w > p.x &&
+          player.x < p.x + p.w &&
+          player.y + player.h <= p.y + 12 &&
+          nextY + player.h >= p.y &&
+          player.vy >= 0
+        ) {
+          player.y = p.y - player.h;
+          player.vy = 0;
+          player.on_floor = true;
+
+          if (!wasOnFloor) {
+            // Landed!
+            player.scaleX = 1.35;
+            player.scaleY = 0.7;
+            spawnDust(player.x + player.w/2, p.y, 6, "#38bdf8");
+            playTone(220, "sine", 0.08);
+          }
+          break;
+        }
+      }
+
+      if (!player.on_floor) {
+        player.y = nextY;
+      }
+
+      // Check Collectibles
+      for (let g of gems) {
+        if (!g.collected && Math.hypot((player.x + player.w/2) - g.x, (player.y + player.h/2) - g.y) < 24) {
+          g.collected = true;
+          player.score++;
+          document.getElementById("hudScore").innerText = `💎 ${player.score} / ${gems.length}`;
+          playTone(880, "sine", 0.2);
+          spawnDust(g.x, g.y, 10, "#fbbf24");
+        }
+      }
+
+      // Particles update
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const pt = particles[i];
+        pt.life -= dt;
+        pt.x += pt.vx * dt;
+        pt.y += pt.vy * dt;
+        if (pt.life <= 0) particles.splice(i, 1);
+      }
+
+      // Smooth Camera follow
+      const targetCamX = (player.x + player.w/2) - canvas.width / 2;
+      const targetCamY = (player.y + player.h/2) - canvas.height / 2;
+      camX += (targetCamX - camX) * 8 * dt;
+      camY += (targetCamY - camY) * 8 * dt;
+
+      // Telemetry HUD Update
+      updateHud();
+    }
+
+    function updateHud() {
+      const hudState = document.getElementById("hudState");
+      const hudVel = document.getElementById("hudVel");
+      const hudCoyote = document.getElementById("hudCoyote");
+
+      hudVel.innerText = `vx: ${Math.round(player.vx)}, vy: ${Math.round(player.vy)}`;
+
+      if (player.on_floor) {
+        if (Math.abs(player.vx) > 10) {
+          hudState.innerText = "ĐANG CHẠY";
+          hudState.className = "state-badge state-run";
+        } else {
+          hudState.innerText = "ĐỨNG YÊN";
+          hudState.className = "state-badge state-idle";
+        }
+        hudCoyote.innerText = "Sẵn sàng";
+        hudCoyote.style.color = "var(--accent-green)";
+      } else {
+        if (player.coyote_timer > 0) {
+          hudState.innerText = "COYOTE TIME ĐANG KÍCH HOẠT!";
+          hudState.className = "state-badge state-coyote";
+          hudCoyote.innerText = `${Math.round(player.coyote_timer * 1000)} ms (Ân hạn)`;
+          hudCoyote.style.color = "var(--accent-pink)";
+        } else if (player.vy < 0) {
+          hudState.innerText = "ĐANG BAY LÊN";
+          hudState.className = "state-badge state-jump";
+          hudCoyote.innerText = "0 ms";
+          hudCoyote.style.color = "#94a3b8";
+        } else {
+          hudState.innerText = "ĐANG RƠI XUỐNG";
+          hudState.className = "state-badge state-fall";
+          hudCoyote.innerText = "0 ms";
+          hudCoyote.style.color = "#94a3b8";
+        }
+      }
+    }
+
+    function render() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      ctx.save();
+      ctx.translate(-camX, -camY);
+
+      // 1. Grid Background
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.04)";
+      ctx.lineWidth = 1;
+      const gridSize = 40;
+      const startX = Math.floor(camX / gridSize) * gridSize;
+      const endX = startX + canvas.width + gridSize * 2;
+      const startY = Math.floor(camY / gridSize) * gridSize;
+      const endY = startY + canvas.height + gridSize * 2;
+
+      for (let x = startX; x <= endX; x += gridSize) {
+        ctx.beginPath(); ctx.moveTo(x, startY); ctx.lineTo(x, endY); ctx.stroke();
+      }
+      for (let y = startY; y <= endY; y += gridSize) {
+        ctx.beginPath(); ctx.moveTo(startX, y); ctx.lineTo(endX, y); ctx.stroke();
+      }
+
+      // 2. Platforms
+      for (let p of platforms) {
+        ctx.fillStyle = p.color;
+        ctx.shadowColor = p.color;
+        ctx.shadowBlur = 12;
+        ctx.beginPath();
+        ctx.roundRect(p.x, p.y, p.w, p.h, 6);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      }
+
+      // 3. Gems
+      for (let g of gems) {
+        if (!g.collected) {
+          ctx.save();
+          ctx.translate(g.x, g.y + Math.sin(performance.now() * 0.005) * 4);
+          ctx.fillStyle = "#fbbf24";
+          ctx.shadowColor = "#fbbf24";
+          ctx.shadowBlur = 14;
+          ctx.beginPath();
+          ctx.arc(0, 0, 7, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+      }
+
+      // 4. Particles
+      for (let pt of particles) {
+        ctx.fillStyle = pt.color;
+        ctx.globalAlpha = pt.life / pt.maxLife;
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, pt.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1.0;
+
+      // 5. Player Rendering
+      ctx.save();
+      const centerX = player.x + player.w / 2;
+      const bottomY = player.y + player.h;
+
+      ctx.translate(centerX, bottomY);
+      ctx.scale(player.scaleX * player.facing, player.scaleY);
+
+      // Character Body (Cute Godot Robot Blue)
+      ctx.fillStyle = "#38bdf8";
+      ctx.shadowColor = "#38bdf8";
+      ctx.shadowBlur = 16;
+      ctx.beginPath();
+      ctx.roundRect(-player.w / 2, -player.h, player.w, player.h, 8);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      // Robot Eyes
+      ctx.fillStyle = "#0f172a";
+      ctx.beginPath();
+      ctx.arc(player.w * 0.15, -player.h * 0.65, 3.5, 0, Math.PI * 2);
+      ctx.arc(player.w * 0.40, -player.h * 0.65, 3.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Eye Glow
+      ctx.fillStyle = "#ffffff";
+      ctx.beginPath();
+      ctx.arc(player.w * 0.18, -player.h * 0.68, 1.2, 0, Math.PI * 2);
+      ctx.arc(player.w * 0.43, -player.h * 0.68, 1.2, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.restore();
+
+      ctx.restore();
+    }
+
+    requestAnimationFrame(gameLoop);
+  </script>
+</body>
+</html>
